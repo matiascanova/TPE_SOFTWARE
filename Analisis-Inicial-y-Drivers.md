@@ -74,7 +74,7 @@ Las medidas marcadas con \* fueron propuestas por el equipo para que el escenari
 | QA-2 | Performance | El sistema deberá responder las solicitudes del panel web en menos de 800 ms con carga normal. | CU-01 | Media | Baja |
 | QA-3 | Performance | Cuando un usuario abre la aplicación móvil en un dispositivo de gama media con conexión 4G\*, el primer despliegue de contenido (*First Contentful Paint*) ocurre en menos de 1,4 segundos. | CU-01 | Baja | Media |
 | QA-4 | Performance | Las consultas analíticas pesadas no deberán aumentar el tiempo de respuesta del panel en más de un 10%\*. | CU-05, 01 | Baja | Media |
-| QA-5 | Disponibilidad | El sistema deberá tolerar la caída de una instancia o de una zona sin superar 5 minutos mensuales de inactividad no planificada (≈ 99,99%). | CU-01, 02, 03, 04 | Alta | Alta |
+| QA-5 | Disponibilidad | El sistema deberá tolerar la caída de una instancia o de una zona sin superar 5 minutos mensuales de inactividad no planificada (≈ 99,99%). | Todos | Alta | Alta |
 | QA-6 | Disponibilidad | Cuando la API de un proveedor externo deja de responder durante la operación normal, el sistema sigue mostrando la última versión conocida del viaje y, dentro de los 5 minutos\* posteriores al restablecimiento de la API, recupera y procesa el 100% de los eventos generados durante la interrupción. | CU-01, 02 | Media | Media |
 | QA-7 | Escalabilidad | El sistema deberá soportar 15 M de cuentas y 2 M de usuarios activos semanales y, ante picos de hasta ×10\*, seguir cumpliendo QA-1 y QA-2. | CU-01, 02 | Alta | Alta |
 | QA-8 | Escalabilidad | Cuando la base de cuentas crece hasta 15 M durante la operación normal, el sistema, incorporando recursos de procesamiento, procesa el correo de los usuarios con viajes próximos con una demora máxima de 15 minutos\* para el 95%\* de ellos. | CU-03 | Media | Media |
@@ -113,7 +113,7 @@ Aspectos que el diseño debe resolver aunque no aparezcan como requerimiento exp
 
 | ID | Preocupación | Relación |
 |---|---|---|
-| PA-1 | Autenticación y autorización de usuarios: solo el titular puede acceder a sus reservas y a la información extraída de su correo. | QA-11, QA-12 |
+| PA-1 | Mecanismo de Autenticación y autorización de usuarios: solo el titular puede acceder y/o compartir a sus reservas y a la información extraída de su correo. | QA-11, QA-12 |
 | PA-2 | Manejo de fechas y horas: todos los horarios se almacenan en UTC junto con la zona horaria de origen, ya que los viajes cruzan husos horarios. | QA-14 |
 | PA-3 | Registro y auditoría de accesos y de errores de integración con sistemas externos. | QA-9, QA-12 |
 | PA-4 | Versionado de las APIs propias, para poder evolucionar el sistema sin romper los clientes web y móvil. | QA-13 |
