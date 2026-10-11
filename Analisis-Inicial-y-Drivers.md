@@ -80,12 +80,12 @@ Las medidas marcadas con \* fueron propuestas por el equipo para que el escenari
 | QA-8 | Escalabilidad | El sistema deberá procesar el correo de 15 M de cuentas con una demora máxima de 15 minutos\* para usuarios con viajes próximos. | CU-03 | Media | Alta |
 | QA-9 | Interoperabilidad | El sistema deberá integrarse con proveedores mediante APIs estándar, traduciendo sus mensajes a un modelo canónico; incorporará el 100% de los mensajes válidos y derivará los inválidos a una cola de errores. | CU-02 | Alta | Media |
 | QA-10 | Interoperabilidad | El sistema deberá extraer correctamente la reserva del 95%\* de los emails de remitentes en la *whitelist*, dentro de los formatos soportados. | CU-03 | Alta | Alta |
-| QA-11 | Seguridad | El sistema deberá acceder al correo solo mediante tokens OAuth de lectura, cifrados y sin guardar contraseñas, y dejar de leerlo de inmediato si el usuario revoca el acceso. | CU-03 | Alta | Media |
+| QA-11 | Seguridad | Cuando un usuario revoca el acceso o autenticacion a su correo durante la operación normal, el sistema deja de leer ese correo en menos de 1 minuto* y no realiza ninguna lectura posterior con el token revocado (0 accesos). | CU-03 | Alta | Media |
 | QA-12 | Seguridad | Solo las personas designadas deberán poder ver un itinerario compartido; el sistema rechazará y registrará el 100% de los accesos no autorizados. | CU-04 | Alta | Baja |
 | QA-13 | Evolucionabilidad | El sistema deberá permitir incorporar un nuevo medio de transporte agregando un tipo de segmento y un adaptador, sin modificar el núcleo, en 2 días-persona\* como máximo. | CU-02, 03 | Media | Baja |
-| QA-14 | Usabilidad / i18n | El sistema deberá mostrar fechas, horas y monedas en el formato y la zona horaria de la región de cada usuario. | CU-01 | Baja | Baja |
-| QA-15 | Interoperabilidad | El sistema deberá permitir compartir un itinerario en redes sociales mediante un enlace de solo lectura. | CU-04 | Baja | Baja |
-| QA-16 | Usabilidad | La aplicación móvil deberá aprovechar el GPS del dispositivo para enriquecer la información del viaje. | CU-01 | Baja | Media |
+| QA-14 | Usabilidad / internacionalizacion |Cuando un usuario de cualquiera de las regiones soportadas abre su itinerario durante la operación normal, el sistema muestra el 100% de las fechas, horas y monedas en el formato y la zona horaria de su región. | CU-01 | Baja | Baja |
+| QA-15 | Interoperabilidad | Cuando un usuario comparte un itinerario en una red social durante la operación normal, el sistema genera un enlace de solo lectura en menos de 2 segundos*, y el 100% de los accesos realizados con ese enlace es de solo lectura (ninguna modificación). | CU-04 | Baja | Baja |
+| QA-16 | Usabilidad | Cuando un viajero con un viaje en curso abre el mapa del viaje en la aplicación móvil con el GPS activo, el sistema muestra su ubicación actual junto con los puntos de su itinerario (hotel, terminal, estación, agencia de alquiler) y le permite iniciar la ruta hacia el próximo punto en no más de 2 interacciones* y menos de 3 segundos*. Si el GPS está desactivado o no hay conexión, el sistema sigue mostrando los puntos del itinerario guardados, sin la ubicación del usuario. | CU-01 | Baja | Media |
 
 ### 4.1 Criterio de priorización
 
@@ -109,14 +109,14 @@ Los escenarios de prioridad y dificultad altas son los que más condicionan la a
 
 Decisiones que el diseño debe respetar y que no se discuten durante ADD.
 
-| ID | Restricción | Tipo | Origen |
-|---|---|---|---|
-| R-1 | El sistema debe ser multiplataforma: accesible desde navegadores web (multibrowser) y desde dispositivos móviles. | Técnica | Enunciado y equipo |
-| R-2 | La integración con aerolíneas, hoteles y rentadoras debe realizarse a través de las APIs estándar que esos proveedores ya exponen. El sistema se adapta a sus contratos; no puede modificarlos. | Técnica | Enunciado |
-| R-3 | El acceso al correo de los usuarios debe hacerse mediante las APIs de los proveedores de correo y con autorización delegada del usuario, sin solicitar ni almacenar sus contraseñas. | Técnica | Enunciado |
-| R-4 | El almacenamiento operativo debe utilizar una base de datos relacional (SQL). | Técnica (autoimpuesta) | Decisión del equipo |
-| R-5 | El sistema depende de sistemas externos que no controla (proveedores de viaje, correo y agencias): su disponibilidad, formatos y límites de uso son condiciones dadas. | Técnica | Enunciado |
-| R-6 | Al procesar información personal y operar en el mercado internacional, el sistema debe cumplir las normativas de protección de datos de cada región donde opere. | Legal | Enunciado |
+| ID | Restricción | Tipo |
+|---|---|---|
+| R-1 | El sistema debe ser multiplataforma: accesible desde navegadores web (multibrowser) y desde dispositivos móviles. | Técnica |
+| R-2 | La integración con aerolíneas, hoteles y rentadoras debe realizarse a través de las APIs estándar que esos proveedores ya exponen. El sistema se adapta a sus contratos; no puede modificarlos. | Técnica |
+| R-3 | El acceso al correo de los usuarios debe hacerse mediante las APIs de los proveedores de correo y con autorización delegada del usuario, sin solicitar ni almacenar sus contraseñas. | Técnica |
+| R-4 | El almacenamiento operativo debe utilizar una base de datos relacional (SQL). | Técnica (autoimpuesta) |
+| R-5 | El sistema depende de sistemas externos que no controla (proveedores de viaje, correo y agencias): su disponibilidad, formatos y límites de uso son condiciones dadas. | Técnica |
+| R-6 | Al procesar información personal y operar en el mercado internacional, el sistema debe cumplir las normativas de protección de datos de cada región donde opere. | Legal |
 
 ---
 
