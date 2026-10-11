@@ -3,7 +3,7 @@
 > Etapa previa a las iteraciones de ADD. Define el alcance del sistema **Trotamundos** y el conjunto priorizado de drivers (funcionalidad primaria, atributos de calidad y restricciones) que se mantendrán **inmutables** durante el proceso de diseño.
 
 **Estado:** Completo
-**Última actualización:** 08/10/2026
+**Última actualización:** 11/10/2026
 
 ---
 
@@ -71,39 +71,26 @@ Las medidas marcadas con \* fueron propuestas por el equipo para que el escenari
 | ID | Atributo | Escenario | Caso de uso | Prioridad | Dificultad |
 |---|---|---|---|---|---|
 | QA-1 | Performance | El sistema deberá mostrar en el panel las actualizaciones generadas por un proveedor externo en menos de 5 minutos. | CU-01, 02 | Alta | Alta |
-| QA-2 | Performance | El sistema deberá responder las solicitudes del panel web en menos de 800 ms con carga normal. | CU-01 | Alta | Media |
-| QA-3 | Performance | La aplicación móvil deberá lograr el primer despliegue de contenido (*First Contentful Paint*) en menos de 1,4 segundos. | CU-01 | Alta | Baja |
+| QA-2 | Performance | El sistema deberá responder las solicitudes del panel web en menos de 800 ms con carga normal. | CU-01 | Media | Baja |
+| QA-3 | Performance | Cuando un usuario abre la aplicación móvil en un dispositivo de gama media con conexión 4G\*, el primer despliegue de contenido (*First Contentful Paint*) ocurre en menos de 1,4 segundos. | CU-01 | Baja | Media |
 | QA-4 | Performance | Las consultas analíticas pesadas no deberán aumentar el tiempo de respuesta del panel en más de un 10%\*. | CU-05, 01 | Baja | Media |
 | QA-5 | Disponibilidad | El sistema deberá tolerar la caída de una instancia o de una zona sin superar 5 minutos mensuales de inactividad no planificada (≈ 99,99%). | CU-01, 02, 03, 04 | Alta | Alta |
-| QA-6 | Disponibilidad | Si la API de un proveedor deja de responder, el sistema deberá seguir mostrando la última versión conocida del viaje, sin perder eventos al recuperarse. | CU-01, 02 | Media | Media |
-| QA-7 | Escalabilidad | El sistema deberá soportar 15 M de cuentas y 2 M de usuarios activos semanales, y ante picos de hasta ×10\* seguir cumpliendo QA-1 y QA-2. | CU-01, 02 | Alta | Alta |
-| QA-8 | Escalabilidad | El sistema deberá procesar el correo de 15 M de cuentas con una demora máxima de 15 minutos\* para usuarios con viajes próximos. | CU-03 | Media | Alta |
-| QA-9 | Interoperabilidad | El sistema deberá integrarse con proveedores mediante APIs estándar, traduciendo sus mensajes a un modelo canónico; incorporará el 100% de los mensajes válidos y derivará los inválidos a una cola de errores. | CU-02 | Alta | Media |
-| QA-10 | Interoperabilidad | El sistema deberá extraer correctamente la reserva del 95%\* de los emails de remitentes en la *whitelist*, dentro de los formatos soportados. | CU-03 | Alta | Alta |
-| QA-11 | Seguridad | Cuando un usuario revoca el acceso o autenticacion a su correo durante la operación normal, el sistema deja de leer ese correo en menos de 1 minuto* y no realiza ninguna lectura posterior con el token revocado (0 accesos). | CU-03 | Alta | Media |
-| QA-12 | Seguridad | Solo las personas designadas deberán poder ver un itinerario compartido; el sistema rechazará y registrará el 100% de los accesos no autorizados. | CU-04 | Alta | Baja |
-| QA-13 | Evolucionabilidad | El sistema deberá permitir incorporar un nuevo medio de transporte agregando un tipo de segmento y un adaptador, sin modificar el núcleo, en 2 días-persona\* como máximo. | CU-02, 03 | Media | Baja |
-| QA-14 | Usabilidad / internacionalizacion |Cuando un usuario de cualquiera de las regiones soportadas abre su itinerario durante la operación normal, el sistema muestra el 100% de las fechas, horas y monedas en el formato y la zona horaria de su región. | CU-01 | Baja | Baja |
-| QA-15 | Interoperabilidad | Cuando un usuario comparte un itinerario en una red social durante la operación normal, el sistema genera un enlace de solo lectura en menos de 2 segundos*, y el 100% de los accesos realizados con ese enlace es de solo lectura (ninguna modificación). | CU-04 | Baja | Baja |
-| QA-16 | Usabilidad | Cuando un viajero con un viaje en curso abre el mapa del viaje en la aplicación móvil con el GPS activo, el sistema muestra su ubicación actual junto con los puntos de su itinerario (hotel, terminal, estación, agencia de alquiler) y le permite iniciar la ruta hacia el próximo punto en no más de 2 interacciones* y menos de 3 segundos*. Si el GPS está desactivado o no hay conexión, el sistema sigue mostrando los puntos del itinerario guardados, sin la ubicación del usuario. | CU-01 | Baja | Media |
+| QA-6 | Disponibilidad | Cuando la API de un proveedor externo deja de responder durante la operación normal, el sistema sigue mostrando la última versión conocida del viaje y, dentro de los 5 minutos\* posteriores al restablecimiento de la API, recupera y procesa el 100% de los eventos generados durante la interrupción. | CU-01, 02 | Media | Media |
+| QA-7 | Escalabilidad | El sistema deberá soportar 15 M de cuentas y 2 M de usuarios activos semanales y, ante picos de hasta ×10\*, seguir cumpliendo QA-1 y QA-2. | CU-01, 02 | Alta | Alta |
+| QA-8 | Escalabilidad | Cuando la base de cuentas crece hasta 15 M durante la operación normal, el sistema, incorporando recursos de procesamiento, procesa el correo de los usuarios con viajes próximos con una demora máxima de 15 minutos\* para el 95%\* de ellos. | CU-03 | Media | Media |
+| QA-9 | Interoperabilidad | Cuando los sistemas de proveedores externos envían notificaciones mediante sus APIs estándar durante la operación normal, el sistema procesa correctamente el 100% de los mensajes válidos e identifica y registra el 100% de los inválidos, sin interrumpir la integración con el resto de los proveedores. | CU-02 | Alta | Media |
+| QA-10 | Interoperabilidad | El sistema deberá extraer correctamente la reserva del 95%\* de los emails de remitentes en la *whitelist*, dentro de los formatos soportados. | CU-03 | Media | Media |
+| QA-11 | Seguridad | Cuando un usuario revoca el acceso a su correo durante la operación normal, el sistema deja de leer ese correo en menos de 1 minuto\* y no realiza ninguna lectura posterior con el token revocado (0 accesos). | CU-03 | Media | Media |
+| QA-12 | Seguridad | Solo las personas designadas deberán poder ver un itinerario compartido; el sistema rechazará y registrará el 100% de los accesos no autorizados. | CU-04 | Baja | Baja |
+| QA-13 | Evolucionabilidad | Cuando el negocio decide incorporar un nuevo medio de transporte (por ejemplo, trenes), el sistema lo soporta sin modificar los componentes existentes del núcleo, con un esfuerzo máximo de 2 días-persona\*. | CU-02, 03 | Media | Baja |
+| QA-14 | Usabilidad / internacionalizacionn | Cuando un usuario de cualquiera de las regiones soportadas abre su itinerario durante la operación normal, el sistema muestra el 100% de las fechas, horas y monedas en el formato y la zona horaria de su región. | CU-01 | Baja | Baja |
+| QA-15 | Interoperabilidad | Cuando un usuario comparte un itinerario en una red social durante la operación normal, el sistema genera un enlace de solo lectura en menos de 2 segundos\*, y el 100% de los accesos realizados con ese enlace es de solo lectura (ninguna modificación). | CU-04 | Baja | Baja |
+| QA-16 | Usabilidad | Cuando un viajero con un viaje en curso abre el mapa del viaje en la aplicación móvil con el GPS activo, el sistema muestra su ubicación actual junto con los puntos de su itinerario (hotel, terminal, estación, agencia de alquiler) y le permite iniciar la ruta hacia el próximo punto en no más de 2 interacciones\* y menos de 3 segundos\*. Si el GPS está desactivado o no hay conexión, el sistema sigue mostrando los puntos del itinerario guardados, sin la ubicación del usuario. | CU-01 | Baja | Media |
 
 ### 4.1 Criterio de priorización
 
 - **Prioridad:** importancia para el objetivo central del producto, ofrecer un único punto de verdad, actualizado, para los arreglos de viaje.
 - **Dificultad:** incertidumbre técnica sobre la posibilidad de cumplir el escenario (riesgo técnico, en terminología del SEI), no cantidad de trabajo.
-
-### 4.2 Drivers arquitectónicos principales
-
-Los escenarios de prioridad y dificultad altas son los que más condicionan la arquitectura y se abordan en las primeras iteraciones:
-
-| Driver | Decisión de diseño que fuerza |
-|---|---|
-| QA-1 | Arquitectura orientada a eventos: los cambios entran por webhooks o colas, se procesan de forma asíncrona y se notifican al cliente. |
-| QA-5 | Servicios sin estado y replicados en varias zonas, con health checks y base de datos con réplica y failover. |
-| QA-7 | Escalado horizontal, colas que absorben ráfagas y un modelo de lectura cacheado del panel. |
-| QA-10 | Pipeline de ingesta de correo aislado, con extractores intercambiables por formato. |
-
----
 
 ## 5. Restricciones del sistema
 
