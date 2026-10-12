@@ -101,9 +101,8 @@ Decisiones que el diseño debe respetar y que no se discuten durante ADD.
 | R-1 | El sistema debe ser multiplataforma: accesible desde navegadores web (multibrowser) y desde dispositivos móviles. | Técnica |
 | R-2 | La integración con aerolíneas, hoteles y rentadoras debe realizarse a través de las APIs estándar que esos proveedores ya exponen. El sistema se adapta a sus contratos; no puede modificarlos. | Técnica |
 | R-3 | El acceso al correo de los usuarios debe hacerse mediante las APIs de los proveedores de correo y con autorización delegada del usuario, sin solicitar ni almacenar sus contraseñas. | Técnica |
-| R-4 | El almacenamiento operativo debe utilizar una base de datos relacional (SQL). | Técnica (autoimpuesta) |
-| R-5 | El sistema depende de sistemas externos que no controla (proveedores de viaje, correo y agencias): su disponibilidad, formatos y límites de uso son condiciones dadas. | Técnica |
-| R-6 | Al procesar información personal y operar en el mercado internacional, el sistema debe cumplir las normativas de protección de datos de cada región donde opere. | Legal |
+| R-4 | El sistema depende de sistemas externos que no controla (proveedores de viaje, correo y agencias): su disponibilidad, formatos y límites de uso son condiciones dadas. | Técnica |
+| R-5 | Al procesar información personal y operar en el mercado internacional, el sistema debe cumplir las normativas de protección de datos de cada región donde opere. | Legal |
 
 ---
 
@@ -125,4 +124,3 @@ Aspectos que el diseño debe resolver aunque no aparezcan como requerimiento exp
 - Los tiempos de QA-1 y QA-2 se toman tal como los da el enunciado. Al medirlos en el prototipo, se considerará cumplido el escenario si la gran mayoría de las solicitudes (por ejemplo, el 95%) queda por debajo del umbral, ya que garantizarlo para el 100% no es posible.
 - El factor ×10 de pico es un orden de magnitud para traducir los picos "dramáticos" del enunciado.
 - El plazo de 5 minutos se interpreta como aplicable a las actualizaciones de proveedores; para el correo se propone un máximo de 15 minutos. Aunque cada consulta sea incremental (solo mensajes nuevos), sondear 15 M de casillas cada 5 minutos implicaría unas 50.000 consultas por segundo, la mayoría sin novedades. Por eso el diseño prioriza las notificaciones push de los proveedores de correo, que permiten consultar solo las casillas que recibieron mensajes.
-- Las prioridades fueron estimadas por el equipo en ausencia de stakeholders.
