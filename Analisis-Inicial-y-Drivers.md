@@ -72,7 +72,7 @@ Las medidas marcadas con \* fueron propuestas por el equipo para que el escenari
 |---|---|---|---|---|---|
 | QA-1 | Performance | El sistema deberá mostrar en el panel las actualizaciones generadas por un proveedor externo en menos de 5 minutos. | CU-01, 02 | Alta | Alta |
 | QA-2 | Performance | El sistema deberá responder las solicitudes del panel web en menos de 800 ms con carga normal. | CU-01 | Media | Baja |
-| QA-3 | Performance | Cuando un usuario abre la aplicación móvil en un dispositivo de gama media con conexión 4G\*, el primer despliegue de contenido (*First Contentful Paint*) ocurre en menos de 1,4 segundos. | CU-01 | Baja | Media |
+| QA-3 | Performance | Cuando un usuario abre la aplicacion, el primer despliegue de contenido (*First Contentful Paint*) ocurre en menos de 1,4 segundos. | CU-01 | Baja | Media |
 | QA-4 | Performance | Las consultas analíticas pesadas no deberán aumentar el tiempo de respuesta del panel en más de un 10%\*. | CU-05, 01 | Baja | Media |
 | QA-5 | Disponibilidad | El sistema deberá tolerar la caída de una instancia o de una zona sin superar 5 minutos mensuales de inactividad no planificada (≈ 99,99%). | Todos | Alta | Alta |
 | QA-6 | Disponibilidad | Cuando la API de un proveedor externo deja de responder durante la operación normal, el sistema sigue mostrando la última versión conocida del viaje y, dentro de los 5 minutos\* posteriores al restablecimiento de la API, recupera y procesa el 100% de los eventos generados durante la interrupción. | CU-01, 02 | Media | Media |
@@ -84,8 +84,7 @@ Las medidas marcadas con \* fueron propuestas por el equipo para que el escenari
 | QA-12 | Seguridad | Solo las personas designadas deberán poder ver un itinerario compartido; el sistema rechazará y registrará el 100% de los accesos no autorizados. | CU-04 | Baja | Baja |
 | QA-13 | Evolucionabilidad | Cuando el negocio decide incorporar un nuevo medio de transporte (por ejemplo, trenes), el sistema lo soporta sin modificar los componentes existentes del núcleo, con un esfuerzo máximo de 2 días-persona\*. | CU-02, 03 | Media | Baja |
 | QA-14 | Usabilidad / internacionalizacionn | Cuando un usuario de cualquiera de las regiones soportadas abre su itinerario durante la operación normal, el sistema muestra el 100% de las fechas, horas y monedas en el formato y la zona horaria de su región. | CU-01 | Baja | Baja |
-| QA-15 | Interoperabilidad | Cuando un usuario comparte un itinerario en una red social durante la operación normal, el sistema genera un enlace de solo lectura en menos de 2 segundos\*, y el 100% de los accesos realizados con ese enlace es de solo lectura (ninguna modificación). | CU-04 | Baja | Baja |
-| QA-16 | Usabilidad | Cuando un viajero con un viaje en curso abre el mapa del viaje en la aplicación móvil con el GPS activo, el sistema muestra su ubicación actual junto con los puntos de su itinerario (hotel, terminal, estación, agencia de alquiler) y le permite iniciar la ruta hacia el próximo punto en no más de 2 interacciones\* y menos de 3 segundos\*. Si el GPS está desactivado o no hay conexión, el sistema sigue mostrando los puntos del itinerario guardados, sin la ubicación del usuario. | CU-01 | Baja | Media |
+| QA-15 | Usabilidad | Cuando un viajero con un viaje en curso abre el mapa del viaje en la aplicación móvil con el GPS activo, el sistema muestra su ubicación actual junto con los puntos de su itinerario (hotel, terminal, estación, agencia de alquiler) y le permite iniciar la ruta hacia el próximo punto en no más de 2 interacciones\* y menos de 3 segundos\*. Si el GPS está desactivado o no hay conexión, el sistema sigue mostrando los puntos del itinerario guardados, sin la ubicación del usuario. | CU-01 | Baja | Media |
 
 ### 4.1 Criterio de priorización
 
@@ -103,6 +102,7 @@ Decisiones que el diseño debe respetar y que no se discuten durante ADD.
 | R-3 | El acceso al correo de los usuarios debe hacerse mediante las APIs de los proveedores de correo y con autorización delegada del usuario, sin solicitar ni almacenar sus contraseñas. | Técnica |
 | R-4 | El sistema depende de sistemas externos que no controla (proveedores de viaje, correo y agencias): su disponibilidad, formatos y límites de uso son condiciones dadas. | Técnica |
 | R-5 | Al procesar información personal y operar en el mercado internacional, el sistema debe cumplir las normativas de protección de datos de cada región donde opere. | Legal |
+| R-6 | El sistema no garantizara soporte optimo a celulares con tecnologia de telefonia movil de 3GB o inferior | Técnica |
 
 ---
 
