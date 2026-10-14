@@ -31,8 +31,6 @@ Además, el TPE se evalúa por la **trazabilidad entre la arquitectura documenta
 | QA-6 / QA-7 (escalabilidad) | 3 | QA-6 Alta, QA-7 Media |
 | QA-10 / QA-11 (seguridad) | 2 | QA-10 Media, QA-11 Baja |
 | QA-12 (evolucionabilidad) | 2 | Prioridad Media |
-| Facilidad de implementar | 3 | Viabilidad del prototipo en el plazo del TPE |
-| Trazabilidad doc ↔ código | 3 | Criterio de evaluación explícito del TPE |
 
 Los pesos de los QA siguen la columna "Prioridad" del análisis inicial (Alta = 3, Media = 2, Baja = 1). Cuando un criterio agrupa dos QA se toma la prioridad más alta.
 
@@ -92,7 +90,7 @@ flowchart LR
 
 **Se elige C-lite: arquitectura en capas/hexagonal con tres desplegables (Panel API, workers de ingesta y consumidor de analítica), comunicados por un broker con log persistente y outbox, con la separación en más servicios documentada como evolución prevista.**
 
-### 5.1 Por qué C-lite y no E (capas / N-tier)
+### 4.1 Por qué C-lite y no E (capas / N-tier)
 
 E es la alternativa más cercana y la que más se parece en implementación. La diferencia está en los QA de prioridad Alta y Media:
 
