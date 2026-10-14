@@ -45,9 +45,8 @@ SQL no es intrínsecamente más rápido que las alternativas. Un almacén clave-
 
 Dónde sí limita: la escritura está en un único primario. Es el techo de QA-6 y se trata como riesgo (sección 6).
 
-### 2.3 "Todos los datos tienen el mismo formato y estructura": parcialmente válido
-
-Como está escrito es incorrecto, y no conviene apoyar la decisión en esta frase. Hay una parte uniforme y otra que no lo es:
+### 2.3 "Todos los datos tienen un formato y estructura similar": parcialmente válido
+Los datos no van a ser todos exactamente iguales y no van a tener la misma estructura, va a haber una parte uniforme y una parte no uniforme:
 
 | Dato | ¿Uniforme? | Tratamiento |
 |---|---|---|
