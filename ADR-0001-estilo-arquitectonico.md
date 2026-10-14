@@ -115,16 +115,4 @@ Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel po
 | Base relacional compartida entre Panel API y workers | Cuello de botella de escritura a 15 M de cuentas (QA-6). | Read model separado para las lecturas; particionado por usuario o región como evolución (ADR de almacenamiento). |
 | Un broker más para operar | Complejidad operativa y un nuevo componente crítico. | Broker gestionado o clusterizado en producción; una sola instancia en el prototipo. |
 
-## 6. Evolución prevista
-
-La arquitectura se divide más cuando se observe alguna de estas condiciones, y no antes:
-
-| Disparador | Separación |
-|---|---|
-| Las notificaciones en tiempo real exigen escalar según usuarios conectados, distinto del Panel API | Servicio de notificaciones |
-| La ingesta de correo y la de proveedores tienen perfiles de carga o requisitos de seguridad distintos (por ejemplo, aislamiento de tokens de correo en un servicio propio, QA-10) | Ingesta de correo e ingesta de proveedores como desplegables separados |
-| La actualización del read model compite con el procesamiento de eventos del dominio | Procesador de itinerarios como servicio propio |
-| Un equipo adicional necesita desplegar de forma independiente un componente | Extraer el módulo correspondiente |
-
-Con los cuatro aplicados se llega a la Alternativa C.
 
