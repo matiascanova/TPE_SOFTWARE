@@ -132,11 +132,3 @@ Es la mejor opción en escalabilidad de escritura y disponibilidad, pero exige d
 | Mal uso de JSONB | Se pierden restricciones y la base se convierte en un depósito sin esquema. | Los campos que se consultan o filtran van como columnas tipadas. Cada tipo tiene un esquema de validación en su adaptador, parte del contrato (spec-driven). |
 | Base compartida entre Panel API y workers | Acoplamiento por esquema, que ya se registró en el ADR-0001. | Cada módulo es dueño de sus tablas. El acceso cruzado va por vistas o por eventos. Migraciones versionadas (Flyway, Liquibase o similar). |
 | Residencia de datos entre regiones | El compartir itinerarios entre regiones se complica con instancias por región. | Se resuelve en el ADR de multi-región. |
-
-## 7. Evolución prevista
-
-| Disparador | Acción |
-|---|---|
-| La escritura sostenida supera la capacidad de un primario | Particionar por región o usuario y evaluar sharding |
-| Un tipo de dato crece de forma desproporcionada (por ejemplo, mensajes crudos) | Moverlo a almacenamiento de objetos |
-| Se detecta que el `detalle` JSONB concentra consultas frecuentes | Promover esos campos a columnas |
