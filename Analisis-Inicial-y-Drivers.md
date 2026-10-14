@@ -73,14 +73,14 @@ Las medidas marcadas con \* fueron propuestas por el equipo para que el escenari
 | QA-1 | Performance | El sistema deberá mostrar en el panel las actualizaciones generadas por un proveedor externo en menos de 5 minutos. | CU-01, 02 | Alta | Alta |
 | QA-2 | Performance | El sistema deberá responder las solicitudes del panel web en menos de 800 ms con carga normal. | CU-01 | Media | Baja |
 | QA-3 | Performance | Cuando un usuario abre la aplicacion, el primer despliegue de contenido (*First Contentful Paint*) ocurre en menos de 1,4 segundos. | CU-01 | Baja | Media |
-| QA-4 | Disponibilidad | El sistema deberá tolerar la caída de una instancia o de una zona sin superar 5 minutos mensuales de inactividad no planificada (≈ 99,99%). | Todos | Alta | Alta |
+| QA-4 | Disponibilidad | El sistema completo deberá tolerar la caída de una instanciao de una zona cuando se produzca una falla externa sin superar 5 minutos mensuales de inactividad no planificada (≈ 99,99%). | Todos | Alta | Alta |
 | QA-5 | Disponibilidad | Cuando la API de un proveedor externo deja de responder, el sistema sigue mostrando la última versión conocida del viaje y, dentro de los 5 minutos\* posteriores al restablecimiento de la API, recupera y procesa el 99% de los eventos generados durante la interrupción. | CU-01, 02 | Media | Media |
 | QA-6 | Escalabilidad | El sistema deberá soportar 15 M de cuentas y 2 M de usuarios activos semanales y, ante picos de hasta ×10\*, seguir cumpliendo QA-1 y QA-2. | CU-01, 02 | Alta | Alta |
 | QA-7 | Escalabilidad | Cuando la base de cuentas crece hasta 15 M durante la operación normal, el sistema, incorporando recursos de procesamiento, procesa el correo de los usuarios con viajes próximos con una demora máxima de 15 minutos\* para el 95%\* de ellos. | CU-03 | Media | Media |
 | QA-8 | Interoperabilidad | Cuando los sistemas de proveedores externos envían notificaciones mediante sus APIs estándar durante la operación normal, el sistema procesa correctamente el 99% de los mensajes válidos e identifica y registra el 99% de los inválidos, sin interrumpir la integración con el resto de los proveedores. | CU-02 | Alta | Media |
-| QA-9 | Interoperabilidad | El sistema deberá extraer correctamente la reserva del 95%\* de los emails de remitentes en la *whitelist*, dentro de los formatos soportados. | CU-03 | Media | Media |
+| QA-9 | Interoperabilidad | El sistema deberá extraer correctamente la reserva del 95%\* de los emails de remitentes en la *whitelist*, dentro de los formatos soportados y en menos de 15 segundos. | CU-03 | Media | Media |
 | QA-10 | Seguridad | Cuando un usuario revoca el acceso a su correo durante la operación normal, el sistema deja de leer ese correo en menos de 1 minuto\* y no realiza ninguna lectura posterior con el token revocado (0 accesos). | CU-03 | Media | Media |
-| QA-11 | Seguridad | Solo las personas designadas deberán poder ver un itinerario compartido; el sistema rechazará y registrará el 99% de los accesos no autorizados. | CU-04 | Baja | Baja |
+| QA-11 | Seguridad | Cuando una persona no designada quiera ver un itinerario compartido; el sistema rechazará y registrará el 100% de los accesos no autorizados. | CU-04 | Baja | Baja |
 | QA-12 | Evolucionabilidad | Cuando el negocio decide incorporar un nuevo medio de transporte (por ejemplo, trenes), el sistema lo soporta sin modificar los componentes existentes del núcleo, con un esfuerzo máximo de 2 días-persona\*. | CU-02, 03 | Media | Baja |
 
 ### 4.1 Criterio de priorización
