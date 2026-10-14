@@ -94,25 +94,25 @@ flowchart LR
 
 ### 5.1 Por qué C-lite y no E (capas / N-tier)
 
-E es la alternativa más cercana y la que más se parece en implementación (facilidad 4 contra 3). La diferencia está en los QA de prioridad Alta y Media:
+E es la alternativa más cercana y la que más se parece en implementación. La diferencia está en los QA de prioridad Alta y Media:
 
 - **QA-1 y QA-5:** E no incluye por defecto un log persistente ni outbox. Sin ellos el replay tras una caída del proveedor es limitado, el requisito de 5 minutos queda expuesto a pérdidas de mensajes y el 99 % de recuperación de QA-5 es difícil de garantizar. Si a E se le agregan ambos, E deja de ser E y pasa a ser C-lite.
 - **QA-2/3 y QA-6/7:** en E el panel, la ingesta y la analítica comparten el modelo y la base de escritura, así que las lecturas del panel hacen joins sobre el modelo de escritura y la presión de la ingesta se siente en la base. C-lite separa el read model del panel y manda la analítica por eventos a un almacén propio.
-- **El costo adicional de C-lite sobre E es pequeño:** un broker y un outbox. Es un punto de facilidad (4 → 3) a cambio de 11 puntos de QA ponderados.
+- **El costo adicional de C-lite sobre E es pequeño:** un broker y un outbox. Es facilidad a cambio de 11 puntos de QA ponderados.
 
-De E se conserva lo que mejor funciona: la organización interna en capas, que da trazabilidad 4 y buena testabilidad.
+De E se conserva lo que mejor funciona: la organización interna en capas, que da trazabilidad y buena testabilidad.
 
 ### 4.2 Por qué no B (microservicios completos)
 
-B es la mejor en QA pero la peor en implementabilidad (1). Tiene que ser descartada por tres razones:
+B es la mejor en QA pero la peor en implementabilidad. Tiene que ser descartada por tres razones:
 
-- Exige consistencia eventual en todas partes, trazabilidad distribuida, múltiples pipelines y mucha infraestructura (service mesh, saga, multi-región) para un trabajo grupal con plazo acotado.
+- Exige consistencia eventual en todas partes, trazabilidad distribuida, múltiples pipelines y mucha infraestructura (service mesh, saga, multi-región) para un trabajo con plazo acotado.
 - Implementar solo un subconjunto agrava la trazabilidad: cuanto más grande es la arquitectura documentada respecto del código, más difícil es defender que son consistentes.
 - Su ventaja sobre C-lite en QA-4 y QA-6 (aislamiento fino por servicio) no se puede demostrar con un prototipo acotado, así que se pagaría el costo sin poder mostrar el beneficio.
 
 ### 4.3 Por qué no C (híbrida de 5-6 servicios)
 
-C tiene la misma cobertura de QA que C-lite en los atributos de prioridad Alta (QA-1, QA-5/8, QA-6/7) y es mejor solo en QA-4 (3 puntos ponderados de diferencia). Pero implica 5 o 6 desplegables con contratos propios, outbox, CQRS sincronizado por eventos, circuit breakers, DLQ, simuladores y observabilidad de flujos que cruzan varios servicios. Eso la deja en facilidad 2 y la saca por el filtro.
+C tiene la misma cobertura de QA que C-lite en los atributos de prioridad Alta (QA-1, QA-5/8, QA-6/7) y es mejor solo en QA-4 (3 puntos ponderados de diferencia). Pero implica 5 o 6 desplegables con contratos propios, outbox, CQRS sincronizado por eventos, circuit breakers, DLQ, simuladores y observabilidad de flujos que cruzan varios servicios. Eso le aumenta la dificultad de implementacion.
 
 Los servicios que C separa y C-lite no (notificaciones y procesador de itinerarios) escalan con patrones de carga parecidos a los que ya agrupa el Panel API y los workers, de modo que separarlos hoy agrega costo de integración sin mejorar un QA de prioridad Alta. Por eso se difieren y se documentan como evolución.
 
@@ -120,11 +120,11 @@ Los servicios que C separa y C-lite no (notificaciones y procesador de itinerari
 
 - Acoplamiento a un proveedor cloud y necesidad de cuenta cloud para todo el grupo, con riesgo de costos.
 - Arranques en frío que amenazan QA-2 y QA-3 (mitigable con concurrencia provisionada, a mayor costo).
-- Difícil de ejecutar y demostrar localmente, lo que debilita la trazabilidad del prototipo (2) y el criterio de que el código sea reproducible.
+- Difícil de ejecutar y demostrar localmente, lo que debilita la trazabilidad del prototipo y el criterio de que el código sea reproducible.
 
 ### 4.5 Por qué no A (monolito modular)
 
-Es la más simple (5) pero cubre mal los QA Alta: la ingesta compite con el panel por recursos, un despliegue defectuoso tira todo (QA-4), no hay log para replay (QA-1, QA-5) y se escala todo junto (QA-6). Se puede construir muy rápido, pero habría que reconocer en el diseño que varios drivers inmutables no se cumplen.
+Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel por recursos, un despliegue defectuoso tira todo (QA-4), no hay log para replay (QA-1, QA-5) y se escala todo junto (QA-6). Se puede construir muy rápido, pero habría que reconocer en el diseño que varios drivers inmutables no se cumplen.
 
 ## 5. Consecuencias
 
