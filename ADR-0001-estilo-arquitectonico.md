@@ -52,15 +52,15 @@ Los pesos de los QA siguen la columna "Prioridad" del análisis inicial (Alta = 
 | E | Capas / N-tier | Capas lógicas estrictas desplegadas como tiers (web/API, workers, datos). Un solo código, varios roles. |
 | **C-lite** | Capas/hexagonal con 3 desplegables | Panel API, workers de ingesta y consumidor de analítica. Broker con log persistente y outbox. |
 
+## 4. Decisión
+
+**Se elige C-lite: arquitectura en capas/hexagonal con tres desplegables (Panel API, workers de ingesta y consumidor de analítica), comunicados por un broker con log persistente y outbox, con la separación en más servicios documentada como evolución prevista.**
+
 ### Descripción de C-lite
 
 - **Estructura interna:** cada desplegable usa capas/hexagonal (presentación, aplicación, dominio, infraestructura), con adaptadores por proveedor y por medio de transporte que traducen al modelo canónico (R-2).
 - **Tácticas conservadas:** buffer de picos y replay por log persistente, outbox transaccional, CQRS solo en el panel, circuit breaker, reintentos con backoff, cola de mensajes inválidos, escalado independiente de la ingesta, aislamiento de analítica vía eventos (CU-05), despliegue multi-AZ.
 - **Tácticas diferidas:** separar notificaciones y procesador de itinerarios en servicios propios, y separar la ingesta de correo de la de proveedores (ver sección 7).
-
-## 4. Decisión
-
-**Se elige C-lite: arquitectura en capas/hexagonal con tres desplegables (Panel API, workers de ingesta y consumidor de analítica), comunicados por un broker con log persistente y outbox, con la separación en más servicios documentada como evolución prevista.**
 
 ### 4.1 Por qué C-lite y no E (capas / N-tier)
 
