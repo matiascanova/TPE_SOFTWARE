@@ -165,28 +165,3 @@ Es la mejor opción en escalabilidad de escritura y disponibilidad, pero exige d
 | La escritura sostenida supera la capacidad de un primario | Particionar por región o usuario y evaluar sharding |
 | Un tipo de dato crece de forma desproporcionada (por ejemplo, mensajes crudos) | Moverlo a almacenamiento de objetos |
 | Se detecta que el `detalle` JSONB concentra consultas frecuentes | Promover esos campos a columnas |
-
-## 8. Confirmación
-
-La decisión se confirma en el prototipo con estas verificaciones:
-
-1. **Outbox:** matar el proceso entre el commit y la publicación y comprobar que ningún evento se pierde ni se duplica sin que el consumidor lo detecte.
-2. **Rendimiento:** con un volumen sintético de al menos 10 M de reservas, las consultas críticas por clave tienen p95 menor a 50 ms (umbral propuesto por el equipo).
-3. **QA-12:** agregar el tipo "tren" (adaptador, esquema de `detalle` y tipo de dominio) sin migración del núcleo y en no más de 2 días-persona.
-4. **Failover:** reiniciar la base y comprobar que el panel sigue mostrando el read model y que las escrituras se recuperan con reintentos.
-
-## 9. Supuestos
-
-- El equipo tiene experiencia en SQL y poca o ninguna en NoSQL. Si no fuera así, hay que reabrir el ADR (sección 4.2).
-- Los volúmenes (decenas de millones de reservas, miles de escrituras por segundo en pico) son estimaciones propias y se validan con la prueba de carga de la sección 8.
-- Los puntajes son juicios cualitativos del equipo.
-- El motor concreto (PostgreSQL) puede cambiar por MySQL sin afectar el resto de la decisión.
-
-## 10. Decisiones relacionadas
-
-1. Broker con log persistente y outbox.
-2. CQRS limitado al panel y almacén del read model.
-3. Modelo canónico y adaptadores por proveedor (define el esquema de `detalle` por tipo).
-4. Almacenamiento y revocación de tokens de correo en bóveda aislada.
-5. Estrategia multi-AZ y multi-región.
-6. Separación de la analítica hacia un OLAP.
