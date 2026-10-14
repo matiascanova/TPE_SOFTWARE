@@ -89,30 +89,6 @@ Puntaje de 1 (débil) a 5 (fuerte). Son juicios del equipo, no mediciones. Se us
 
 Supuesto de la columna 1: el equipo tiene experiencia en SQL y poca o ninguna en NoSQL.
 
-### 4.1 Filtro y puntaje (máximo 90)
-
-Filtro: conocimiento y facilidad ≥ 3.
-
-| Alternativa | Filtro | Puntaje ponderado |
-|---|---|---|
-| **PostgreSQL** | Pasa | **77** |
-| MySQL | Pasa | 75 |
-| MongoDB | Descartada | 65 |
-| DynamoDB / Cassandra | Descartada | 61 |
-
-PostgreSQL y MySQL quedan a 2 puntos, dentro del margen de error de estos juicios. Se elige PostgreSQL por rasgos concretos que usa el diseño (sección 5.1), no por el puntaje.
-
-### 4.2 Sensibilidad: qué pasa sin el factor "conocimiento del equipo"
-
-| Alternativa | Puntaje sin el criterio 1 (máximo 75) |
-|---|---|
-| PostgreSQL | 62 |
-| MySQL | 60 |
-| MongoDB | 59 |
-| DynamoDB / Cassandra | 58 |
-
-Sin el conocimiento previo, las cuatro opciones quedan casi empatadas. Esto es una conclusión honesta y útil: SQL **no es** técnicamente la única respuesta posible, y la decisión depende de que el equipo ya domina la tecnología. Si esa premisa fuera falsa, habría que reabrir el ADR.
-
 ## 5. Decisión
 
 **Se elige PostgreSQL como motor de la base operacional, con un núcleo relacional tipado y un campo `detalle` en JSONB validado por esquema para los atributos propios de cada tipo de reserva.**
