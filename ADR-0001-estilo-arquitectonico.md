@@ -36,11 +36,11 @@ Además, el TPE se evalúa por la **trazabilidad entre la arquitectura documenta
 
 Los pesos de los QA siguen la columna "Prioridad" del análisis inicial (Alta = 3, Media = 2, Baja = 1). Cuando un criterio agrupa dos QA se toma la prioridad más alta.
 
-**QA no puntuado:** QA-9 (extracción correcta del 95 % de los correos de la whitelist en menos de 15 segundos) depende de la calidad de los extractores y no del estilo arquitectónico, por lo que no discrimina entre alternativas. Se verifica en el prototipo (sección 8).
+**QA no puntuado:** QA-9 (extracción correcta del 95 % de los correos de la whitelist en menos de 15 segundos) depende de la calidad de los extractores y no del estilo arquitectónico, por lo que no discrimina entre alternativas.
 
 **Método en dos pasos:**
 
-1. **Filtro de viabilidad.** Se descarta toda alternativa con facilidad de implementar < 3 o trazabilidad < 3. Estos dos criterios no se compensan con puntaje en otros: una arquitectura excelente en QA que el grupo no logra implementar de forma coherente falla el objetivo del TPE.
+1. **Filtro de viabilidad.** Mientras que no se puede designarle puntajes objetivos a la dificultad de implementar ciertas arquitecturas puede designarle una dificultad subjetiva a estas en base a experiencias previas y los conocimientos que poseen. Esto y el factor de con cuanto tiempo cuenta el equipo va a guiar de cierta forma que arquitectura se va a elegir
 2. **Puntaje ponderado de QA** entre las alternativas que pasan el filtro.
 
 ## 3. Alternativas consideradas
