@@ -54,34 +54,6 @@ Los pesos de los QA siguen la columna "Prioridad" del análisis inicial (Alta = 
 
 ### Descripción de C-lite
 
-```mermaid
-flowchart LR
-    CL([Clientes web / móvil])
-    PV[(Proveedores de viaje)]
-    MC[(Proveedores de correo)]
-
-    subgraph TROT[Trotamundos]
-        direction LR
-        API[Panel API<br/>lecturas, gestión manual,<br/>compartir, auth]
-        ING[Workers de ingesta<br/>adaptadores de proveedores<br/>y de correo]
-        ANA[Consumidor de analítica]
-        BR[[Broker con log persistente<br/>Redis Streams / RabbitMQ Streams]]
-        DB[(BD relacional<br/>+ read model en caché)]
-        OLAP[(Almacén OLAP)]
-        VAULT[(Bóveda de tokens)]
-    end
-
-    CL --> API
-    PV --> ING
-    MC -- push --> ING
-    ING -- outbox --> BR
-    BR --> API
-    BR --> ANA
-    API --> DB
-    ANA --> OLAP
-    ING --> VAULT
-```
-
 - **Estructura interna:** cada desplegable usa capas/hexagonal (presentación, aplicación, dominio, infraestructura), con adaptadores por proveedor y por medio de transporte que traducen al modelo canónico (R-2).
 - **Tácticas conservadas:** buffer de picos y replay por log persistente, outbox transaccional, CQRS solo en el panel, circuit breaker, reintentos con backoff, cola de mensajes inválidos, escalado independiente de la ingesta, aislamiento de analítica vía eventos (CU-05), despliegue multi-AZ.
 - **Tácticas diferidas:** separar notificaciones y procesador de itinerarios en servicios propios, y separar la ingesta de correo de la de proveedores (ver sección 7).
