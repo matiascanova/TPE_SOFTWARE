@@ -7,9 +7,9 @@
 
 ## 1. Resumen ejecutivo
 
-Esta iteración fija la estructura global de Trotamundos. Se eligió una arquitectura en capas/hexagonal con **tres desplegables** (Panel API, workers de ingesta y consumidor de analítica) comunicados por un **broker con log persistente y outbox** (alternativa C-lite del ADR-0001), y **PostgreSQL** como base operacional, con núcleo relacional tipado y un campo `detalle` en JSONB para los atributos propios de cada tipo de reserva (ADR-0002).
+Esta iteración fija la estructura global de Trotamundos. Se eligió una arquitectura en capas/hexagonal con **tres desplegables** (Panel API, workers de ingesta y consumidor de analítica) comunicados por un **broker con log persistente y outbox** (alternativa C-lite del ADR-0001).
 
-La estructura cubre bien los drivers de prioridad Alta que dependen de la ingesta (QA-1, QA-5, QA-8) y deja la evolución hacia más servicios como camino previsto, sin reescritura. Las consecuencias negativas aceptadas se resumen en la sección 2 y se concentran en la base relacional compartida con un único primario de escritura.
+La estructura cubre bien los drivers de prioridad Alta que dependen de la ingesta (QA-1, QA-5, QA-8) y deja la evolución hacia más servicios como camino previsto, sin reescritura.
 
 ## 2. Objetivo de la iteración y drivers seleccionados
 
@@ -45,10 +45,7 @@ En esta primera iteración se documentan solo los conceptos que se desprenden di
 La vista simplificada muestra elementos que sostienen la estructura pero que los ADR de esta iteración solo mencionan o dejan fuera de alcance:
 
 - **Broker con log persistente.** Es el conector central entre ingesta, panel y analítica. La vista deja abierta la tecnología (Redis Streams o RabbitMQ Streams) y el ADR-0001 solo lo incluye como parte de C-lite.
-- **Read model en caché (CQRS en el panel).** De él depende que el panel responda sin leer la base operacional. El ADR-0002 lo deja fuera de alcance y remite a un ADR de CQRS.
 - **Adaptadores y modelo canónico.** El ADR-0002 depende de la uniformidad del modelo canónico para justificar el núcleo relacional, y la vista agrupa los adaptadores dentro de los workers de ingesta.
-
-**Propuesta: ADR-0003, conceptos de diseño cruciales de la estructura.** Reuniría la decisión sobre el broker con log persistente y outbox (garantías de entrega y tecnología), el CQRS con read model y el modelo canónico con los adaptadores. La bóveda de tokens y el almacén OLAP quedarían para iteraciones posteriores, porque la primera depende del diseño de revocación y el segundo es funcionalidad secundaria (CU-05). Queda a decisión del equipo si se agrega este ADR o si cada concepto tiene el suyo.
 
 ## 4. Elementos instanciados y responsabilidades
 
@@ -58,7 +55,7 @@ La vista simplificada muestra elementos que sostienen la estructura pero que los
 | **Workers de ingesta** | Adaptadores de proveedores de viaje (CU-02) y de correo (CU-03), filtros y whitelists (CU-08). Traducen al modelo canónico. Guardan el cambio y el evento en la BD (outbox). | Reciben de proveedores de viaje y por push de proveedores de correo. Leen tokens de la bóveda. Publican en el broker. |
 | **Consumidor de analítica** | Consume eventos y los carga en el almacén OLAP, sin tocar la base operacional (CU-05). | Consume del broker. Escribe en OLAP. |
 | **Broker con log persistente** | Buffer de picos, replay tras interrupciones y entrega de eventos. | Producción desde ingesta. Consumo por Panel API y analítica. |
-| **BD PostgreSQL** | Modelo de escritura: usuarios, viajes, reservas, permisos, whitelists, auditoría y outbox. | Panel API y workers. |
+| **BD** | Modelo de escritura: usuarios, viajes, reservas, permisos, whitelists, auditoría y outbox. | Panel API y workers. |
 | **Read model en caché** | Respuestas rápidas del panel y última versión conocida ante caídas de proveedores. | Lo alimenta el Panel API desde eventos. |
 | **Almacén OLAP** | Consultas analíticas del equipo de datos. | Lo alimenta el consumidor de analítica. |
 | **Bóveda de tokens** | Custodia aislada de los tokens de acceso al correo. | Solo los workers de ingesta. |
@@ -72,16 +69,10 @@ Resumen consolidado de los riesgos aceptados en el ADR-0001 y el ADR-0002. Cuand
 | ID | Consecuencia negativa | Efecto | Drivers afectados | Mitigación prevista | ADR |
 |---|---|---|---|---|---|
 | C-1 | Cobertura parcial de QA-4 | Un bug en el código de dominio compartido o en la base primaria puede afectar a más de un desplegable. | QA-4 | Multi-AZ, failover automático de la base y despliegues graduales con rollback. Documentar el límite en los ADR de despliegue. | 0001 |
-| C-2 | Un único primario de escritura | Techo de escritura en picos ×10 y punto único de falla. | QA-6, QA-4 | Particionado, índices ajustados y outbox con lotes. Si el volumen real supera el estimado, particionar por región o usuario con herramientas de sharding, o mover tablas de alto volumen a otro almacén. | 0002 |
-| C-3 | Failover de la base | Las escrituras fallan durante segundos a minutos, y el presupuesto mensual de QA-4 es de unos 5 minutos. | QA-4, QA-5 | Standby sincrónico multi-AZ con failover automático y reintentos con backoff en los clientes. El panel sigue sirviendo el read model en caché. | 0002 |
-| C-4 | Base relacional compartida entre Panel API y workers | Cuello de botella de escritura a 15 M de cuentas y acoplamiento por esquema. | QA-6 | Read model separado para las lecturas. Cada módulo es dueño de sus tablas y el acceso cruzado va por vistas o por eventos. Migraciones versionadas. Particionado por usuario o región como evolución. | 0001, 0002 |
+| C-4 | Base relacional compartida entre Panel API y workers | Cuello de botella de escritura a 15 M de cuentas y acoplamiento por esquema. | QA-6 | Read model separado para las lecturas. Cada módulo es dueño de sus tablas y el acceso cruzado va por vistas o por eventos. Migraciones versionadas. Particionado por usuario o región como evolución. | 0001 |
 | C-5 | Mayor radio de impacto en la ingesta | Un adaptador defectuoso puede afectar a los workers y amenaza la integración con el resto de los proveedores. | QA-8 | Aislamiento por adaptador dentro del worker: colas, pools y circuit breaker por proveedor. | 0001 |
 | C-6 | Fugas entre capas por presión de plazo | La arquitectura documentada deja de coincidir con el código. | Trazabilidad del TPE | Reglas de dependencia verificadas automáticamente en CI (por ejemplo ArchUnit o dependency-cruiser). | 0001 |
 | C-7 | Un broker más para operar | Complejidad operativa y un nuevo componente crítico. | QA-1, QA-4, QA-5 | Broker gestionado o clusterizado en producción. Una sola instancia en el prototipo. | 0001 |
-| C-8 | Mal uso de JSONB | Se pierden restricciones y la base se convierte en un depósito sin esquema. | QA-12 | Los campos que se consultan o filtran van como columnas tipadas. Cada tipo tiene un esquema de validación en su adaptador, como parte del contrato. | 0002 |
-| C-9 | Residencia de datos entre regiones | Compartir itinerarios entre regiones se complica con instancias por región. | R-4, CU-04 | Se resuelve en el ADR de multi-región. | 0002 |
-
-Cuatro de las nueve consecuencias (C-1 a C-4) se originan en la base relacional compartida con primario único, de modo que el almacenamiento operacional es el punto donde más pesan los costos aceptados.
 
 ## 6. Estado de los drivers al cierre
 
@@ -98,7 +89,6 @@ Evaluación para esta documentación, con tres estados: no abordado, parcialment
 | QA-8 | Parcial | Adaptadores, aislamiento por proveedor y cola de inválidos. | C-5. Modelo canónico y contratos de adaptadores. |
 | QA-10 | No abordado | Solo se reserva una bóveda aislada. | ADR de bóveda y revocación de acceso. |
 | QA-11 | Parcial | Restricciones de integridad y row-level security como refuerzo. | Diseño de autorización. |
-| QA-12 | Parcial | Núcleo tipado, `detalle` en JSONB y adaptadores. | C-8. Esquemas por tipo de reserva. |
 | R-2 | Abordado a nivel de estructura | Adaptadores por proveedor. | Contratos concretos. |
 | R-4 | Parcial | Instancia por región y particionado. | C-9. ADR de multi-región. |
 | CU-05 | Parcial | Aislamiento por eventos hacia un almacén propio. | Elección del almacén OLAP. |
