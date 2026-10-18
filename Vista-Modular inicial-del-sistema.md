@@ -7,9 +7,9 @@ flowchart LR
     subgraph TROT[Trotamundos]
         direction LR
         API[Panel API<br/>lecturas, gestión manual,<br/>compartir, auth]
-        ING[Workers de ingesta<br/>adaptadores de proveedores<br/>y de correo]
+        ING[Adaptadores de proveedores<br/>y de correo]
         ANA[Consumidor de analítica]
-        BR[[Broker con log persistente<br/>Redis Streams / RabbitMQ Streams]]
+        BR[[Broker con log persistente]]
         DB[(BD relacional<br/>+ read model en caché)]
         OLAP[(Almacén OLAP)]
         VAULT[(Bóveda de tokens)]
