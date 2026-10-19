@@ -1,7 +1,7 @@
 # ADR-0001: Estilo arquitectónico de Trotamundos
 
 - **Estado:** Propuesto
-- **Fecha:** 14/10/2026 (versión 2, ver historial al final)
+- **Fecha:** 19/10/2026 (versión 3, ver historial al final)
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01 a CU-04, QA-1 a QA-12, R-1 a R-5)
 
@@ -15,7 +15,7 @@ El sistema no es difícil por el tráfico de lectura del panel: 2 M de usuarios 
 
 1. **Ingesta:** correo de 15 M de casillas (QA-7, QA-9, QA-10) y eventos de proveedores heterogéneos (QA-1, QA-5, QA-8) con picos impredecibles.
 2. **Disponibilidad:** 99,99 % (QA-4) exige redundancia real y ausencia de puntos únicos de falla.
-3. **Aislamiento de la analítica:** el CU-05 prevé diseñar su aislamiento del sistema operativo, de modo que las consultas pesadas no degraden el panel. Ya no existe un QA formal para esto, así que es una preocupación de diseño y no un criterio puntuado.
+3. **Aislamiento de la analítica:** el CU-05 prevé diseñar su aislamiento del sistema operativo, de modo que las consultas pesadas no degraden el panel. Ya no existe un QA formal para esto, así que es una preocupación de diseño y no un criterio puntuado. Cómo se logra ese aislamiento se justifica en el ADR-0004.
 4. **Extensibilidad:** sumar trenes sin tocar el núcleo (QA-12).
 
 Además, el TPE se evalúa por la **trazabilidad entre la arquitectura documentada y el código del prototipo**, y es un trabajo grupal con plazo acotado. La viabilidad de implementación es entonces un criterio de decisión de primer orden y no un detalle.
@@ -50,25 +50,28 @@ Los pesos de los QA siguen la columna "Prioridad" del análisis inicial (Alta = 
 | C | Híbrida (5-6 servicios) | Servicios de granularidad media agrupados por patrón de carga, event-driven, CQRS solo en el panel. |
 | D | Serverless | Funciones disparadas por colas y webhooks, API Gateway, NoSQL gestionado. |
 | E | Capas / N-tier | Capas lógicas estrictas desplegadas como tiers (web/API, workers, datos). Un solo código, varios roles. |
-| **C-lite** | Capas/hexagonal con 3 desplegables | Panel API, workers de ingesta y consumidor de analítica. Broker con log persistente y outbox. |
+| **C-lite** | Capas/hexagonal con 3 desplegables | Panel API, ingesta (receptor de notificaciones, workers y relay del outbox) y carga de analítica. Broker con log persistente y outbox entre la ingesta y el panel. Almacén analítico propio, alimentado por copia periódica desde la base operacional. |
 
 ## 4. Decisión
 
-**Se elige C-lite: arquitectura en capas/hexagonal con tres desplegables (Panel API, workers de ingesta y consumidor de analítica), comunicados por un broker con log persistente y outbox, con la separación en más servicios documentada como evolución prevista.**
+**Se elige C-lite: arquitectura en capas/hexagonal con tres desplegables (Panel API, ingesta y carga de analítica). La ingesta y el Panel API se comunican por un broker con log persistente y outbox (ADR-0003). La analítica se aísla en un almacén propio, alimentado por copia periódica desde la base operacional (ADR-0004). La separación en más servicios queda documentada como evolución prevista.**
 
 ### Descripción de C-lite
 
-- **Estructura interna:** cada desplegable usa capas/hexagonal (presentación, aplicación, dominio, infraestructura), con adaptadores por proveedor y por medio de transporte que traducen al modelo canónico (R-2).
-- **Tácticas conservadas:** buffer de picos y replay por log persistente, outbox transaccional, CQRS solo en el panel, circuit breaker, reintentos con backoff, cola de mensajes inválidos, escalado independiente de la ingesta, aislamiento de analítica vía eventos (CU-05), despliegue multi-AZ.
-- **Tácticas diferidas:** separar notificaciones y procesador de itinerarios en servicios propios, y separar la ingesta de correo de la de proveedores (ver sección 7).
+- **Estructura interna:** cada desplegable usa capas/hexagonal (presentación, aplicación, dominio, infraestructura), con adaptadores por proveedor y por medio de transporte que traducen al modelo canónico (R-2). El desplegable de ingesta tiene dos roles: un receptor liviano que recibe las notificaciones de proveedores de viaje y de correo, y los workers que las procesan.
+- **Flujos entre desplegables:**
+  - *Ingesta:* receptor → stream de trabajo del broker → workers. Los workers guardan el cambio y el evento en la base (outbox) y un relay publica el evento en el stream de eventos, que consume el Panel API (ADR-0003).
+  - *Analítica:* la carga programada copia datos desde la base operacional al almacén analítico, sin pasar por el broker (ADR-0004).
+- **Tácticas conservadas:** buffer de entrada y de picos, replay por log persistente, outbox transaccional, CQRS solo en el panel, circuit breaker, reintentos con backoff, cola de mensajes inválidos, escalado independiente de la ingesta, aislamiento de analítica con almacén propio y copia periódica (CU-05), despliegue multi-AZ.
+- **Tácticas diferidas:** separar notificaciones y procesador de itinerarios en servicios propios, separar la ingesta de correo de la de proveedores (ver sección 7), y alimentar la analítica desde el log de eventos si se requiere historia fina o mayor frescura (ADR-0004).
 
 ### 4.1 Por qué C-lite y no E (capas / N-tier)
 
 E es la alternativa más cercana y la que más se parece en implementación. La diferencia está en los QA de prioridad Alta y Media:
 
 - **QA-1 y QA-5:** E no incluye por defecto un log persistente ni outbox. Sin ellos el replay tras una caída del proveedor es limitado, el requisito de 5 minutos queda expuesto a pérdidas de mensajes y el 99 % de recuperación de QA-5 es difícil de garantizar. Si a E se le agregan ambos, E deja de ser E y pasa a ser C-lite.
-- **QA-2/3 y QA-6/7:** en E el panel, la ingesta y la analítica comparten el modelo y la base de escritura, así que las lecturas del panel hacen joins sobre el modelo de escritura y la presión de la ingesta se siente en la base. C-lite separa el read model del panel y manda la analítica por eventos a un almacén propio.
-- **El costo adicional de C-lite sobre E es pequeño:** un broker y un outbox. Es facilidad a cambio de 11 puntos de QA ponderados.
+- **QA-2/3 y QA-6/7:** en E el panel, la ingesta y la analítica comparten el modelo y la base de escritura, así que las lecturas del panel hacen joins sobre el modelo de escritura y la presión de la ingesta se siente en la base. C-lite separa el read model del panel y aísla la analítica en un almacén propio.
+- **El costo adicional de C-lite sobre E es pequeño:** un broker, un outbox y un segundo almacén para la analítica (este último se justifica en el ADR-0004). Es facilidad a cambio de 11 puntos de QA ponderados.
 
 De E se conserva lo que mejor funciona: la organización interna en capas, que da trazabilidad y buena testabilidad.
 
@@ -100,9 +103,9 @@ Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel po
 
 ### Positivas
 
-- Cobertura defendible de los QA de prioridad Alta: buffer de picos y replay (QA-1, QA-5), ingesta escalable por separado (QA-6, QA-7), y analítica aislada por eventos (CU-05).
+- Cobertura defendible de los QA de prioridad Alta: buffer de entrada, buffer de picos y replay (QA-1, QA-5), ingesta escalable por separado (QA-6, QA-7), y analítica aislada en un almacén propio (CU-05).
 - El código refleja la documentación casi uno a uno: tres desplegables, capas visibles en cada uno y adaptadores por proveedor (QA-12, R-2).
-- Es implementable por un grupo con plazo acotado: un broker, un outbox y tres procesos, ejecutables con docker-compose y proveedores simulados.
+- Es implementable por un grupo con plazo acotado: un broker, un outbox, un almacén analítico y tres procesos, ejecutables con docker-compose y proveedores simulados.
 - La evolución a C o B no es una reescritura: los límites internos ya están modelados como módulos con puertos.
 
 ### Negativas y riesgos aceptados
@@ -114,5 +117,6 @@ Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel po
 | Fugas entre capas por presión de plazo | La arquitectura documentada deja de coincidir con el código. | Reglas de dependencia verificadas automáticamente (por ejemplo ArchUnit o dependency-cruiser) en CI. |
 | Base relacional compartida entre Panel API y workers | Cuello de botella de escritura a 15 M de cuentas (QA-6). | Read model separado para las lecturas; particionado por usuario o región como evolución (ADR de almacenamiento). |
 | Un broker más para operar | Complejidad operativa y un nuevo componente crítico. | Broker gestionado o clusterizado en producción; una sola instancia en el prototipo. |
-
+| Analítica con datos diferidos y sin historia fina | Las consultas del equipo de datos reflejan el estado de la última copia. | CU-05 no tiene requisito de frescura. Frecuencia de copia configurable. Evolución prevista: consumir el stream de eventos (ADR-0004). |
+| La copia periódica lee la base operacional | Carga adicional sobre la base compartida. | Carga incremental, fuera de horas pico y con ritmo limitado; réplica de lectura en producción (ADR-0004). |
 
