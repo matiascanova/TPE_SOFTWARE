@@ -56,7 +56,7 @@ flowchart LR
 
 | ID | Caso de uso | Tratamiento |
 |---|---|---|
-| CU-05 | Analítica de datos | Se diseña su aislamiento del sistema operativo; en el prototipo se limita a publicar eventos. |
+| CU-05 | Analítica de datos | Se diseña su aislamiento del sistema operativo; en el prototipo se limita a copiar periodicamente los registros en un almacen analitico propio. |
 | CU-06 | Gestión manual de reservas (alta, modificación, baja) | Se implementa completo. Es la forma más simple de cargar datos en el prototipo. |
 | CU-07 | Agrupar reservas por viaje y archivado automático | Se resuelve con el modelo de dominio y una tarea programada. |
 | CU-08 | Filtros y *whitelists* de remitentes | Paso de filtrado dentro del pipeline de CU-03. |
