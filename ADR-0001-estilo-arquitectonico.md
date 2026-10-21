@@ -16,7 +16,6 @@ El sistema no es difícil por el tráfico de lectura del panel: 2 M de usuarios 
 1. **Ingesta:** correo de 15 M de casillas (QA-7, QA-9, QA-10) y eventos de proveedores heterogéneos (QA-1, QA-5, QA-8) con picos impredecibles.
 2. **Disponibilidad:** 99,99 % (QA-4) exige redundancia real y ausencia de puntos únicos de falla.
 3. **Aislamiento de la analítica:** el CU-05 prevé diseñar su aislamiento del sistema operativo, de modo que las consultas pesadas no degraden el panel. Ya no existe un QA formal para esto, así que es una preocupación de diseño y no un criterio puntuado. Cómo se logra ese aislamiento se justifica en el ADR-0004.
-4. **Extensibilidad:** sumar trenes sin tocar el núcleo (QA-12).
 
 Además, el TPE se evalúa por la **trazabilidad entre la arquitectura documentada y el código del prototipo**, y es un trabajo grupal con plazo acotado. La viabilidad de implementación es entonces un criterio de decisión de primer orden y no un detalle.
 
@@ -29,17 +28,6 @@ Además, el TPE se evalúa por la **trazabilidad entre la arquitectura documenta
 | QA-4 (99,99 %) | 3 | Prioridad Alta |
 | QA-5 / QA-8 (resiliencia e interoperabilidad con proveedores) | 3 | QA-8 Alta, QA-5 Media |
 | QA-6 / QA-7 (escalabilidad) | 3 | QA-6 Alta, QA-7 Media |
-| QA-10 / QA-11 (seguridad) | 2 | QA-10 Media, QA-11 Baja |
-| QA-12 (evolucionabilidad) | 2 | Prioridad Media |
-
-Los pesos de los QA siguen la columna "Prioridad" del análisis inicial (Alta = 3, Media = 2, Baja = 1). Cuando un criterio agrupa dos QA se toma la prioridad más alta.
-
-**QA no puntuado:** QA-9 (extracción correcta del 95 % de los correos de la whitelist en menos de 15 segundos) depende de la calidad de los extractores y no del estilo arquitectónico, por lo que no discrimina entre alternativas.
-
-**Método en dos pasos:**
-
-1. **Filtro de viabilidad.** Mientras que no se puede designarle puntajes objetivos a la dificultad de implementar ciertas arquitecturas puede designarle una dificultad subjetiva a estas en base a experiencias previas y los conocimientos que poseen. Esto y el factor de con cuanto tiempo cuenta el equipo va a guiar de cierta forma que arquitectura se va a elegir
-2. **Puntaje ponderado de QA** entre las alternativas que pasan el filtro.
 
 ## 3. Alternativas consideradas
 
@@ -71,7 +59,7 @@ E es la alternativa más cercana y la que más se parece en implementación. La 
 
 - **QA-1 y QA-5:** E no incluye por defecto un log persistente ni outbox. Sin ellos el replay tras una caída del proveedor es limitado, el requisito de 5 minutos queda expuesto a pérdidas de mensajes y el 99 % de recuperación de QA-5 es difícil de garantizar. Si a E se le agregan ambos, E deja de ser E y pasa a ser C-lite.
 - **QA-2/3 y QA-6/7:** en E el panel, la ingesta y la analítica comparten el modelo y la base de escritura, así que las lecturas del panel hacen joins sobre el modelo de escritura y la presión de la ingesta se siente en la base. C-lite separa el read model del panel y aísla la analítica en un almacén propio.
-- **El costo adicional de C-lite sobre E es pequeño:** un broker, un outbox y un segundo almacén para la analítica (este último se justifica en el ADR-0004). Es facilidad a cambio de 11 puntos de QA ponderados.
+- **El costo adicional de C-lite sobre E es pequeño:** un broker, un outbox y un segundo almacén para la analítica (este último se justifica en el ADR-0004).
 
 De E se conserva lo que mejor funciona: la organización interna en capas, que da trazabilidad y buena testabilidad.
 
@@ -104,7 +92,7 @@ Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel po
 ### Positivas
 
 - Cobertura defendible de los QA de prioridad Alta: buffer de entrada, buffer de picos y replay (QA-1, QA-5), ingesta escalable por separado (QA-6, QA-7), y analítica aislada en un almacén propio (CU-05).
-- El código refleja la documentación casi uno a uno: tres desplegables, capas visibles en cada uno y adaptadores por proveedor (QA-12, R-2).
+- El código refleja la documentación casi uno a uno: tres desplegables, capas visibles en cada uno y adaptadores por proveedor (R-2).
 - Es implementable por un grupo con plazo acotado: un broker, un outbox, un almacén analítico y tres procesos, ejecutables con docker-compose y proveedores simulados.
 - La evolución a C o B no es una reescritura: los límites internos ya están modelados como módulos con puertos.
 
