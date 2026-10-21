@@ -3,7 +3,7 @@
 - **Estado:** Propuesto
 - **Fecha:** 19/10/2026 (versión 3, ver historial al final)
 - **Decisores:** Equipo de diseño (grupo TPE)
-- **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01 a CU-04, QA-1,QA-2,QA-3,QA-5,QA-6,QA-7, R-2,R-4,CRN-1,CRN-3)
+- **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01 a CU-04, QA-1,QA-2,QA-3,QA-5,QA-6,QA-7, R-2,R-6,CRN-1,CRN-3)
 
 ---
 
@@ -15,8 +15,7 @@ El sistema no es difícil por el tráfico de lectura del panel: 2 M de usuarios 
 
 1. **Ingesta:** correo de 15 M de casillas (QA-7) y eventos de proveedores heterogéneos (QA-1, QA-5) con picos impredecibles.
 2. **Aislamiento de la analítica:** el CRN-3 prevé diseñar su aislamiento del sistema operativo. Cómo se logra ese aislamiento se justifica en el ADR-0004.
-
-Además, el TPE se evalúa por la **trazabilidad entre la arquitectura documentada y el código del prototipo**, y es un trabajo grupal con plazo acotado. La viabilidad de implementación es entonces un criterio de decisión de primer orden y no un detalle.
+3. **Trazabilidad entre la arquitectura documentada y el código del prototipo**,Con plazo acotado, la viabilidad de implementación es entonces un criterio de decisión de primer orden y no un detalle.(R-6)
 
 ## 2. Criterios de decisión
 
