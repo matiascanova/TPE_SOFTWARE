@@ -32,7 +32,6 @@ flowchart LR
     end
 
     CL --> API
-    API <-->|"lee"| RM
     API <-->|"lee y escribe"| DB
 
     PV -- "notificaciones" --> RX
