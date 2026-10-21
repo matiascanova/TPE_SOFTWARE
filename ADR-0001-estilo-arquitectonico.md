@@ -88,7 +88,7 @@ Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel po
 
 ### Positivas
 
-- Cobertura defendible de los QA de prioridad Alta: buffer de entrada, buffer de picos y replay (QA-1, QA-5), ingesta escalable por separado (QA-6, QA-7), y analítica aislada en un almacén propio (CRN-3).
+- Cobertura defendible de los QA de prioridad Alta: buffer de entrada, buffer de picos y replay (QA-1, QA-5), ingesta escalable por separado (QA-6, QA-7), y analítica aislada (CRN-3).
 - El código refleja la documentación casi uno a uno: tres desplegables, capas visibles en cada uno y adaptadores por proveedor (R-2).
 - Es implementable por un grupo con plazo acotado: un broker, un outbox, un almacén analítico y tres procesos, ejecutables con docker-compose y proveedores simulados.
 - La evolución a C o B no es una reescritura: los límites internos ya están modelados como módulos con puertos.
