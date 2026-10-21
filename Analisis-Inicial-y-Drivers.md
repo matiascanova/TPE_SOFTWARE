@@ -100,4 +100,11 @@ Decisiones que el diseño debe respetar y que no se discuten durante ADD.
 | R-4 | Al procesar información personal y operar en el mercado internacional, el sistema debe cumplir las normativas de protección de datos de cada región donde opere. | Legal |
 | R-5 | El sistema no garantizara soporte optimo a celulares con tecnologia de telefonia movil de 3GB o inferior | Técnica |
 
+## 6. Concerns
+| ID | Concern |
+|---|---|
+| CRN-1 | Establecer la estructura general del sistema.
+| CRN-2 | Aprovechar los conocimientos tecnologicos del equipo (java,POSTGRE,C++, python entre otros).
+| CRN-3 | Aislar los Casos de uso secundarios.
+
 ---
