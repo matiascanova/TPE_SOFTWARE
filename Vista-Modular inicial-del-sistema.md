@@ -27,7 +27,7 @@ flowchart LR
         end
 
         BR[["Broker con log persistente]]
-        DB[("BD)]
+        DB[("BD")]
         CA["Carga de analítica<br/>tarea programada"]
         OLAP[("Almacén analítico OLAP")]
     end
