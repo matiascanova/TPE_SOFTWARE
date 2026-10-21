@@ -24,11 +24,10 @@ Al tratarse de un desarrollo nuevo, el elemento a refinar es el **sistema comple
 | CU-01, CU-02, CU-03, CU-04 | Funcionalidad primaria. Concentran la mayor parte de los requisitos de calidad. |
 | QA-1, QA-4, QA-6 | Prioridad Alta y dificultad Alta. Condicionan el estilo arquitectónico. |
 | QA-5, QA-8 | Resiliencia e interoperabilidad con proveedores. Determinan el broker, el outbox, los workers y los adaptadores. |
-| QA-2, QA-3, QA-7, QA-10, QA-11, QA-12 | Intervienen en la decisión de estilo. Se abordan de forma parcial o quedan pendientes. |
+| QA-2, QA-3, QA-7 | Intervienen en la decisión de estilo. Se abordan de forma parcial o quedan pendientes. |
 | R-2, R-4 | Restricciones que moldean la integración (adaptadores) y la distribución de datos por región. |
-| CU-05 | Secundario. Solo se diseña su aislamiento del sistema operativo mediante un almacén propio (ADR-0004). |
-
-**Fuera de alcance de la iteración:** QA-9 (depende de la calidad de los extractores y no discrimina entre estilos), R-1 y R-5. También quedan fuera, a propósito, el motor de la base relacional y el diseño de las lecturas del panel, que se definen en una iteración posterior.
+| CRN-3 |Solo se diseña su aislamiento del sistema operativo mediante un almacén propio (ADR-0004). |
+| CRN-1 | Se moldea el concepto general del sistema (ADR-0001). |
 
 ## 3. Conceptos de diseño
 
@@ -36,7 +35,7 @@ En esta primera iteración se documentan solo los conceptos que se desprenden di
 
 | Concepto | Drivers | ADR | Alternativas descartadas |
 |---|---|---|---|
-| Arquitectura en capas/hexagonal con 3 desplegables (C-lite) | QA-1, QA-4, QA-5, QA-6, QA-7, QA-12 | 0001 | Monolito modular (A), microservicios (B), híbrida de 5-6 servicios (C), serverless (D), capas/N-tier (E) |
+| Arquitectura en capas/hexagonal con 3 desplegables (C-lite) | QA-1, QA-4, QA-5, QA-6, QA-7 | 0001 | Monolito modular (A), microservicios (B), híbrida de 5-6 servicios (C), serverless (D), capas/N-tier (E) |
 | Workers de ingesta asíncronos, con un adaptador por proveedor y por medio de transporte | QA-1, QA-5, QA-6, QA-7, QA-8, QA-12 | 0002 | Procesar en el receptor, un servicio por proveedor, funciones serverless por evento |
 | Outbox transaccional con relay por polling | QA-1, QA-4, QA-5, QA-8 | 0002 | Doble escritura directa, publicar primero y guardar después, captura de cambios (CDC), transacción distribuida |
 | Broker con log persistente, con un stream de trabajo (buffer de entrada) y uno de eventos | QA-1, QA-4, QA-5, QA-6, QA-7, QA-8, QA-12 | 0003 | Comunicación síncrona directa, base de datos como bus, cola durable simple, plataforma de streaming completa |
