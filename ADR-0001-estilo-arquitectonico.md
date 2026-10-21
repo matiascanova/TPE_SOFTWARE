@@ -3,7 +3,7 @@
 - **Estado:** Propuesto
 - **Fecha:** 19/10/2026 (versión 3, ver historial al final)
 - **Decisores:** Equipo de diseño (grupo TPE)
-- **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01 a CU-04, QA-1 a QA-12, R-1 a R-5)
+- **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01 a CU-04, QA-1,QA-2,QA-3,QA-5,QA-6,QA-7, R-2,R-4,CRN-1,CRN-3)
 
 ---
 
@@ -13,21 +13,20 @@ Hay que elegir el estilo arquitectónico general de Trotamundos antes de empezar
 
 El sistema no es difícil por el tráfico de lectura del panel: 2 M de usuarios activos semanales con picos ×10 se resuelven con caché y un read model. La dificultad está en cuatro puntos:
 
-1. **Ingesta:** correo de 15 M de casillas (QA-7, QA-9, QA-10) y eventos de proveedores heterogéneos (QA-1, QA-5, QA-8) con picos impredecibles.
-2. **Disponibilidad:** 99,99 % (QA-4) exige redundancia real y ausencia de puntos únicos de falla.
-3. **Aislamiento de la analítica:** el CU-05 prevé diseñar su aislamiento del sistema operativo, de modo que las consultas pesadas no degraden el panel. Ya no existe un QA formal para esto, así que es una preocupación de diseño y no un criterio puntuado. Cómo se logra ese aislamiento se justifica en el ADR-0004.
+1. **Ingesta:** correo de 15 M de casillas (QA-7) y eventos de proveedores heterogéneos (QA-1, QA-5) con picos impredecibles.
+2. **Aislamiento de la analítica:** el CRN-3 prevé diseñar su aislamiento del sistema operativo. Cómo se logra ese aislamiento se justifica en el ADR-0004.
 
 Además, el TPE se evalúa por la **trazabilidad entre la arquitectura documentada y el código del prototipo**, y es un trabajo grupal con plazo acotado. La viabilidad de implementación es entonces un criterio de decisión de primer orden y no un detalle.
 
 ## 2. Criterios de decisión
 
-| Criterio | Peso | Origen del peso |
-|---|---|---|
-| QA-1 (actualizaciones en 5 min) | 3 | Prioridad Alta |
-| QA-2 / QA-3 (latencia del panel) | 2 | QA-2 Media, QA-3 Baja |
-| QA-4 (99,99 %) | 3 | Prioridad Alta |
-| QA-5 / QA-8 (resiliencia e interoperabilidad con proveedores) | 3 | QA-8 Alta, QA-5 Media |
-| QA-6 / QA-7 (escalabilidad) | 3 | QA-6 Alta, QA-7 Media |
+| Criterio | Origen del peso |
+|---|---|
+| QA-1 (actualizaciones en 5 min) | Prioridad Alta |
+| QA-2 / QA-3 (latencia del panel) | QA-2 Media, QA-3 Baja |
+| QA-4 (99,99 %) | Prioridad Alta |
+| QA-5 | (resiliencia e interoperabilidad con proveedores) |QA-5 Media |
+| QA-6 / QA-7 (escalabilidad) | QA-6 Alta, QA-7 Media |
 
 ## 3. Alternativas consideradas
 
@@ -73,7 +72,7 @@ B es la mejor en QA pero la peor en implementabilidad. Tiene que ser descartada 
 
 ### 4.3 Por qué no C (híbrida de 5-6 servicios)
 
-C tiene la misma cobertura de QA que C-lite en los atributos de prioridad Alta (QA-1, QA-5/8, QA-6/7) y es mejor solo en QA-4 (3 puntos ponderados de diferencia). Pero implica 5 o 6 desplegables con contratos propios, outbox, CQRS sincronizado por eventos, circuit breakers, DLQ, simuladores y observabilidad de flujos que cruzan varios servicios. Eso le aumenta la dificultad de implementacion.
+C tiene la misma cobertura de QA que C-lite en los atributos de prioridad Alta (QA-1, QA-5, QA-6/7). Pero implica 5 o 6 desplegables con contratos propios, outbox, CQRS sincronizado por eventos, circuit breakers, DLQ, simuladores y observabilidad de flujos que cruzan varios servicios. Eso le aumenta la dificultad de implementacion.
 
 Los servicios que C separa y C-lite no (notificaciones y procesador de itinerarios) escalan con patrones de carga parecidos a los que ya agrupa el Panel API y los workers, de modo que separarlos hoy agrega costo de integración sin mejorar un QA de prioridad Alta. Por eso se difieren y se documentan como evolución.
 
@@ -85,13 +84,13 @@ Los servicios que C separa y C-lite no (notificaciones y procesador de itinerari
 
 ### 4.5 Por qué no A (monolito modular)
 
-Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel por recursos, un despliegue defectuoso tira todo (QA-4), no hay log para replay (QA-1, QA-5) y se escala todo junto (QA-6). Se puede construir muy rápido, pero habría que reconocer en el diseño que varios drivers inmutables no se cumplen.
+Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel por recursos, un despliegue defectuoso tira todo, no hay log para replay (QA-1, QA-5) y se escala todo junto (QA-6). Se puede construir muy rápido, pero habría que reconocer en el diseño que varios drivers inmutables no se cumplen.
 
 ## 5. Consecuencias
 
 ### Positivas
 
-- Cobertura defendible de los QA de prioridad Alta: buffer de entrada, buffer de picos y replay (QA-1, QA-5), ingesta escalable por separado (QA-6, QA-7), y analítica aislada en un almacén propio (CU-05).
+- Cobertura defendible de los QA de prioridad Alta: buffer de entrada, buffer de picos y replay (QA-1, QA-5), ingesta escalable por separado (QA-6, QA-7), y analítica aislada en un almacén propio (CRN-3).
 - El código refleja la documentación casi uno a uno: tres desplegables, capas visibles en cada uno y adaptadores por proveedor (R-2).
 - Es implementable por un grupo con plazo acotado: un broker, un outbox, un almacén analítico y tres procesos, ejecutables con docker-compose y proveedores simulados.
 - La evolución a C o B no es una reescritura: los límites internos ya están modelados como módulos con puertos.
@@ -100,7 +99,6 @@ Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel po
 
 | Riesgo | Efecto | Mitigación |
 |---|---|---|
-| QA-4 queda con cobertura parcial (3) | Un bug en el código de dominio compartido o en la base primaria puede afectar a más de un desplegable. | Multi-AZ, failover automático de la base, despliegues graduales con rollback. Documentar el límite en los ADR de despliegue. |
 | Radio de impacto mayor en la ingesta: un adaptador defectuoso puede afectar a los workers | Amenaza QA-8 ("sin interrumpir la integración con el resto de los proveedores"). | Aislamiento por adaptador dentro del worker (colas, pools y circuit breaker por proveedor). |
 | Fugas entre capas por presión de plazo | La arquitectura documentada deja de coincidir con el código. | Reglas de dependencia verificadas automáticamente (por ejemplo ArchUnit o dependency-cruiser) en CI. |
 | Base relacional compartida entre Panel API y workers | Cuello de botella de escritura a 15 M de cuentas (QA-6). | Read model separado para las lecturas; particionado por usuario o región como evolución (ADR de almacenamiento). |
