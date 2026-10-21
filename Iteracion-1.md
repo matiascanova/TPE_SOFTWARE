@@ -9,7 +9,7 @@
 
 Esta iteración fija la estructura global de Trotamundos. Se eligió una arquitectura en capas/hexagonal con **tres desplegables** (Panel API, ingesta y carga de analítica). La ingesta y el Panel API se comunican por un **broker con log persistente y outbox**, y la analítica se alimenta por **copia periódica** desde la base operacional hacia un almacén propio (alternativa C-lite del ADR-0001, con los ADR-0002 a 0004).
 
-La estructura cubre bien los drivers de prioridad Alta que dependen de la ingesta (QA-1, QA-5, QA-8) y deja la evolución hacia más servicios como camino previsto, sin reescritura.
+La estructura cubre bien los drivers de prioridad Alta que dependen de la ingesta (QA-1, QA-5) y deja la evolución hacia más servicios como camino previsto, sin reescritura.
 
 ## 2. Objetivo de la iteración y drivers seleccionados
 
@@ -22,10 +22,10 @@ Al tratarse de un desarrollo nuevo, el elemento a refinar es el **sistema comple
 | Driver | Motivo de la selección |
 |---|---|
 | CU-01, CU-02, CU-03, CU-04 | Funcionalidad primaria. Concentran la mayor parte de los requisitos de calidad. |
-| QA-1, QA-4, QA-6 | Prioridad Alta y dificultad Alta. Condicionan el estilo arquitectónico. |
+| QA-1, QA-6 | Prioridad Alta y dificultad Alta. Condicionan el estilo arquitectónico. |
 | QA-2, QA-3, QA-7 | Intervienen en la decisión de estilo. Se abordan de forma parcial o quedan pendientes. |
-| R-2, R-4 | Restricciones que moldean la integración (adaptadores) y la distribución de datos por región. |
-| CRN-3 |Solo se diseña su aislamiento del sistema operativo mediante un almacén propio (ADR-0004). |
+| R-2, R-6 | Restricciones que moldean la integración (adaptadores). |
+| CRN-3 |Solo se diseña su aislamiento del sistema operativo. |
 | CRN-1 | Se moldea el concepto general del sistema (ADR-0001). |
 
 ## 3. Conceptos de diseño
