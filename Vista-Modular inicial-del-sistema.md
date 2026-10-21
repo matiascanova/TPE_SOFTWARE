@@ -28,8 +28,6 @@ flowchart LR
 
         BR[["Broker con log persistente]]
         DB[("BD")]
-        CA["Carga de analítica"]
-        OLAP[("Almacén analítico OLAP")]
     end
 
     CL --> API
@@ -45,9 +43,6 @@ flowchart LR
     DB -- "eventos pendientes" --> RL
     RL -- "publica eventos" --> BR
     BR -- "eventos" --> API
-
-    DB -- "copia incremental<br/>vistas de solo lectura" --> CA
-    CA --> OLAP
 ```
 
 ## 2. Cómo leer el diagrama
