@@ -101,6 +101,4 @@ Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel po
 | Fugas entre capas por presión de plazo | La arquitectura documentada deja de coincidir con el código. | Reglas de dependencia verificadas automáticamente (por ejemplo ArchUnit o dependency-cruiser) en CI. |
 | Base relacional compartida entre Panel API y workers | Cuello de botella de escritura a 15 M de cuentas (QA-6). | Read model separado para las lecturas; particionado por usuario o región como evolución (ADR de almacenamiento). |
 | Un broker más para operar | Complejidad operativa y un nuevo componente crítico. | Broker gestionado o clusterizado en producción; una sola instancia en el prototipo. |
-| Analítica con datos diferidos y sin historia fina | Las consultas del equipo de datos reflejan el estado de la última copia. | CU-05 no tiene requisito de frescura. Frecuencia de copia configurable. Evolución prevista: consumir el stream de eventos (ADR-0004). |
-| La copia periódica lee la base operacional | Carga adicional sobre la base compartida. | Carga incremental, fuera de horas pico y con ritmo limitado; réplica de lectura en producción (ADR-0004). |
 
