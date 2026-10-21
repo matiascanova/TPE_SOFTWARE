@@ -3,7 +3,7 @@
 - **Estado:** Propuesto
 - **Fecha:** 19/10/2026 (versión 2, ver historial al final)
 - **Decisores:** Equipo de diseño (grupo TPE)
-- **Drivers de entrada:** Análisis inicial y drivers (CU-01 a CU-03, QA-1, QA-4 a QA-8, QA-10, QA-12, R-2, R-3, R-4), ADR-0001, ADR-0002 y ADR-0004.
+- **Drivers de entrada:** Análisis inicial y drivers (CU-01 a CU-03, QA-1,QA-5 a QA-7, R-2, R-4).
 
 *El número de ADR es provisional; ajustarlo al siguiente libre.*
 
@@ -13,14 +13,12 @@
 
 El ADR-0001 incorporó el broker con log persistente como parte de C-lite, pero sin justificarlo por separado, y la Iteración 1 lo registra entre los conceptos fundamentales sin ADR propio. Este documento cierra esa deuda: explica por qué la ingesta usa un log persistente como conector y no otra forma de comunicación.
 
-El punto de partida es el siguiente. Las notificaciones de proveedores de viaje y de proveedores de correo llegan por push a la ingesta. Un **receptor** las recibe, las encola y responde. Los **workers** las toman a su ritmo, las traducen al modelo canónico y guardan el cambio y un evento en la base (outbox, ADR-0002). Un **relay** publica los eventos pendientes y el **Panel API** los consume para actualizar el read model. El broker aparece entonces dos veces: como buffer de entrada (stream de trabajo) y como conector hacia el panel (stream de eventos). La analítica no usa el broker (ADR-0004).
+El punto de partida es el siguiente. Las notificaciones de proveedores de viaje y de proveedores de correo llegan por push a la ingesta. Un **receptor** las recibe, las encola y responde. Los **workers** las toman a su ritmo, las traducen al modelo canónico y guardan el cambio y un evento en la base (outbox, ADR-0002). Un **relay** publica los eventos pendientes y el **Panel API** los consume para actualizar el read model. El broker aparece entonces dos veces: como buffer de entrada (stream de trabajo) y como conector hacia el panel (stream de eventos).
 
-Hay cuatro tensiones:
+Hay dos tensiones que abordaremos en esta iteracion:
 
 1. **Ráfagas impredecibles en la entrada.** Una disrupción masiva (por ejemplo, el cierre de un aeropuerto) o una sincronización masiva de casillas de correo generan picos de notificaciones. Los proveedores esperan una respuesta rápida, mientras que procesar una notificación es más lento: hay que consultar al proveedor, leer su contenido e interpretarlo (QA-1, QA-6, QA-7).
-2. **Ritmo propio y límites de uso.** Los proveedores imponen límites que el sistema no controla (R-3). Hace falta procesar a un ritmo sostenible, con reintentos y backoff, sin que un proveedor lento o defectuoso frene a los demás (QA-8).
-3. **Recuperación.** Tras una interrupción de un proveedor o del Panel API, el sistema debe ponerse al día sin perder lo ya recibido (QA-5).
-4. **Disponibilidad sin acoplamiento temporal.** Que el panel o los workers estén caídos o reiniciándose no debería frenar la recepción de notificaciones ni obligar a los demás a esperar (QA-4).
+2. **Recuperación.** Tras una interrupción de un proveedor o del Panel API, el sistema debe ponerse al día sin perder lo ya recibido (QA-5).
 
 Como en el ADR-0001, la viabilidad de implementación es un criterio de primer orden: es un trabajo grupal, con plazo acotado y evaluado por la trazabilidad entre la arquitectura documentada y el código.
 
