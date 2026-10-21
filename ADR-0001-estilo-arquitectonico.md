@@ -23,7 +23,6 @@ El sistema no es difícil por el tráfico de lectura del panel: 2 M de usuarios 
 |---|---|
 | QA-1 (actualizaciones en 5 min) | Prioridad Alta |
 | QA-2 / QA-3 (latencia del panel) | QA-2 Media, QA-3 Baja |
-| QA-4 (99,99 %) | Prioridad Alta |
 | QA-5 | (resiliencia e interoperabilidad con proveedores) |QA-5 Media |
 | QA-6 / QA-7 (escalabilidad) | QA-6 Alta, QA-7 Media |
 
@@ -67,7 +66,7 @@ B es la mejor en QA pero la peor en implementabilidad. Tiene que ser descartada 
 
 - Exige consistencia eventual en todas partes, trazabilidad distribuida, múltiples pipelines y mucha infraestructura (service mesh, saga, multi-región) para un trabajo con plazo acotado.
 - Implementar solo un subconjunto agrava la trazabilidad: cuanto más grande es la arquitectura documentada respecto del código, más difícil es defender que son consistentes.
-- Su ventaja sobre C-lite en QA-4 y QA-6 (aislamiento fino por servicio) no se puede demostrar con un prototipo acotado, así que se pagaría el costo sin poder mostrar el beneficio.
+- Su ventaja sobre C-lite en QA-6 (aislamiento fino por servicio) no se puede demostrar con un prototipo acotado, así que se pagaría el costo sin poder mostrar el beneficio.
 
 ### 4.3 Por qué no C (híbrida de 5-6 servicios)
 
