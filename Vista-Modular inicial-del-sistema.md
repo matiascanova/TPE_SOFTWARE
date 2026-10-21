@@ -26,12 +26,10 @@ flowchart LR
             RL["Relay del outbox"]
         end
 
-        BR[["Broker con log persistente<br/>stream de trabajo + stream de eventos"]]
-        DB[("BD relacional PostgreSQL<br/>núcleo tipado + detalle JSONB<br/>+ tabla outbox")]
-        RM[("Read model<br/>Redis, un documento por viaje")]
+        BR[["Broker con log persistente]]
+        DB[("BD)]
         CA["Carga de analítica<br/>tarea programada"]
         OLAP[("Almacén analítico OLAP")]
-        VAULT[("Bóveda de tokens")]
     end
 
     CL --> API
@@ -43,7 +41,6 @@ flowchart LR
     RX -- "encola trabajo" --> BR
     BR -- "entrega trabajo" --> WK
     WK -- "cambio + evento<br/>misma transacción" --> DB
-    WK --> VAULT
 
     DB -- "eventos pendientes" --> RL
     RL -- "publica eventos" --> BR
