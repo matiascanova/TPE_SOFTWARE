@@ -23,7 +23,6 @@ Al tratarse de un desarrollo nuevo, el elemento a refinar es el **sistema comple
 |---|---|
 | CU-01, CU-02, CU-03, CU-04 | Funcionalidad primaria. Concentran la mayor parte de los requisitos de calidad. |
 | QA-1, QA-4, QA-6 | Prioridad Alta y dificultad Alta. Condicionan el estilo arquitectónico. |
-| QA-5, QA-8 | Resiliencia e interoperabilidad con proveedores. Determinan el broker, el outbox, los workers y los adaptadores. |
 | QA-2, QA-3, QA-7 | Intervienen en la decisión de estilo. Se abordan de forma parcial o quedan pendientes. |
 | R-2, R-4 | Restricciones que moldean la integración (adaptadores) y la distribución de datos por región. |
 | CRN-3 |Solo se diseña su aislamiento del sistema operativo mediante un almacén propio (ADR-0004). |
