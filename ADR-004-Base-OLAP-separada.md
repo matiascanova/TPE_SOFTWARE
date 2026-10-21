@@ -53,26 +53,6 @@ Los pesos siguen la columna "Prioridad" del análisis inicial (Alta = 3, Media =
 | 3 | **Almacén analítico propio, alimentado por copia periódica** | Una base separada con esquema analítico. Una carga programada copia datos de forma incremental desde la base operacional. |
 | 4 | Almacén analítico propio, alimentado por el log | Una base separada. Un consumidor lee el stream de eventos del broker y la carga. |
 
-### 3.1 Filtro de viabilidad
-
-*Valoración inferida del contexto del ADR-0001; ajustar si el equipo tiene otra experiencia.*
-
-| ID | Dificultad de implementación y operación | Control de datos personales (R-4) | Resultado |
-|---|---|---|---|
-| 1 | Baja | Débil: acceso a todo el modelo operacional. | Pasa |
-| 2 | Baja a media | Parcial: se puede restringir con vistas y permisos, pero la réplica contiene todo. | Pasa |
-| 3 | Media a baja: una tarea programada y un segundo almacén. | Bueno: la carga excluye y seudonimiza campos. | Pasa |
-| 4 | Media: un consumidor más, un contrato de eventos analíticos y la publicación de los cambios manuales del panel como eventos. | Bueno: el consumidor excluye y seudonimiza campos. | Pasa |
-
-### 3.2 Puntaje ponderado de QA
-
-| Criterio | Peso | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|
-| Aislamiento de carga | 3 | 0 | 2 | 3 | 3 |
-| Aislamiento de fallas | 3 | 0 | 2 | 3 | 3 |
-| QA-12 | 2 | 0 | 1 | 2 | 3 |
-| **Total ponderado (máx. 24)** | | **0** | **14** | **22** | **24** |
-
 ## 4. Decisión
 
 **Se elige un almacén analítico (OLAP) propio, separado de la base operacional y alimentado por una carga programada que copia datos de forma incremental desde ella (alternativa 3). La analítica no consume el broker.**
@@ -109,8 +89,6 @@ Es la mejor en QA por un margen pequeño (2 de 24 puntos), gracias a la historia
 - Ata la analítica a la ventana de retención del log: si el consumidor se retrasa más que la ventana, pierde datos (ADR-0003, B-5).
 - Es más piezas y más contratos para un trabajo con plazo acotado.
 
-Queda como **evolución prevista**: si aparece el requisito de historia fina o de mayor frescura, se agrega un consumidor al stream de eventos sin tocar los demás componentes (ADR-0003). Habría que decidir también cómo se publican las ediciones manuales.
-
 ## 5. Consecuencias
 
 ### Positivas
@@ -133,16 +111,6 @@ Queda como **evolución prevista**: si aparece el requisito de historia fina o d
 | A-5 | Datos duplicados en dos almacenes | Costo de almacenamiento y riesgo de inconsistencias. | El almacén no es fuente de verdad y se puede reconstruir. Verificación de conteos en cada carga. |
 | A-6 | Datos personales en el almacén (R-4) | Residencia por región y pedidos de borrado. | Seudonimización y minimización. Carga y almacén por región. La carga propaga los borrados de usuarios. |
 | A-7 | Otro almacén para operar | Complejidad operativa. | Una sola instancia en el prototipo, con un motor conocido por el equipo. |
-
-### Efecto sobre los drivers
-
-| Driver | Aporte | Pendiente |
-|---|---|---|
-| CU-05 | Analítica aislada, con almacén propio y datos mínimos. | Elección del motor y esquema analítico. |
-| QA-1 / QA-2 / QA-6 | Protegidos de la carga analítica. | Medir el impacto de la carga programada sobre la base (A-3). |
-| QA-4 | La analítica no puede afectar a la base operacional. | Ninguno específico de este ADR. |
-| QA-12 | Motor y esquema analíticos independientes. | Evolución a la alternativa 4 si se requiere historia. |
-| R-4 | Seudonimización y minimización en la carga. | Residencia por región y propagación de borrados (ADR de multi-región). |
 
 ## 6. Decisión abierta: motor del almacén
 
