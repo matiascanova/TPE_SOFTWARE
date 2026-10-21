@@ -80,30 +80,6 @@ Consideraciones:
 | 3 | MongoDB | Base documental con esquema flexible y transacciones multi-documento. |
 | 4 | DynamoDB / Cassandra | Clave-valor o wide-column distribuido, diseño orientado a patrones de acceso. |
 
-## 4. Evaluación (decisión A)
-
-### 4.1 Puntaje
-
-Puntaje de 1 (débil) a 5 (fuerte). Son juicios del equipo, no mediciones. Se usa el mismo criterio que en el ADR-0001: pesos por prioridad del QA y un filtro de viabilidad.
-
-| Criterio (peso) | PostgreSQL | MySQL | MongoDB | DynamoDB / Cassandra |
-|---|---|---|---|---|
-| Conocimiento del equipo y facilidad de implementar (3) | 5 | 5 | 2 | 1 |
-| Garantías transaccionales para outbox y consistencia (3) | 5 | 5 | 3 | 2 |
-| Rendimiento para el volumen estimado, QA-2/3 (2) | 4 | 4 | 4 | 5 |
-| Ajuste al modelo de datos (2) | 5 | 4 | 4 | 2 |
-| Evolucionabilidad, QA-12 (2) | 4 | 4 | 5 | 4 |
-| Disponibilidad, QA-4 (3) | 4 | 4 | 4 | 5 |
-| Escalabilidad de escritura, QA-6 (3) | 3 | 3 | 4 | 5 |
-| **Total ponderado** | **77** | **75** | **65** | **61** |
-| **Total sin el criterio de conocimiento** | **62** | **60** | **59** | **58** |
-
-Supuesto de la primera fila: el equipo tiene experiencia en SQL y poca o ninguna en NoSQL.
-
-### 4.2 Sensibilidad al conocimiento del equipo
-
-Sin el criterio de conocimiento, las cuatro familias quedan a 4 puntos entre sí (58 a 62). Con él, PostgreSQL y MySQL se separan de MongoDB y DynamoDB/Cassandra por 10 puntos o más. La decisión depende entonces de la experiencia real del equipo, y se escribe como tal: si el equipo no tuviera esa experiencia, la elección quedaría abierta.
-
 ## 5. Decisión A: motor de la base operacional
 
 **Se elige PostgreSQL como motor de la base operacional, con un núcleo relacional tipado y un campo `detalle` en JSONB validado por esquema para los atributos propios de cada tipo de reserva.**
@@ -161,31 +137,6 @@ Resuelve tres cosas:
 | R2 | Tablas de lectura en PostgreSQL | Tablas desnormalizadas en la misma base (o en una réplica), mantenidas por el Panel API a partir de eventos. |
 | R3 | **Almacén clave-valor en memoria** | Un documento por viaje y un índice por usuario en Redis, mantenidos por el Panel API a partir de eventos y reconstruibles desde la base. |
 | R4 | Base documental propia | MongoDB con persistencia propia, mantenida a partir de eventos. |
-
-*Valoración de viabilidad inferida del contexto del ADR-0001; ajustar si el equipo tiene otra experiencia.*
-
-| ID | Dificultad de implementación y operación | Resultado |
-|---|---|---|
-| R1 | Baja | Pasa |
-| R2 | Baja a media: mismo motor y mismas herramientas. | Pasa |
-| R3 | Media a baja: se usa como almacén clave-valor, no requiere modelar un esquema. | Pasa |
-| R4 | Media a alta: una tecnología nueva para el equipo, con su propio modelo de datos y operación. | No pasa |
-
-### 6.3 Puntaje ponderado de QA
-
-Escala de 0 (no cubre) a 3 (cubre de forma natural). Los pesos siguen la prioridad de cada QA, como en el ADR-0001.
-
-| Criterio | Peso | R1 | R2 | R3 | R4 |
-|---|---|---|---|---|---|
-| QA-2 / QA-3 (latencia del panel) | 2 | 1 | 2 | 3 | 3 |
-| QA-4 (99,99 %) | 3 | 1 | 2 | 2 | 3 |
-| QA-6 (picos ×10 de lectura) | 3 | 1 | 2 | 3 | 3 |
-| QA-12 (nuevos tipos de reserva) | 2 | 2 | 2 | 3 | 3 |
-| **Total ponderado (máx. 30)** | | **12** | **20** | **27** | **30** |
-
-**QA no puntuados.** QA-1 depende del camino de eventos, que es el mismo en todas las alternativas. QA-5 tampoco discrimina: la última versión conocida de cada viaje siempre está en la base. QA-11 se trata en las reglas de la decisión.
-
-R4 puntúa más, pero no pasa el filtro de viabilidad. Entre las que pasan, R3 supera a R2 por 7 puntos y a R1 por 15.
 
 ### 6.4 Decisión
 
