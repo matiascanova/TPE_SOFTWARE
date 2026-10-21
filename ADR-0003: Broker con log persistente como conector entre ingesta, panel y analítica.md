@@ -114,13 +114,3 @@ Es la mejor en QA, pero queda descartada por viabilidad, con el mismo razonamien
 ## 6. Decisión abierta: tecnología del broker
 
 La Iteración 1 deja abierta la elección entre Redis Streams y RabbitMQ Streams. Ambas cumplen el modelo de log con offsets por consumidor.
-
-## 7. Relación con otros ADR y próximos pasos
-
-- **ADR-0001:** define C-lite y su regla de capas; este ADR justifica uno de sus componentes.
-- **ADR-0002:** define la tabla outbox, que es el punto de entrada de los eventos al stream de eventos.
-- **ADR-0004:** justifica que la analítica no use el broker y se alimente desde la base. Su evolución (consumir el stream de eventos) depende de este ADR.
-- **ADR de tecnología del broker:** cerrar la sección 6 (Iteración 2).
-- **ADR de contratos de mensajes y modelo canónico:** esquemas del stream de trabajo y del de eventos, versionado, claves de orden e identificadores (Iteración 2).
-- **ADR de despliegue:** alta disponibilidad del broker y objetivo de failover (Iteración 3).
-- **ADR de multi-región:** residencia de datos y borrado sobre el log (B-6).
