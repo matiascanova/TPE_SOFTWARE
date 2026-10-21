@@ -26,8 +26,9 @@ flowchart LR
             RL["Relay del outbox"]
         end
 
-        BR[["Broker con log persistente]]
+        BR[["Broker con log persistente"]]
         DB[("BD")]
+        CA["Analitica"]
     end
 
     CL --> API
@@ -43,6 +44,8 @@ flowchart LR
     DB -- "eventos pendientes" --> RL
     RL -- "publica eventos" --> BR
     BR -- "eventos" --> API
+
+    CA <-- "lee y escribe" --> DB
 ```
 
 ## 2. Cómo leer el diagrama
