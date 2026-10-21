@@ -17,7 +17,7 @@ flowchart LR
 
     subgraph TROT[Trotamundos]
         direction LR
-        API["Panel API<br/>lecturas, gestión manual,<br/>compartir, auth<br/>+ mantiene el read model"]
+        API["Panel API<br/>lecturas, gestión manual"]
 
         subgraph INGD[Ingesta]
             direction LR
