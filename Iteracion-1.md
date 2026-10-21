@@ -38,14 +38,6 @@ En esta primera iteración se documentan solo los conceptos que se desprenden di
 | Workers de ingesta asíncronos, con un adaptador por proveedor y por medio de transporte | QA-1, QA-5, QA-6, QA-7, QA-8, QA-12 | 0002 | Procesar en el receptor, un servicio por proveedor, funciones serverless por evento |
 | Outbox transaccional con relay por polling | QA-1, QA-4, QA-5, QA-8 | 0002 | Doble escritura directa, publicar primero y guardar después, captura de cambios (CDC), transacción distribuida |
 | Broker con log persistente, con un stream de trabajo (buffer de entrada) y uno de eventos | QA-1, QA-4, QA-5, QA-6, QA-7, QA-8, QA-12 | 0003 | Comunicación síncrona directa, base de datos como bus, cola durable simple, plataforma de streaming completa |
-| Almacén analítico separado, alimentado por copia periódica desde la base | CU-05, QA-1, QA-2, QA-4, QA-6, QA-12, R-4 | 0004 | Consultas directas sobre la base operacional, réplica de lectura, alimentación por el log |
-
-### 3.1 Conceptos fundamentales sin ADR propio
-
-La vista simplificada muestra elementos que sostienen la estructura pero que los ADR de esta iteración solo mencionan o dejan fuera de alcance:
-
-- **Adaptadores y modelo canónico.** Los workers los usan (ADR-0002), pero el modelo canónico y los contratos de los adaptadores no tienen decisión propia, y la vista agrupa los adaptadores dentro de los workers de ingesta.
-- **Receptor de notificaciones.** El ADR-0003 lo describe como parte del buffer de entrada. Recibe las notificaciones push de proveedores de viaje y de correo, las encola y responde, pero no tiene una decisión propia.
 
 ## 4. Elementos instanciados y responsabilidades
 
