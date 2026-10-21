@@ -80,7 +80,7 @@ Las medidas marcadas con \* fueron propuestas por el equipo para que el escenari
 | QA-8 | Interoperabilidad | Cuando los sistemas de proveedores externos envían notificaciones mediante sus APIs estándar durante la operación normal, el sistema procesa correctamente el 99% de los mensajes válidos e identifica y registra el 99% de los inválidos, sin interrumpir la integración con el resto de los proveedores. | CU-02 | Alta | Media |
 | QA-9 | Interoperabilidad | El sistema deberá extraer correctamente la reserva del 95%\* de los emails de remitentes en la *whitelist*, dentro de los formatos soportados y en menos de 15 segundos. | CU-03 | Media | Media |
 | QA-10 | Seguridad | Cuando un usuario revoca el acceso a su correo durante la operación normal, el sistema deja de leer ese correo en menos de 1 minuto\* y no realiza ninguna lectura posterior con el token revocado (0 accesos). | CU-03 | Media | Media |
-| QA-11 | Seguridad | Cuando una persona no designada quiera ver un itinerario compartido; el sistema rechazará y registrará el 100% de los accesos no autorizados. | CU-04 | Baja | Baja |
+| QA-11 | Seguridad | Cuando una persona no designada quiera ver un itinerario compartido; el sistema rechazará y registrará el 100% de los accesos no autorizados. | CU-06 | Baja | Baja |
 | QA-12 | Evolucionabilidad | Cuando el negocio decide incorporar un nuevo medio de transporte (por ejemplo, trenes), el sistema lo soporta sin modificar los componentes existentes del núcleo, con un esfuerzo máximo de 2 días-persona\*. | CU-02, 03 | Media | Baja |
 
 ### 4.1 Criterio de priorización
