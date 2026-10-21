@@ -12,8 +12,8 @@
 ```mermaid
 flowchart LR
     CL([Clientes web / móvil])
-    PV[(Proveedores de viaje)]
-    MC[(Proveedores de correo)]
+    PV(Proveedores de viaje)
+    MC(Proveedores de correo)
 
     subgraph TROT[Trotamundos]
         direction LR
@@ -28,7 +28,7 @@ flowchart LR
 
         BR[["Broker con log persistente]]
         DB[("BD")]
-        CA["Carga de analítica<br/>tarea programada"]
+        CA["Carga de analítica"]
         OLAP[("Almacén analítico OLAP")]
     end
 
