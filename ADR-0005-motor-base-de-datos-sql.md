@@ -117,19 +117,7 @@ Estas reglas cierran los requisitos que dejaron los otros ADR sobre la base:
 - **Outbox particionado por tiempo**, con descarte de particiones viejas (ADR-0002).
 - **Migraciones versionadas** (Flyway, Liquibase o similar), con prueba de la carga de analítica en CI.
 
-## 6. Decisión B: read model del panel
-
-### 6.1 Qué es y qué problema resuelve
-
-El **read model** es una copia derivada y desnormalizada de lo que el panel necesita mostrar. La base guarda el modelo de escritura y el panel lee del read model (CQRS solo en el panel, ADR-0001). No es fuente de verdad: la base lo es, y el read model se puede reconstruir desde ella.
-
-Resuelve tres cosas:
-
-- **Latencia y picos de lectura.** El panel concentra la mayor parte del tráfico: 2 M de usuarios activos semanales, con picos ×10, 800 ms de respuesta (QA-2) y 1,4 s hasta el primer contenido (QA-3).
-- **Aislamiento de la escritura.** Sin read model, las lecturas con joins competirían con las escrituras de la ingesta en un único primario. Es el problema que el ADR-0001 le atribuye a la alternativa E.
-- **El uso del stream de eventos.** Da respuesta a qué hace el Panel API con los eventos que consume (ADR-0003): los usa para mantener el read model al día.
-
-### 6.2 Alternativas consideradas
+### 6 Alternativas consideradas
 
 | ID | Alternativa | Resumen |
 |---|---|---|
@@ -138,7 +126,7 @@ Resuelve tres cosas:
 | R3 | **Almacén clave-valor en memoria** | Un documento por viaje y un índice por usuario en Redis, mantenidos por el Panel API a partir de eventos y reconstruibles desde la base. |
 | R4 | Base documental propia | MongoDB con persistencia propia, mantenida a partir de eventos. |
 
-### 6.4 Decisión
+### 6.1 Decisión
 
 **Se elige R3: el read model es un almacén clave-valor en memoria (Redis), con un documento por viaje y un índice por usuario. El Panel API lo mantiene a partir de los eventos de la ingesta y de sus propios cambios manuales. El panel lee solo del read model, y este se reconstruye desde la base cuando falta una entrada.**
 
@@ -157,7 +145,7 @@ Resuelve tres cosas:
 - **Reconstrucción masiva.** Un procedimiento repuebla el read model desde la base tras una pérdida, con ritmo limitado y empezando por los usuarios activos.
 - **Puerto.** El dominio accede al read model por un puerto, y la tecnología vive en la capa de infraestructura. Pasar a R2 o a R4 no toca el núcleo (ADR-0001).
 
-### 6.5 Cómo funciona
+### 6.2 Cómo funciona
 
 **Caso práctico.** Siguiendo el ejemplo del ADR-0002: el worker guardó la reserva del hotel (versión 4 del viaje) y escribió el evento en el outbox, y el relay lo publicó en el stream de eventos.
 
@@ -179,7 +167,7 @@ Cuando el viajero abre el panel, el Panel API lee su índice y los documentos de
 | Falla la actualización del read model tras un cambio manual. | Se reintenta y, si no se logra, se borra la entrada. | La próxima lectura reconstruye desde la base. |
 | Llega un evento duplicado o fuera de orden. | Se relee el estado actual y la escritura es condicional por versión. | Sin efecto. |
 
-### 6.6 Por qué no las otras alternativas
+### 6.3 Por qué no las otras alternativas
 
 - **R1 (sin read model).** Es la más simple, pero las lecturas del panel hacen joins sobre el modelo de escritura y compiten con la ingesta en un único primario. No sostiene los picos ×10 (QA-6) y una falla de la base tira el panel (QA-4).
 - **R2 (tablas de lectura en PostgreSQL).** Es la opción más conservadora y no suma tecnología. Aísla las lecturas de las tablas de negocio, pero sigue consumiendo el mismo motor y el mismo primario, o una réplica con su propio retraso, y un único motor limita el crecimiento de las lecturas. Es una alternativa razonable **si el equipo prefiere no sumar Redis**: se mantienen las reglas de actualización de la decisión B y solo cambia el almacén.
@@ -228,11 +216,11 @@ Cuando el viajero abre el panel, el Panel API lee su índice y los documentos de
 - **ADR-0002:** define los workers y el outbox. Este ADR decide dónde viven sus tablas y la versión por viaje que usa el guardado idempotente.
 - **ADR-0003:** define el stream de eventos que consume el Panel API para mantener el read model.
 - **ADR-0004:** la carga de analítica usa las vistas de solo lectura, la versión por tabla y la réplica de lectura que define este ADR.
-- **ADR de despliegue (Iteración 3):** alta disponibilidad de la base y del read model, y objetivo de failover.
+- **ADR de despliegue (Iteración 3):** alta disponibilidad de la base, y objetivo de failover.
 - **ADR de multi-región:** residencia de datos y compartir itinerarios entre regiones (S-5).
 - **ADR de contratos de mensajes y modelo canónico (Iteración 2):** de él depende la estructura de los documentos del read model.
 
 ## Historial de cambios
 
 - **v1 (14/10/2026):** decisión del motor de la base operacional (PostgreSQL), con el read model fuera de alcance.
-- **v2 (19/10/2026):** se agrega la decisión B (read model del panel) y el usuario pasa a tener un solo ADR para el almacenamiento operacional. Se alinea con los ADR-0001 a 0004. Se renumera como ADR-0005. Se agregan los totales a la tabla de evaluación del motor y la sección 4.2, a la que ya hacía referencia la v1. Se agregan las reglas del esquema (sección 5.5) y los riesgos S-6 a S-11.
+- **v2 (19/10/2026):** El usuario pasa a tener un solo ADR para el almacenamiento operacional. Se alinea con los ADR-0001 a 0004. Se renumera como ADR-0005. Se agregan los totales a la tabla de evaluación del motor y la sección 4.2, a la que ya hacía referencia la v1. Se agregan las reglas del esquema (sección 5.5) y los riesgos S-6 a S-11.
