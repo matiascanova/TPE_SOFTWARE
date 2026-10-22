@@ -1,4 +1,4 @@
-# ADR-0004: Almacén analítico separado de la base operacional
+# ADR-0005: Almacén analítico separado de la base operacional
 
 - **Estado:** Propuesto
 - **Fecha:** 19/10/2026
