@@ -117,7 +117,19 @@ Estas reglas cierran los requisitos que dejaron los otros ADR sobre la base:
 - **Outbox particionado por tiempo**, con descarte de particiones viejas (ADR-0002).
 - **Migraciones versionadas** (Flyway, Liquibase o similar), con prueba de la carga de analítica en CI.
 
-### 6 Alternativas consideradas
+### 6. Decisión B: read model del panel
+
+### 6.1 Qué es y qué problema resuelve
+
+El **read model** es una copia derivada y desnormalizada de lo que el panel necesita mostrar. La base guarda el modelo de escritura y el panel lee del read model (CQRS solo en el panel, ADR-0001). No es fuente de verdad: la base lo es, y el read model se puede reconstruir desde ella.
+
+Resuelve tres cosas:
+
+- **Latencia y picos de lectura.** El panel concentra la mayor parte del tráfico: 2 M de usuarios activos semanales, con picos ×10, 800 ms de respuesta (QA-2) y 1,4 s hasta el primer contenido (QA-3).
+- **Aislamiento de la escritura.** Sin read model, las lecturas con joins competirían con las escrituras de la ingesta en un único primario. Es el problema que el ADR-0001 le atribuye a la alternativa E.
+- **El uso del stream de eventos.** Da respuesta a qué hace el Panel API con los eventos que consume (ADR-0003): los usa para mantener el read model al día.
+
+### 6.2 Alternativas consideradas
 
 | ID | Alternativa | Resumen |
 |---|---|---|
@@ -126,7 +138,7 @@ Estas reglas cierran los requisitos que dejaron los otros ADR sobre la base:
 | R3 | **Almacén clave-valor en memoria** | Un documento por viaje y un índice por usuario en Redis, mantenidos por el Panel API a partir de eventos y reconstruibles desde la base. |
 | R4 | Base documental propia | MongoDB con persistencia propia, mantenida a partir de eventos. |
 
-### 6.1 Decisión
+### 6.3 Decisión
 
 **Se elige R3: el read model es un almacén clave-valor en memoria (Redis), con un documento por viaje y un índice por usuario. El Panel API lo mantiene a partir de los eventos de la ingesta y de sus propios cambios manuales. El panel lee solo del read model, y este se reconstruye desde la base cuando falta una entrada.**
 
@@ -145,7 +157,7 @@ Estas reglas cierran los requisitos que dejaron los otros ADR sobre la base:
 - **Reconstrucción masiva.** Un procedimiento repuebla el read model desde la base tras una pérdida, con ritmo limitado y empezando por los usuarios activos.
 - **Puerto.** El dominio accede al read model por un puerto, y la tecnología vive en la capa de infraestructura. Pasar a R2 o a R4 no toca el núcleo (ADR-0001).
 
-### 6.2 Cómo funciona
+### 6.4 Cómo funciona
 
 **Caso práctico.** Siguiendo el ejemplo del ADR-0002: el worker guardó la reserva del hotel (versión 4 del viaje) y escribió el evento en el outbox, y el relay lo publicó en el stream de eventos.
 
@@ -167,7 +179,7 @@ Cuando el viajero abre el panel, el Panel API lee su índice y los documentos de
 | Falla la actualización del read model tras un cambio manual. | Se reintenta y, si no se logra, se borra la entrada. | La próxima lectura reconstruye desde la base. |
 | Llega un evento duplicado o fuera de orden. | Se relee el estado actual y la escritura es condicional por versión. | Sin efecto. |
 
-### 6.3 Por qué no las otras alternativas
+### 6.5 Por qué no las otras alternativas
 
 - **R1 (sin read model).** Es la más simple, pero las lecturas del panel hacen joins sobre el modelo de escritura y compiten con la ingesta en un único primario. No sostiene los picos ×10 (QA-6) y una falla de la base tira el panel (QA-4).
 - **R2 (tablas de lectura en PostgreSQL).** Es la opción más conservadora y no suma tecnología. Aísla las lecturas de las tablas de negocio, pero sigue consumiendo el mismo motor y el mismo primario, o una réplica con su propio retraso, y un único motor limita el crecimiento de las lecturas. Es una alternativa razonable **si el equipo prefiere no sumar Redis**: se mantienen las reglas de actualización de la decisión B y solo cambia el almacén.
