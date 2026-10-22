@@ -161,10 +161,10 @@ Los siguientes drivers del análisis inicial no se abordan en esta iteración, y
 - **Concerns:**
   - CRN-2 (aprovechar los conocimientos tecnológicos del equipo)
 - **Concerns nuevas de esta iteración:**
-  - CRN-N1 (aislar la falla de un proveedor, Iteración 2)
-  - CRN-N2 (capacidad de la base compartida, Iteración 3)
-  - CRN-N3 (operar broker, relay y read model, Iteración 3)
-  - CRN-N4 (consistencia y reconstrucción de datos, Iteraciones 2 y 3)
+  - CRN-N1 (aislar la falla de un proveedor)
+  - CRN-N2 (capacidad de la base compartida)
+  - CRN-N3 (operar broker, relay y read model)
+  - CRN-N4 (consistencia y reconstrucción de datos)
 
 ## 7. Decisiones pendientes y próximas iteraciones
 
