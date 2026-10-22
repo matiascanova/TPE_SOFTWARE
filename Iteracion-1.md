@@ -109,12 +109,12 @@ Los ADR-0001 a 0004 registran 19 riesgos aceptados. Muchos se repiten entre ADR 
 
 ### 5.1 Concerns nuevas
 
-| ID | Concern | Riesgos de origen | Mitigación ya prevista en los ADR | Se aborda en |
-|---|---|---|---|---|
-| CRN-N1 | Aislar la falla de un proveedor del resto de la ingesta | ADR-0001 (radio de impacto), W-1 | Colas, pools y circuit breaker por proveedor dentro del worker. | Iteración 2 |
-| CRN-N2 | Evitar que la base operacional compartida sea el cuello de botella | ADR-0001 (base compartida), W-2, W-3, RM-1 | Cada módulo es dueño de sus tablas. Partición y descarte del outbox. Lecturas por clave indexada y agrupadas. Réplica de lectura. Prueba de carga. | Iteración 3 |
-| CRN-N3 | Operar y mantener disponibles el broker, el relay y el read model | ADR-0001 (un broker más), B-4, W-4, RM-5 | Broker gestionado o clusterizado y multi-AZ. El receptor responde con error para que el proveedor reintente. Alertas por antigüedad de la fila pendiente y retraso de consumo. Reinicio automático. | Iteración 3 |
-| CRN-N4 | Mantener consistentes los datos entre BD, log y read model, y poder reconstruirlos | B-2, W-5, RM-3, RM-2 | Idempotencia por id de evento y versión. Escritura condicional por versión en el read model. Reconstrucción del read model desde la BD. | Iteración 2 (contratos de mensajes) e Iteración 3 (reconstrucción) |
+| ID | Concern | Riesgos de origen | Mitigación ya prevista en los ADR |
+|---|---|---|---|
+| CRN-N1 | Aislar la falla de un proveedor del resto de la ingesta | ADR-0001 (radio de impacto), W-1 | Colas, pools y circuit breaker por proveedor dentro del worker. |
+| CRN-N2 | Evitar que la base operacional compartida sea el cuello de botella | ADR-0001 (base compartida), W-2, W-3, RM-1 | Cada módulo es dueño de sus tablas. Partición y descarte del outbox. Lecturas por clave indexada y agrupadas. Réplica de lectura. Prueba de carga. |
+| CRN-N3 | Operar y mantener disponibles el broker, el relay y el read model | ADR-0001 (un broker más), B-4, W-4, RM-5 | Broker gestionado o clusterizado y multi-AZ. El receptor responde con error para que el proveedor reintente. Alertas por antigüedad de la fila pendiente y retraso de consumo. Reinicio automático. |
+| CRN-N4 | Mantener consistentes los datos entre BD, log y read model, y poder reconstruirlos | B-2, W-5, RM-3, RM-2 | Idempotencia por id de evento y versión. Escritura condicional por versión en el read model. Reconstrucción del read model desde la BD. |
 
 ## 6. Estado de los drivers al cierre
 
