@@ -95,67 +95,14 @@ Como en los otros ADR, la viabilidad de implementación es un criterio de primer
 
 ### 4.3 Cómo funciona
 
-**Estructura de la tabla.** El ejemplo es ilustrativo: la sintaxis depende del motor, que todavía no está decidido.
-
-```sql
-CREATE TABLE outbox (
-  secuencia     BIGSERIAL PRIMARY KEY,   -- orden de creación
-  id_evento     UUID NOT NULL UNIQUE,    -- identificador para la idempotencia
-  tipo          TEXT NOT NULL,           -- por ejemplo 'ReservaCreada'
-  clave         TEXT NOT NULL,           -- identificador de viaje (clave de orden)
-  version       INT  NOT NULL,           -- versión del viaje tras el cambio
-  payload       JSONB NOT NULL,          -- datos mínimos o referencias
-  creado_en     TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en  TIMESTAMPTZ              -- vacío = pendiente de publicar
-);
-```
-
-**Caso práctico.** Un viajero recibe la confirmación de un hotel. El worker ya interpretó el correo y hace una sola transacción:
-
-```sql
-BEGIN;
-  -- 1. el cambio (idempotente: solo se aplica si la versión es más nueva)
-  INSERT INTO reservas (id, viaje_id, hotel, check_in, version, ...)
-  VALUES ('r-55', 'viaje-123', 'Hotel Sol', '2026-12-03', 4, ...)
-  ON CONFLICT (id) DO UPDATE ... WHERE reservas.version < 4;
-
-  -- 2. la nota de aviso, en la misma transacción
-  INSERT INTO outbox (id_evento, tipo, clave, version, payload)
-  VALUES (gen_random_uuid(), 'ReservaCreada', 'viaje-123', 4, '{"reserva":"r-55"}');
-COMMIT;
-```
-
-O se guardan las dos filas o no se guarda ninguna. Después del `COMMIT`, el worker confirma el trabajo en el stream. La tabla queda así:
-
-| secuencia | id_evento | tipo | clave | version | publicado_en |
-|---|---|---|---|---|---|
-| 901 | e-4c1… | ReservaCreada | viaje-123 | 4 | *vacío* |
-
-**El relay.** Es un proceso, dentro del desplegable de ingesta, que repite este ciclo cada pocos segundos o menos:
-
-1. Lee un lote de filas con `publicado_en` vacío, en orden de `secuencia`. Si hay varias instancias, usa un bloqueo de filas para no tomar las mismas (por ejemplo `SKIP LOCKED` en PostgreSQL).
-2. Publica cada evento en el stream de eventos del broker.
-3. Cuando el broker confirma, marca la fila con `publicado_en`.
-
-El Panel API consume el stream, usa `id_evento` y `version` para ignorar duplicados y eventos viejos, y actualiza el read model.
-
-**Qué pasa cuando algo falla:**
-
-| Qué falla | Qué pasa | Resultado |
-|---|---|---|
-| El worker cae antes del `COMMIT`. | No hay cambio ni evento, y el trabajo no se confirmó. | Se reentrega el trabajo y se procesa de nuevo. |
-| El worker cae después del `COMMIT` y antes de confirmar el trabajo. | El cambio y el evento ya están guardados. | Se reentrega el trabajo. El guardado detecta que la versión ya se aplicó y no duplica. |
-| El broker está caído. | El relay no puede publicar y las filas quedan pendientes. Los workers siguen guardando. | Al volver el broker, el relay publica todo en orden. No se pierde nada. |
-| El relay cae después de publicar y antes de marcar la fila. | Al reiniciar, vuelve a publicar ese evento. | El Panel API lo descarta por `id_evento` o `version`. |
-| El Panel API está caído. | Los eventos esperan en el stream (ADR-0003). | Se consumen al volver. |
-
-El outbox garantiza que cada evento llega **al menos una vez**, nunca cero. Evitar el efecto de un duplicado es trabajo de los consumidores.
-
-**Limpieza y monitoreo:**
-
-- Las filas publicadas se conservan una ventana corta y luego se eliminan. Para no cargar a la base con borrados masivos, la tabla se particiona por tiempo y se descartan las particiones viejas.
-- Se monitorea la antigüedad de la fila pendiente más vieja. Si crece, el relay o el broker tienen un problema.
-
+El worker guarda el cambio y una fila de evento en la tabla outbox dentro de la misma transacción de la base: se guardan las dos o ninguna. La fila lleva un identificador de evento, el tipo, la clave de orden (el viaje), la versión del viaje tras el cambio y un payload mínimo con referencias. Después del `COMMIT`, el worker confirma el trabajo en el stream.
+ 
+Un relay, dentro del desplegable de ingesta, lee cada pocos segundos las filas pendientes en orden de creación, las publica en el stream de eventos y las marca como publicadas cuando el broker confirma. Con varias instancias usa un bloqueo de filas para no tomar las mismas. El Panel API consume el stream y descarta duplicados y eventos viejos por identificador y versión (ADR-0004).
+ 
+**Ante fallas.** Si el worker cae antes del `COMMIT`, no hay cambio ni evento y se reentrega el trabajo. Si cae después, el guardado detecta que la versión ya se aplicó y no duplica. Si el broker o el relay se caen, las filas quedan pendientes y se publican en orden al volver; en el peor caso un evento sale dos veces y el consumidor lo descarta. El outbox garantiza entrega **al menos una vez**, nunca cero: evitar el efecto de un duplicado es trabajo de los consumidores.
+ 
+**Operación.** Las filas publicadas se conservan una ventana corta y la tabla se particiona por tiempo para descartar particiones viejas sin borrados masivos. Se monitorea la antigüedad de la fila pendiente más vieja.
+ 
 **Quién escribe el outbox.** Solo los workers. Los cambios manuales del viajero los guarda el Panel API sin pasar por el outbox. La analítica queda fuera de este mecanismo: su diseño se termina de desarrollar en iteraciones futuras.
 
 ### 4.4 Por qué no las otras alternativas
