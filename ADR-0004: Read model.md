@@ -76,16 +76,16 @@ Cuando el viajero abre el panel, el Panel API lee su índice y los documentos de
 | Qué falla | Qué pasa | Resultado |
 |---|---|---|
 | Se pierde el read model (reinicio o falla). | Las lecturas reconstruyen cada entrada desde la base y corre la reconstrucción masiva. | El panel responde más lento un rato. No se pierde información. |
-| La base está en failover. | Las entradas presentes se siguen sirviendo. Las ausentes no se pueden reconstruir hasta que vuelva. | El panel sigue disponible para los usuarios con entrada (QA-4). |
+| La base está en failover. | Las entradas presentes se siguen sirviendo. Las ausentes no se pueden reconstruir hasta que vuelva. | El panel sigue disponible para los usuarios con entrada. |
 | El broker está caído o el Panel API atrasado. | No llegan eventos nuevos y el read model conserva la última versión. Los eventos esperan en el stream. | Se degrada la frescura, no la disponibilidad. Al volver, se actualiza sin perder eventos (ADR-0003). |
 | Falla la actualización del read model tras un cambio manual. | Se reintenta y, si no se logra, se borra la entrada. | La próxima lectura reconstruye desde la base. |
 | Llega un evento duplicado o fuera de orden. | Se relee el estado actual y la escritura es condicional por versión. | Sin efecto. |
 
 ### 4.2 Por qué no las otras alternativas
 
-- **M1 (sin read model).** Es la más simple, pero las lecturas del panel hacen joins sobre el modelo de escritura y compiten con la ingesta en un único primario. No sostiene los picos ×10 (QA-6) y una falla de la base tira el panel (QA-4).
+- **M1 (sin read model).** Es la más simple, pero las lecturas del panel hacen joins sobre el modelo de escritura y compiten con la ingesta en un único primario. No sostiene los picos ×10 (QA-6)
 - **M2 (tablas de lectura en la base relacional).** Es la opción más conservadora y no suma tecnología. Aísla las lecturas de las tablas de negocio, pero sigue consumiendo el mismo motor y el mismo primario, o una réplica con su propio retraso, y un único motor limita el crecimiento de las lecturas (QA-6). Es una alternativa razonable **si el equipo prefiere no sumar Redis**: se mantienen las reglas de actualización de la decisión y solo cambia el almacén.
-- **M4 (base documental propia).** Es la mejor en QA, sobre todo por la persistencia propia, que permite servir el panel aunque la base esté caída (QA-4). Se descarta por viabilidad (R-6): es una tecnología nueva para el equipo. Queda como evolución si la dependencia de la base ante un failover prolongado resultara un problema (RM-2).
+- **M4 (base documental propia).** Es la mejor en QA, sobre todo por la persistencia propia, que permite servir el panel aunque la base esté caída. Se descarta por viabilidad (R-6): es una tecnología nueva para el equipo. Queda como evolución si la dependencia de la base ante un failover prolongado resultara un problema (RM-2).
 
 ## 5. Consecuencias
 
@@ -101,7 +101,7 @@ Cuando el viajero abre el panel, el Panel API lee su índice y los documentos de
 | ID | Riesgo | Efecto | Mitigación |
 |---|---|---|---|
 | RM-1 | Read model con retraso y una lectura extra de la base por cada evento | El cambio aparece en el panel después del evento y de la lectura de la base, y consume parte de los 5 minutos de QA-1. Además suma presión de lectura sobre la base compartida. | Medir el retraso de consumo con alertas, agrupar eventos por viaje, leer por clave indexada y repartir el presupuesto por etapa (ADR-0003, B-1). Réplica de lectura si hace falta. |
-| RM-2 | El read model depende de la base para reconstruirse | Si se pierde o se expulsa una entrada mientras la base está en failover, ese usuario no se puede servir (QA-4). | Persistencia y réplica del read model, memoria dimensionada para los usuarios activos y reconstrucción priorizada. Evolución a M4 si no alcanza. |
+| RM-2 | El read model depende de la base para reconstruirse | Si se pierde o se expulsa una entrada mientras la base está en failover, ese usuario no se puede servir. | Persistencia y réplica del read model, memoria dimensionada para los usuarios activos y reconstrucción priorizada. Evolución a M4 si no alcanza. |
 | RM-3 | Dos escritores del read model (eventos y cambios manuales) | Pueden pisarse entre sí. | Escritura condicional por versión, con operación atómica. |
 | RM-4 | Permisos desactualizados en el read model | Una persona a la que se quitó el acceso a un itinerario compartido podría verlo si falla la actualización. | Borrar la entrada ante un cambio de permisos en lugar de actualizarla, con reintentos. Verificar la lista de personas en cada acceso y registrar los rechazos en la auditoría. |
 | RM-5 | Una pieza más para operar, y una instancia por región | Complejidad operativa. El compartir itinerarios entre regiones se complica con instancias por región (R-4). | Una sola instancia en el prototipo, con docker-compose. Servicio gestionado o replicado en producción. El cruce entre regiones se resuelve en el ADR de multi-región. |
