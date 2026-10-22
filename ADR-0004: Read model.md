@@ -17,7 +17,6 @@ El ADR-0001 incluyó "CQRS solo en el panel" entre las tácticas de C-lite y us�
 **Tensiones:**
 
 - **Latencia y picos de lectura.** El panel concentra la mayor parte del tráfico: 2 M de usuarios activos semanales, con picos ×10, 800 ms de respuesta (QA-2) y 1,4 s hasta el primer contenido (QA-3). Son las lecturas del panel (CU-01) las que tienen que escalar (QA-6).
-- **Aislamiento de la escritura y disponibilidad.** Sin una copia propia, las lecturas con joins competirían con las escrituras de la ingesta en un único primario, y una falla de la base tiraría el panel (QA-4).
 - **Frescura.** Los cambios tienen que llegar al panel dentro del presupuesto de 5 minutos (QA-1), y el stream de eventos (ADR-0003) necesita un uso concreto en el Panel API.
 
 El motor de la base operacional no se decide en este ADR. El read model no es fuente de verdad: lo es la base.
@@ -30,7 +29,6 @@ Como en los otros ADR, la viabilidad de implementación es un criterio de primer
 |---|---|
 | QA-2 / QA-3 (latencia del panel) | Que el panel responda dentro de los tiempos objetivo, también en picos. |
 | QA-6 (escalabilidad) | Escalar las lecturas sin competir con las escrituras de la ingesta. |
-| QA-4 (disponibilidad) | Que el panel siga sirviendo si falla la base o el broker. |
 | QA-1 (actualizaciones en 5 min) | Que un cambio guardado llegue al panel con poca demora. |
 | R-6 (viabilidad) | Que el equipo pueda implementarlo y demostrarlo en el plazo. |
 
@@ -51,7 +49,6 @@ Como en los otros ADR, la viabilidad de implementación es un criterio de primer
 
 ### Reglas de la decisión
 
-- **Contenido.** El documento de un viaje tiene lo que el panel muestra: reservas, estados y fechas con zona, más la lista de personas designadas a verlo (referencias, no datos personales). El índice de un usuario lista sus viajes con un resumen. No incluye contenido de correo ni datos personales innecesarios (R-4).
 - **No es fuente de verdad.** Toda entrada se puede reconstruir desde la base.
 - **Actualización por eventos.** El evento es un aviso mínimo con referencias (ADR-0002, ADR-0003): dice que el viaje X llegó a la versión N. El Panel API lee el estado actual del viaje en la base y reescribe el documento. Como siempre lee el estado actual, reprocesar el mismo evento o recibirlo fuera de orden no tiene efecto.
 - **Escritura condicional por versión.** Un documento solo se reemplaza si la versión nueva es mayor o igual a la guardada, con una operación atómica (por ejemplo un script de Redis). Así dos escritores no se pisan.
@@ -60,7 +57,6 @@ Como en los otros ADR, la viabilidad de implementación es un criterio de primer
 - **Permisos de compartir.** El Panel API verifica en cada acceso a un itinerario compartido que la persona esté en la lista del documento. Ante un cambio de permisos, **borra** las entradas afectadas en lugar de actualizarlas: se reconstruyen desde la base en la próxima lectura.
 - **Lecturas.** El panel lee del read model. Si falta la entrada (primer acceso, expulsión o pérdida), la reconstruye desde la base y la guarda, con protección para que muchas lecturas simultáneas de la misma entrada provoquen una sola reconstrucción.
 - **Memoria acotada.** Con expulsión por uso (LRU): los usuarios inactivos se reconstruyen bajo demanda.
-- **Instancia propia.** Distinta de la del broker si ambos usaran Redis, por sus políticas de expulsión (ADR-0003, sección 6). Una por región (R-4).
 - **Reconstrucción masiva.** Un procedimiento repuebla el read model desde la base tras una pérdida, con ritmo limitado y empezando por los usuarios activos.
 - **Puerto.** El dominio accede al read model por un puerto, y la tecnología vive en la capa de infraestructura. Pasar a M2 o a M4 no toca el núcleo (ADR-0001).
 
@@ -97,8 +93,7 @@ Cuando el viajero abre el panel, el Panel API lee su índice y los documentos de
 
 - Las lecturas del panel quedan aisladas de las escrituras de la ingesta, con latencia y escalado de lectura propios (QA-2, QA-3, QA-6).
 - El stream de eventos tiene un uso concreto, y la reconstrucción del read model desde la base cubre lo que quede fuera de la retención del log (ADR-0003).
-- Si el broker o la base fallan, el panel sigue sirviendo la última versión conocida para los usuarios con entrada (QA-4).
-- Camino directo a una instancia por región (R-4).
+- Si el broker o la base fallan, el panel sigue sirviendo la última versión conocida para los usuarios con entrada.
 - El acceso por puerto permite cambiar de almacén sin tocar el núcleo (ADR-0001).
 
 ### Negativas y riesgos aceptados
