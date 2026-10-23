@@ -1,9 +1,10 @@
-# ADR-0001: Estilo arquitectónico de Trotamundos
+# ADR-0001: Estilo arquitectónico C-lite (capas/hexagonal con tres desplegables)
 
 - **Estado:** Propuesto
-- **Fecha:** 19/10/2026 (versión 3, ver historial al final)
+- **Fecha:** 23/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01 a CU-04, QA-1,QA-2,QA-3,QA-5,QA-6,QA-7, R-2,R-6,CRN-1,CRN-3)
+- **ADR relacionados:** ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0004 (read model), ADR-0005 (motor de la base)
 
 ---
 
@@ -11,58 +12,75 @@
 
 Hay que elegir el estilo arquitectónico general de Trotamundos antes de empezar las iteraciones de ADD. La decisión condiciona todas las demás (broker, almacenamiento, despliegue, seguridad).
 
-El sistema no es difícil por el tráfico de lectura del panel: 2 M de usuarios activos semanales con picos ×10 se resuelven con caché y un read model. La dificultad está en tres puntos:
+Este documento responde una pregunta: **¿Qué estilo arquitectónico general adopta Trotamundos?**
 
-1. **Ingesta:** correo de 15 M de casillas (QA-7) y eventos de proveedores heterogéneos (QA-1, QA-5) con picos impredecibles.
-2. **Aislamiento de la analítica:** el CRN-3 prevé diseñar su aislamiento del sistema operativo. En esta iteración solo se define que la analítica queda aislada. Cómo se logra ese aislamiento se termina de desarrollar en iteraciones futuras.
-3. **Trazabilidad entre la arquitectura documentada y el código del prototipo.** Con plazo acotado, la viabilidad de implementación es un criterio de decisión de primer orden y no un detalle (R-6).
+El sistema no es difícil por el tráfico de lectura del panel: 2 M de usuarios activos semanales con picos ×10 se resuelven con caché y un read model (copia de los datos optimizada para las lecturas del panel, ADR-0004). La dificultad está en tres tensiones:
+
+**Tensiones:**
+
+- **Ingesta.** Correo de 15 M de casillas (QA-7) y eventos de proveedores heterogéneos (QA-1, QA-5) con picos impredecibles. Cómo se encolan las notificaciones se decide en ADR-0003 y cómo se procesan en ADR-0002.
+- **Aislamiento de la analítica.** El CRN-3 prevé aislar la analítica del sistema operativo. Esta iteración solo define que queda aislada; cómo se logra se completa en iteraciones futuras.
+- **Trazabilidad entre la arquitectura documentada y el código del prototipo.** Con plazo acotado, la viabilidad de implementación es un criterio de decisión de primer orden y no un detalle (R-6).
+
+**Fuera de alcance:** el broker y sus streams (ADR-0003), los workers y el outbox (ADR-0002), el read model del panel (ADR-0004), el motor de la base (ADR-0005), el despliegue y la seguridad (decisiones posteriores) y el diseño interno de la analítica (iteraciones futuras).
+
+---
 
 ## 2. Criterios de decisión
 
-| Criterio | Origen del peso |
+| Criterio | Qué mide en esta decisión |
 |---|---|
-| QA-1 (actualizaciones en 5 min) | Prioridad Alta |
-| QA-2 / QA-3 (latencia del panel) | QA-2 Media, QA-3 Baja |
-| QA-5 (resiliencia e interoperabilidad con proveedores) | Prioridad Media |
-| QA-6 / QA-7 (escalabilidad) | QA-6 Alta, QA-7 Media |
+| QA-1 | Que una actualización de un proveedor llegue al panel en 5 minutos. |
+| QA-2 / QA-3 | Latencia del panel. |
+| QA-5 | Resiliencia ante fallas de proveedores e interoperabilidad con proveedores heterogéneos, incluida la recuperación del 99 %. |
+| QA-6 / QA-7 | Escalabilidad: lecturas del panel con picos ×10 (QA-6) y 15 M de casillas de correo (QA-7). |
+| R-6 | Que el prototipo se pueda construir y demostrar en el plazo acotado, y que el código sea consistente con la arquitectura documentada. |
+| CRN-1| Definir la estructura global del sistema. |
+| CRN-3 | Que la analítica quede aislada del sistema operativo. |
+---
 
 ## 3. Alternativas consideradas
 
 | ID | Alternativa | Resumen |
 |---|---|---|
 | A | Monolito modular | Una aplicación con módulos internos, N réplicas, base relacional con réplicas de lectura, Redis y cola simple. |
-| B | Microservicios completos | Un servicio por capacidad, base por servicio, Kafka, CQRS, saga, gateway, service mesh, multi-región. |
+| B | Microservicios completos | Un servicio por capacidad, base por servicio, Kafka, CQRS (modelo de escritura separado del de lectura), saga, gateway, service mesh, multi-región. |
 | C | Híbrida (5-6 servicios) | Servicios de granularidad media agrupados por patrón de carga, event-driven, CQRS solo en el panel. |
 | D | Serverless | Funciones disparadas por colas y webhooks, API Gateway, NoSQL gestionado. |
 | E | Capas / N-tier | Capas lógicas estrictas desplegadas como tiers (web/API, workers, datos). Un solo código, varios roles. |
-| **C-lite** | Capas/hexagonal con 3 desplegables | Panel API, ingesta (receptor de notificaciones, workers y relay del outbox) y analítica. Broker con log persistente y outbox entre la ingesta y el panel. La analítica queda aislada del sistema operativo (diseño a completar en iteraciones futuras). |
+| C-lite | **Capas/hexagonal con 3 desplegables** | Capas/hexagonal (capas con puertos y adaptadores hacia afuera). Desplegables: Panel API, ingesta y analítica. Broker con log persistente y outbox (los eventos se guardan junto con el cambio y se publican después) entre la ingesta y el panel (ADR-0002, ADR-0003). |
+
+---
 
 ## 4. Decisión
 
-**Se elige C-lite: arquitectura en capas/hexagonal con tres desplegables (Panel API, ingesta y analítica). La ingesta y el Panel API se comunican por un broker con log persistente y outbox (ADR-0003). La analítica queda aislada del sistema operativo (CRN-3), y su diseño se termina de desarrollar en iteraciones futuras. La separación en más servicios queda documentada como evolución prevista.**
+**Se elige C-lite: arquitectura en capas/hexagonal con tres desplegables (Panel API, ingesta y analítica), con la ingesta y el Panel API comunicados por un broker con log persistente y outbox (ADR-0003, ADR-0002).**
 
-### Descripción de C-lite
+**Descripción de la decisión.** C-lite organiza cada desplegable en capas/hexagonal y separa el trabajo de ingesta del de lectura del panel mediante un broker con log persistente y un outbox. El código refleja la arquitectura documentada casi uno a uno (R-6).
 
-- **Estructura interna:** cada desplegable usa capas/hexagonal (presentación, aplicación, dominio, infraestructura), con adaptadores por proveedor y por medio de transporte que traducen al modelo canónico (R-2). El desplegable de ingesta tiene dos roles: un receptor liviano que recibe las notificaciones de proveedores de viaje y de correo, y los workers que las procesan.
-- **Flujo principal entre desplegables:**
-  - *Ingesta:* receptor → stream de trabajo del broker → workers. Los workers guardan el cambio y el evento en la base (outbox) y un relay publica el evento en el stream de eventos, que consume el Panel API (ADR-0003).
-- **Analítica:** queda aislada del flujo de ingesta y del panel. Su diseño detallado se define en iteraciones futuras.
-- **Tácticas conservadas:** buffer de entrada y de picos, replay por log persistente, outbox transaccional, CQRS solo en el panel, circuit breaker, reintentos con backoff, cola de mensajes inválidos, escalado independiente de la ingesta, aislamiento de la analítica respecto del sistema operativo (CRN-3), despliegue multi-AZ.
-- **Tácticas diferidas:** separar notificaciones y procesador de itinerarios en servicios propios, y separar la ingesta de correo de la de proveedores.
+- **Capas en cada desplegable.** Presentación, aplicación, dominio e infraestructura.
+- **Adaptadores por proveedor y por medio de transporte.** Traducen al modelo canónico (R-2). El procesamiento de las notificaciones se detalla en ADR-0002.
+- **Ingesta con tres roles.** Un receptor liviano que recibe las notificaciones de proveedores de viaje y de correo, workers que las procesan y un relay (proceso que lee los eventos pendientes del outbox y los publica en el broker). Detalle en ADR-0002.
+- **Flujo entre ingesta y Panel API por broker con log persistente y outbox.** Receptor → stream de trabajo → workers → base (cambio y evento en el outbox) → relay → stream de eventos → Panel API, que actualiza su read model (ADR-0004). Broker en ADR-0003; workers y outbox en ADR-0002.
+- **Analítica aislada.** Queda fuera del flujo de ingesta y del panel, y aislada del sistema operativo (CRN-3). Su diseño detallado se completa en iteraciones futuras.
 
-### 4.1 Por qué C-lite y no E (capas / N-tier)
+**Tácticas que incorpora de otras alternativas:** de E, la organización interna en capas (da trazabilidad y buena testabilidad). De B y C, el buffer de entrada y de picos con replay por log persistente, el outbox transaccional, CQRS solo en el panel, circuit breaker, reintentos con backoff y cola de mensajes inválidos. Además, el escalado independiente de la ingesta.
 
-E es la alternativa más cercana y la que más se parece en implementación. La diferencia está en los QA de prioridad Alta y Media:
+**Tácticas que difiere:** separar notificaciones y procesador de itinerarios en servicios propios, y separar la ingesta de correo de la de proveedores (ver 4.3). Quedan como evolución prevista, sin reescritura, porque los límites internos ya están modelados como módulos con puertos.
 
-- **QA-1 y QA-5:** E no incluye por defecto un log persistente ni outbox. Sin ellos el replay tras una caída del proveedor es limitado, el requisito de 5 minutos queda expuesto a pérdidas de mensajes y el 99 % de recuperación de QA-5 es difícil de garantizar. Si a E se le agregan ambos, E deja de ser E y pasa a ser C-lite.
-- **QA-2/3 y QA-6/7:** en E el panel, la ingesta y la analítica comparten el modelo y la base de escritura, así que las lecturas del panel hacen joins sobre el modelo de escritura y la presión de la ingesta se siente en la base. C-lite separa el read model del panel y aísla la analítica del sistema operativo.
-- **El costo adicional de C-lite sobre E es pequeño:** un broker y un outbox, además del aislamiento de la analítica.
+### 4.1 Por qué no E (capas / N-tier)
 
-De E se conserva lo que mejor funciona: la organización interna en capas, que da trazabilidad y buena testabilidad.
+E es la alternativa más cercana y la que más se parece en implementación. La diferencia está en QA-1, QA-2/3, QA-5 y QA-6/7:
+
+- **QA-1 y QA-5:** E no incluye por defecto un log persistente (ADR-0003) ni outbox (ADR-0002). Sin ellos el replay tras una caída del proveedor es limitado, el requisito de 5 minutos queda expuesto a pérdidas de mensajes y el 99 % de recuperación de QA-5 es difícil de garantizar. Si a E se le agregan ambos, E deja de ser E y pasa a ser C-lite.
+- **QA-2/3 y QA-6/7:** en E el panel, la ingesta y la analítica comparten el modelo y la base de escritura, así que las lecturas del panel hacen joins sobre el modelo de escritura y la presión de la ingesta se siente en la base. C-lite separa el read model del panel (ADR-0004).
+- **El costo adicional de C-lite sobre E es pequeño:** un broker (ADR-0003) y un outbox (ADR-0002).
+
+Lo que se conserva de E se lista en las tácticas de la decisión.
 
 ### 4.2 Por qué no B (microservicios completos)
 
-B es la mejor en QA pero la peor en implementabilidad. Tiene que ser descartada por tres razones:
+B es la mejor en QA pero la peor en implementabilidad. Se descarta por tres razones:
 
 - Exige consistencia eventual en todas partes, trazabilidad distribuida, múltiples pipelines y mucha infraestructura (service mesh, saga, multi-región) para un trabajo con plazo acotado.
 - Implementar solo un subconjunto agrava la trazabilidad: cuanto más grande es la arquitectura documentada respecto del código, más difícil es defender que son consistentes.
@@ -70,35 +88,39 @@ B es la mejor en QA pero la peor en implementabilidad. Tiene que ser descartada 
 
 ### 4.3 Por qué no C (híbrida de 5-6 servicios)
 
-C tiene la misma cobertura de QA que C-lite en los atributos de prioridad Alta (QA-1, QA-5, QA-6/7). Pero implica 5 o 6 desplegables con contratos propios, outbox, CQRS sincronizado por eventos, circuit breakers, DLQ, simuladores y observabilidad de flujos que cruzan varios servicios. Eso aumenta la dificultad de implementación.
+C tiene la misma cobertura de QA que C-lite en QA-1, QA-5 y QA-6/7. Pero implica 5 o 6 desplegables con contratos propios, outbox, CQRS sincronizado por eventos, circuit breakers, cola de mensajes inválidos (DLQ), simuladores y observabilidad de flujos que cruzan varios servicios. Eso aumenta la dificultad de implementación (R-6).
 
-Los servicios que C separa y C-lite no (notificaciones y procesador de itinerarios) escalan con patrones de carga parecidos a los que ya agrupa el Panel API y los workers, de modo que separarlos hoy agrega costo de integración sin mejorar un QA de prioridad Alta. Por eso se difieren y se documentan como evolución.
+Los servicios que C separa y C-lite no (notificaciones y procesador de itinerarios) escalan con patrones de carga parecidos a los que ya agrupan el Panel API y los workers, de modo que separarlos hoy agrega costo de integración sin mejorar un QA que condicione esta decisión. Por eso se difieren y se documentan como evolución.
+
+La separación de la ingesta de correo y la de proveedores también se difiere. Los adaptadores por proveedor y por medio de transporte ya aíslan colas, pools de conexiones y circuit breaker dentro del worker, y la ingesta escala agregando instancias al mismo grupo de consumo (ADR-0002). Separarlas agregaría otro desplegable con contrato propio sin mejorar un QA que condicione esta decisión. Queda como evolución.
 
 ### 4.4 Por qué no D (serverless)
 
 - Acoplamiento a un proveedor cloud y necesidad de cuenta cloud para todo el grupo, con riesgo de costos.
 - Arranques en frío que amenazan QA-2 y QA-3 (mitigable con concurrencia provisionada, a mayor costo).
-- Difícil de ejecutar y demostrar localmente, lo que debilita la trazabilidad del prototipo y el criterio de que el código sea reproducible.
+- Difícil de ejecutar y demostrar localmente, lo que debilita la trazabilidad del prototipo y el criterio de que el código sea reproducible (R-6).
 
 ### 4.5 Por qué no A (monolito modular)
 
-Es la más simple pero cubre mal los QA Alta: la ingesta compite con el panel por recursos, un despliegue defectuoso tira todo, no hay log para replay (QA-1, QA-5) y se escala todo junto (QA-6). Se puede construir muy rápido, pero habría que reconocer en el diseño que varios drivers inmutables no se cumplen.
+Es la más simple pero cubre mal QA-1, QA-5 y QA-6: la ingesta compite con el panel por recursos, un despliegue defectuoso tira todo, no hay log para replay (QA-1, QA-5) y se escala todo junto (QA-6). Se puede construir muy rápido, pero habría que reconocer en el diseño que QA-1, QA-5 y QA-6 no se cumplen.
+
+---
 
 ## 5. Consecuencias
 
 ### Positivas
 
-- Cobertura defendible de los QA de prioridad Alta: buffer de entrada, buffer de picos y replay (QA-1, QA-5), ingesta escalable por separado (QA-6, QA-7), y analítica aislada (CRN-3).
+- Cobertura defendible de QA-1, QA-5, QA-6 y QA-7: buffer de entrada, buffer de picos y replay (QA-1, QA-5) e ingesta escalable por separado (QA-6, QA-7).
 - El código refleja la documentación casi uno a uno: tres desplegables, capas visibles en cada uno y adaptadores por proveedor (R-2).
-- Es implementable por un grupo con plazo acotado: un broker, un outbox y tres procesos, ejecutables con docker-compose y proveedores simulados.
+- Es implementable por un grupo con plazo acotado: un broker, un outbox y tres procesos, ejecutables con docker-compose y proveedores simulados (R-6).
 - La evolución a C o B no es una reescritura: los límites internos ya están modelados como módulos con puertos.
 
 ### Negativas y riesgos aceptados
 
-| Riesgo | Efecto | Mitigación |
-|---|---|---|
-| Radio de impacto mayor en la ingesta: un adaptador defectuoso puede afectar a los workers | Puede interrumpir la integración con el resto de los proveedores (QA-8). | Aislamiento por adaptador dentro del worker (colas, pools y circuit breaker por proveedor). |
-| Fugas entre capas por presión de plazo | La arquitectura documentada deja de coincidir con el código. | Reglas de dependencia verificadas automáticamente (por ejemplo ArchUnit o dependency-cruiser) en CI. |
-| Base relacional compartida entre Panel API y workers | Cuello de botella de escritura a 15 M de cuentas. | Read model separado para las lecturas; particionado por usuario o región como evolución (ADR de almacenamiento). |
-| Un broker más para operar | Complejidad operativa y un nuevo componente crítico. | Broker gestionado o clusterizado en producción; una sola instancia en el prototipo. |
-
+| ID | Riesgo | Efecto | Mitigación |
+|---|---|---|---|
+| ES-1 | Radio de impacto mayor en la ingesta: un adaptador defectuoso puede afectar a los workers | Puede interrumpir la integración con el resto de los proveedores (QA-8). | Aislamiento por adaptador dentro del worker: colas, pools y circuit breaker por proveedor (ADR-0002). |
+| ES-2 | Fugas entre capas por presión de plazo | La arquitectura documentada deja de coincidir con el código (R-6). | Reglas de dependencia verificadas automáticamente (por ejemplo ArchUnit o dependency-cruiser) en CI. |
+| ES-3 | Base relacional compartida entre Panel API y workers | Cuello de botella de escritura a 15 M de cuentas (QA-7). | Read model separado para las lecturas (ADR-0004). Motor de la base en ADR-0005; el particionado por usuario o región queda como evolución (ADR-0005). |
+| ES-4 | Un broker más para operar | Complejidad operativa y un nuevo componente crítico. | Broker gestionado o clusterizado en producción; una sola instancia en el prototipo (ADR-0003). |
+| ES-5 | Diseño de la analítica pendiente: el aislamiento está declarado, pero sin mecanismo definido | Si el diseño posterior no logra el aislamiento, no se cumple CRN-3. | Hasta definir el diseño, la analítica no participa del flujo de ingesta ni del panel. El diseño se completa en iteraciones futuras. |
