@@ -39,12 +39,12 @@ Este documento responde estas preguntas:
 
 | Criterio | Qué mide en esta decisión | Se usa en |
 | --- | --- | --- |
-| QA-12 | Si agregar un medio de transporte exige modificar el núcleo o los tipos existentes, o solo agregar elementos nuevos. | A/B |
-| R-2 y R-3 | Si el diseño absorbe formatos de proveedores que no se pueden cambiar ni controlar. | A/B |
-| QA-8 | Si existe un criterio objetivo de válido e inválido, y si cada inválido sale con un motivo registrable. | A/B |
-| CU-02 y CU-03 | Si la BD guarda un solo formato de reserva y todo lo que se deriva de ella (outbox, read model y panel) parte de él sin conocer al proveedor. | A/B |
+| QA-12 | Si agregar un medio de transporte exige modificar el núcleo o los tipos existentes, o solo agregar elementos nuevos. | A / B |
+| R-2 y R-3 | Si el diseño absorbe formatos de proveedores que no se pueden cambiar ni controlar. | A / B |
+| QA-8 | Si existe un criterio objetivo de válido e inválido, y si cada inválido sale con un motivo registrable. | A / B |
+| CU-02 y CU-03 | Si la BD guarda un solo formato de reserva y todo lo que se deriva de ella (outbox, read model y panel) parte de él sin conocer al proveedor. | A / B |
 | CRN-N1 | Si un proveedor con mensajes defectuosos, o un adaptador roto, afecta a la ingesta de los demás. | B |
-| R-6 | Esfuerzo de implementación para el grupo y piezas nuevas que operar. | A/B |
+| R-6 | Esfuerzo de implementación para el grupo y piezas nuevas que operar. | A / B |
 
 ---
 
