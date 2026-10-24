@@ -133,7 +133,7 @@ Una aerolínea notifica la cancelación de un vuelo. El receptor la encola y un 
 - Un adaptador que falla o un proveedor con mensajes defectuosos queda acotado a su propio adaptador (CRN-N1).
 - Los adaptadores son fáciles de probar de forma aislada con mensajes válidos e inválidos, lo que favorece la implementación en plazo (R-6).
 
-### Negativas y riesgos aceptados (máximo 5)
+### Negativas y riesgos aceptados
 
 | ID | Riesgo | Efecto | Mitigación |
 | --- | --- | --- | --- |
