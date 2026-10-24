@@ -53,6 +53,9 @@ flowchart LR
     CL([Clientes web / móvil])
     PV(Proveedores de viaje)
     MC(Proveedores de correo)
+    RM[("Read model<br/>(Redis)")]
+    DB[("BD")]
+    AA[("Almacén analítico")]
 
     subgraph TROT[Trotamundos]
         direction LR
@@ -69,9 +72,7 @@ flowchart LR
         BR[["Broker con log persistente"]]
         CA["Analítica"]
     end
-    RM[("Read model<br/>(Redis)")]
-    DB[("BD")]
-    AA[("Almacén analítico")]
+    
     CL --> API
     API <-->|"lee y escribe"| DB
     API <-->|"lee y actualiza"| RM
