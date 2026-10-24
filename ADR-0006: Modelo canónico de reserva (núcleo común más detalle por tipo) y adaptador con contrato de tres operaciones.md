@@ -4,7 +4,7 @@
 - **Fecha:** 23/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md y Iteracion-1.md. CU-02, CU-03, CU-04. Otros drivers: R-2, R-3, R-6, QA-8, QA-12 y CRN-N1.
-- **ADR relacionados:** ADR-0001 (estructura general), ADR-0002 (workers y outbox), ADR-0005 (motor de BD), ADR-0007 (contratos de mensajes y semántica de entrega), ADR-0008 (resiliencia de la ingesta y cola de mensajes inválidos).
+- **ADR relacionados:** ADR-0001 (estructura general), ADR-0002 (workers y outbox), ADR-0005 (motor de BD), ADR-0007 (contratos de mensajes y semántica de entrega)
 
 ---
 
@@ -14,8 +14,8 @@ Cada proveedor de viaje (aerolíneas, hoteles, rentadoras) y de correo expone su
 
 Este documento responde estas preguntas:
 
-1. **¿Qué modelo canónico representa una reserva para todo el sistema?** (Decisión A)
-2. **¿Qué interfaz implementa cada adaptador y cuándo un mensaje es válido o inválido?** (Decisión B)
+**Desicion A:** **¿Qué modelo canónico representa una reserva para todo el sistema?**
+**Desicion B:** **¿Qué interfaz implementa cada adaptador y cuándo un mensaje es válido o inválido?**
 
 **Tensiones:**
 
@@ -42,12 +42,12 @@ Este documento responde estas preguntas:
 
 | Criterio | Qué mide en esta decisión | Se usa en |
 | --- | --- | --- |
-| QA-12 (evolucionabilidad) | Si agregar un medio de transporte exige modificar el núcleo o los tipos existentes, o solo agregar elementos nuevos. | A, B |
-| R-2 y R-3 (contratos externos) | Si el diseño absorbe formatos de proveedores que no se pueden cambiar ni controlar. | A, B |
-| QA-8 (interoperabilidad) | Si existe un criterio objetivo de válido e inválido, y si cada inválido sale con un motivo registrable. | A, B |
-| CU-02 y CU-03 (formato único de reserva) | Si la BD guarda un solo formato de reserva y todo lo que se deriva de ella (outbox, read model y panel) parte de él sin conocer al proveedor. | A, B |
-| CRN-N1 (aislamiento de proveedores) | Si un proveedor con mensajes defectuosos, o un adaptador roto, afecta a la ingesta de los demás. | B |
-| R-6 (implementación en plazo) | Esfuerzo de implementación para el grupo y piezas nuevas que operar. | A, B |
+| QA-12 | Si agregar un medio de transporte exige modificar el núcleo o los tipos existentes, o solo agregar elementos nuevos. | A/B |
+| R-2 y R-3 | Si el diseño absorbe formatos de proveedores que no se pueden cambiar ni controlar. | A/B |
+| QA-8 | Si existe un criterio objetivo de válido e inválido, y si cada inválido sale con un motivo registrable. | A/B |
+| CU-02 y CU-03 | Si la BD guarda un solo formato de reserva y todo lo que se deriva de ella (outbox, read model y panel) parte de él sin conocer al proveedor. | A/B |
+| CRN-N1 | Si un proveedor con mensajes defectuosos, o un adaptador roto, afecta a la ingesta de los demás. | B |
+| R-6 | Esfuerzo de implementación para el grupo y piezas nuevas que operar. | A/B |
 
 ---
 
