@@ -1,4 +1,4 @@
-# (ADR-0005 con actualizaciones que lo conectan al ADR-0006): Motor de la base operacional (PostgreSQL)
+# ADR-0005: Motor de la base operacional
 
 - **Estado:** Propuesto
 - **Fecha:** 22/10/2026
