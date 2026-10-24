@@ -83,7 +83,7 @@ flowchart LR
     PS -- "encola sondeo" --> BR
     RX -- "encola trabajo" --> BR
     BR -- "entrega trabajo" --> WK
-    WK -- "consulta detalles" --> PV
+    WK <-- "consulta detalles" -- PV
     WK -- "lee correo" --> MC
     WK -- "cambio + evento<br/>misma transacción" --> DB
 
