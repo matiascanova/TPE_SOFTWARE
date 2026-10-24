@@ -37,10 +37,10 @@ Como en los otros ADR, la viabilidad de implementación es un criterio de primer
 
 | Criterio | Qué mide en esta decisión |
 |---|---|
-| QA-1 / QA-5 (entrega confiable) | Que el cambio y su evento se guarden de forma atómica, para sostener el outbox. |
-| QA-12 (evolucionabilidad) | Que un tipo de reserva nuevo se agregue sin migrar ni modificar el núcleo. |
-| QA-6 (escalabilidad) | Que el motor sostenga el volumen de escritura estimado en picos ×10. |
-| R-6 / CRN-2 (viabilidad) | Que el equipo lo conozca y lo pueda levantar y demostrar en el plazo. |
+| QA-1 / QA-5 | Que el cambio y su evento se guarden de forma atómica, para sostener el outbox. |
+| QA-12 | Que un tipo de reserva nuevo se agregue sin migrar ni modificar el núcleo. |
+| QA-6 | Que el motor sostenga el volumen de escritura estimado en picos ×10. |
+| R-6 / CRN-2 | Que el equipo lo conozca y lo pueda levantar y demostrar en el plazo. |
 
 ## 3. Alternativas consideradas
 
