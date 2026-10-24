@@ -1,7 +1,6 @@
 # ADR-0008: Resiliencia de la ingesta por proveedor
 
 - **Estado:** Propuesto
-- **Fecha:** 24/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** Análisis inicial y drivers e Iteración 1: CU-02 y CU-03. Otros drivers: CRN-N1, QA-1, QA-5, QA-8, R-3, R-4 y R-6.
 - **ADR relacionados:** ADR-0001 (estilo C-lite), ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0005 (motor de la BD), ADR-0006 (modelo canónico y adaptador), ADR-0007 (contratos de mensajes y semántica de entrega), ADR-0009 (tecnología del broker, retención y relay)
