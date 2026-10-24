@@ -1,7 +1,6 @@
 # ADR-0003: Broker con log persistente como conector de la ingesta
 
 - **Estado:** Propuesto
-- **Fecha:** 21/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01, CU-02, CU-03; QA-1, QA-4, QA-5, QA-6, QA-7; R-2, R-6)
 - **ADR relacionados:** ADR-0001 (estilo C-lite), ADR-0002 (workers y outbox), ADR-0004 (read model)
