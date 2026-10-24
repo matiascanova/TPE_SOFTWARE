@@ -1,7 +1,6 @@
 # ADR-0007: Contratos de Mensajes y Semantica de Entrega
 
 - **Estado:** Propuesto
-- **Fecha:** 23/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** Análisis inicial y drivers: CU-01, CU-02, CU-03, QA-1, QA-5, QA-8, QA-12, R-2, R-3, R-4, R-6 y CRN-N4.
 - **ADR relacionados:** ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0004 (read model), ADR-0005 (motor de la BD), ADR-0006 (modelo canónico y adaptador), ADR-0008 (resiliencia de la ingesta por proveedor), ADR-0009 (tecnología del broker, retención y relay)
