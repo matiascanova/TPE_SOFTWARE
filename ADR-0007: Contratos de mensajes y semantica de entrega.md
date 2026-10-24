@@ -3,14 +3,14 @@
 - **Estado:** Propuesto
 - **Fecha:** 23/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
-- **Drivers de entrada:** Análisis inicial y drivers: CU-01, CU-02, CU-03, QA-1, QA-5, QA-8, QA-12, R-2, R-4, R-6 y CRN-N4.
-- **ADR relacionados:** ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0004 (read model), ADR-0005 (motor de la BD), ADR-0006 (modelo canónico y adaptador), ADR-0008 (resiliencia de la ingesta y cola de mensajes inválidos)
+- **Drivers de entrada:** Análisis inicial y drivers: CU-01, CU-02, CU-03, QA-1, QA-5, QA-8, QA-12, R-2, R-3, R-4, R-6 y CRN-N4.
+- **ADR relacionados:** ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0004 (read model), ADR-0005 (motor de la BD), ADR-0006 (modelo canónico y adaptador), ADR-0008 (resiliencia de la ingesta por proveedor), ADR-0009 (tecnología del broker, retención y relay)
 
 ---
 
 ## 1. Contexto y problema
 
-Los ADR-0002 y 0003 fijaron la forma general de la comunicación: un stream de trabajo (receptor a workers) y un stream de eventos (relay a Panel API), con entrega al menos una vez y consumidores idempotentes. Dejaron sin definir qué lleva cada mensaje. El ADR-0003 lo remite explícitamente al contrato (por ejemplo, la clave de orden del stream de trabajo), y la Iteración 1 lo registra como decisión pendiente. Este documento define esos contratos y cómo cada consumidor evita efectos duplicados. Debe resolverse antes de la resiliencia de la ingesta (ADR-0008), que usa estos mensajes para reintentos y para derivar los inválidos, y antes de la tecnología del broker (ADR-0009), que fija la retención de lo que aquí se define.
+Los ADR-0002 y 0003 fijaron la forma general de la comunicación: un stream de trabajo (receptor y planificador de sondeo de correo a workers) y un stream de eventos (relay a Panel API), con entrega al menos una vez y consumidores idempotentes. Dejaron sin definir qué lleva cada mensaje. El ADR-0003 lo remite explícitamente al contrato (por ejemplo, la clave de orden del stream de trabajo), y la Iteración 1 lo registra como decisión pendiente. Este documento define esos contratos y cómo cada consumidor evita efectos duplicados. Debe resolverse antes de la resiliencia de la ingesta (ADR-0008), que usa estos mensajes para reintentos y para derivar los inválidos, y antes de la tecnología del broker (ADR-0009), que fija la retención de lo que aquí se define.
 
 Este documento responde dos preguntas:
 
@@ -21,7 +21,7 @@ Este documento responde dos preguntas:
 **Tensiones:**
 
 - **Reentrega frente a efecto único.** La entrega al menos una vez no pierde mensajes (QA-1, QA-5), pero los duplica: por una caída después de procesar, por una publicación repetida del relay o por un reintento del proveedor. Cada duplicado debe ser inofensivo (CRN-N4).
-- **Orden parcial.** El log ordena solo por clave (ADR-0003) y dos transacciones concurrentes pueden confirmarse en distinto orden que su secuencia de creación (ADR-0002, W-5). Ningún consumidor puede suponer orden global.
+- **Orden parcial.** El log ordena solo por clave (ADR-0003) y dos transacciones concurrentes pueden confirmarse en distinto orden que su secuencia de creación (ADR-0002). Ningún consumidor puede suponer orden global.
 - **Mensaje mínimo frente a mensaje suficiente.** Cuanto más lleva un evento, menos lee el consumidor de la base (ADR-0004, RM-1), pero más datos se retienen en el log (R-4) y más se acopla el consumidor al modelo canónico.
 - **Evolución con mensajes retenidos.** El log conserva mensajes durante una ventana. Un cambio de contrato convive con mensajes viejos que se pueden reprocesar (replay del ADR-0003) y debe permitir sumar proveedores y tipos de reserva sin cambiar el contrato (QA-12, R-2).
 - **Presupuesto de tiempo.** Los 5 minutos de QA-1 se reparten por etapa (ADR-0003, BR-1). Sin datos de tiempo y de trazabilidad en los mensajes no se puede medir en qué etapa se consume.
@@ -35,6 +35,7 @@ Este documento responde dos preguntas:
 - Cambios manuales del viajero, que el Panel API guarda sin pasar por el broker (ADR-0004).
 - Consumidores futuros del log, como la analitíca, que hoy no consume del log (iteraciones futuras).
 - Esquemas campo por campo de cada mensaje.
+- Contenido detallado del trabajo de sondeo del planificador de correo (pipeline de correo).
 
 ---
 
@@ -72,18 +73,18 @@ Este documento responde dos preguntas:
 
 | Campo del sobre | Qué contiene |
 | --- | --- |
-| `idMensaje` | Identificador único (UUID) asignado por quien produce el mensaje: el receptor en el trabajo, y la fila del outbox en el evento. Identifica al mensaje y no al hecho de negocio. Una reentrega conserva el mismo id. |
+| `idMensaje` | Identificador único (UUID) asignado por quien produce el mensaje: el receptor o el planificador de sondeo en el trabajo, y la fila del outbox en el evento. Identifica al mensaje y no al hecho de negocio. Una reentrega conserva el mismo id. |
 | `versionContrato` | Número entero con la versión del esquema del mensaje. No es la versión del viaje. |
 | `claveDeOrden` | Clave que fija el orden entre mensajes. En el trabajo: `<proveedor>:<identificador externo de la reserva>` para notificaciones de proveedores de viaje, y `correo:<id de la cuenta>` para las de correo. En el evento: `viaje:<id del viaje>` (ADR-0003). |
-| `horaDelHecho` | Instante en UTC en que ocurrió el hecho en el origen según el proveedor. Si el proveedor no lo informa, es la hora de recepción en el receptor. En el evento es la que devuelve el adaptador junto a la reserva (ADR-0006). |
-| `correlacion` | Identificador (UUID) que nace en el receptor y se copia a todo mensaje derivado, hasta el evento. Sirve para seguir un hecho de punta a punta. |
+| `horaDelHecho` | Instante en UTC en que ocurrió el hecho en el origen según el proveedor. Si el proveedor no lo informa, es la hora en que se produce el mensaje de trabajo (recepción en el receptor o programación del sondeo en el planificador). En el evento es la que devuelve el adaptador junto a la reserva (ADR-0006). |
+| `correlacion` | Identificador (UUID) que nace en quien produce el mensaje de trabajo (receptor o planificador de sondeo) y se copia a todo mensaje derivado, hasta el evento. Sirve para seguir un hecho de punta a punta. |
 | `origen` | `<proveedor>/<medio de transporte>` de donde viene el hecho, por ejemplo `aerolinea-x/vuelo` o `gmail/correo`. Coincide con lo que declara el adaptador (ADR-0006), así que el worker elige el adaptador por este campo. |
 
-- **Mensaje de trabajo con la notificación cruda.** El cuerpo contiene la notificación tal como la recibió el receptor, sin interpretarla. No contiene el contenido de correos, tokens de acceso ni la reserva traducida. Así el receptor sigue solo encolando y respondiendo (ADR-0003), y un lote mal interpretado se puede reprocesar desde el log una vez corregido el adaptador.
+- **Mensaje de trabajo con la notificación cruda.** El cuerpo contiene la notificación tal como la recibió el receptor, sin interpretarla. El trabajo de sondeo que encola el planificador identifica la cuenta de correo a sondear, con el mismo sobre. No contiene el contenido de correos, tokens de acceso ni la reserva traducida. Así el receptor sigue solo encolando y respondiendo (ADR-0003), y un lote mal interpretado se puede reprocesar desde el log una vez corregido el adaptador.
 - **Evento mínimo con referencias.** El cuerpo contiene `tipoEvento` (por ejemplo `ReservaCreada`, `ReservaModificada` o `ReservaCancelada`), `idViaje`, `idReserva` y `versionViaje`, que es la versión del viaje tras el cambio. Dice que el viaje X llegó a la versión N, sin datos de la reserva (ADR-0002, ADR-0004).
 - **Evolución compatible.** Dentro de una versión de contrato solo se agregan campos opcionales. Los consumidores ignoran los campos desconocidos y tratan un `tipoEvento` desconocido como «el viaje cambió», porque el Panel API siempre relee el estado actual. Un cambio incompatible crea una versión nueva, y los consumidores soportan la actual y la anterior mientras haya mensajes retenidos con esta última.
 - **Formato estándar y esquemas versionados.** Los mensajes son JSON en UTF-8, con fechas en UTC según ISO 8601. Un esquema JSON por mensaje y versión vive en el repositorio compartido por productores y consumidores.
-- **Validación del sobre.** Un mensaje al que le falta un campo del sobre, o con una `versionContrato` desconocida, se aparta como inválido con el motivo «contrato», sin frenar el consumo del resto. El destino y el registro los define el ADR-0008. Es distinto del inválido del ADR-0006, que juzga el contenido que envía el proveedor.
+- **Validación del sobre.** Un mensaje al que le falta un campo del sobre, o con una `versionContrato` desconocida, se aparta como inválido con el motivo «contrato», sin frenar el consumo del resto. El destino (stream de apartados) y el registro los define el ADR-0008. Es distinto del inválido del ADR-0006, que juzga el contenido que envía el proveedor.
 
 ### 3.4 Por qué no las otras alternativas
 
@@ -113,6 +114,7 @@ Este documento responde dos preguntas:
 
 - **Confirmación tardía.** El worker confirma el trabajo después del `COMMIT`. El Panel API confirma el evento después de escribir el read model. El relay marca un evento como publicado después de que el broker lo confirma. El receptor responde correctamente al proveedor solo después de que el broker confirma el encolado. Si algo falla antes, el mensaje se reentrega.
 - **Workers idempotentes por reserva.** La base tiene una restricción única por proveedor e identificador externo (ADR-0005). El worker compara el resultado de la traducción con el estado guardado: si no difiere, no sube la versión y no escribe evento. Reprocesar un trabajo, o recibir el reintento del mismo hecho con otro `idMensaje`, no duplica la reserva ni emite eventos de más.
+- **Diferencia con lo previsto en la iteración 1.** Para CRN-N4, la iteración 1 prevé idempotencia por identificador de notificación o versión del proveedor, y por versión del viaje. La versión del viaje se mantiene en el Panel API. En los workers, en cambio, se usan la clave única y la comparación con el estado guardado, por tres razones. Primera: no todos los proveedores informan un identificador de notificación o una versión de la reserva, y su formato no se controla (R-2, R-3), así que no sirven como mecanismo común. Segunda: usarlos obligaría a agregar al núcleo de la reserva un campo cuyo significado cambia según el proveedor, lo que va contra el núcleo común del ADR-0006. Tercera: un duplicado produce la misma reserva canónica que la ya guardada, así que la comparación lo detecta sin ese campo, y además detecta el reintento del mismo hecho con otra notificación. Lo que la comparación no detecta, una notificación vieja que el propio proveedor envía después de una nueva, se acepta como riesgo (MS-6).
 - **Panel API idempotente por versión.** Relee el estado actual del viaje y escribe en el read model solo si la versión es mayor o igual a la guardada (ADR-0004). El `idMensaje` se usa para trazabilidad y no para deduplicar.
 - **Orden solo por clave.** Ningún consumidor supone orden entre claves ni orden global. Dentro de una misma clave, la versión del viaje es la autoridad, no la posición en el log.
 - **Reintentos y agotamiento.** Un mensaje que falla se reentrega con espera creciente. Al agotarse los reintentos se aparta con su motivo, sin frenar el consumo del resto. Cantidad, esperas y destino los define el ADR-0008.
@@ -140,7 +142,7 @@ Con `horaDelHecho` y `correlacion` se mide cuánto pasó entre el hecho en el pr
 
 ### 4.4 Por qué no las otras alternativas
 
-- **B2. Tabla de mensajes procesados.** Agrega una escritura por mensaje en la base compartida, que ya es el punto de presión (ADR-0005, BD-1; ADR-0002, W-2), y un estado a purgar, contra R-6 y QA-1. No cubre el caso principal: un reintento del proveedor llega con otro `idMensaje`, así que solo las claves de negocio y la versión lo detectan. Queda como evolución para un consumidor futuro con efectos no idempotentes (por ejemplo, enviar avisos al viajero): ese consumidor guarda los `idMensaje` que ya viajan en el sobre, sin cambiar el contrato.
+- **B2. Tabla de mensajes procesados.** Agrega una escritura por mensaje en la base compartida, que ya es el punto de presión (ADR-0005; ADR-0002, W-2), y un estado a purgar, contra R-6 y QA-1. No cubre el caso principal: un reintento del proveedor llega con otro `idMensaje`, así que solo las claves de negocio y la versión lo detectan. Queda como evolución para un consumidor futuro con efectos no idempotentes (por ejemplo, enviar avisos al viajero): ese consumidor guarda los `idMensaje` que ya viajan en el sobre, sin cambiar el contrato.
 - **B3. Como máximo una vez.** Si el consumidor se cae después de confirmar y antes de procesar, el mensaje se pierde sin reentrega, lo que incumple QA-1 y QA-5 y deja sin sentido la garantía del outbox de «nunca cero» (ADR-0002).
 - **B4. Exactamente una vez de extremo a extremo.** Requiere transacciones que abarquen broker, base y read model. El ADR-0002 descartó la transacción distribuida porque los brokers candidatos no participan en ellas, y el ADR-0003 descartó la plataforma de streaming completa por viabilidad (R-6). Además, la consulta al proveedor es un efecto externo que ninguna transacción cubre, así que la idempotencia seguiría siendo necesaria.
 
@@ -162,6 +164,7 @@ Con `horaDelHecho` y `correlacion` se mide cuánto pasó entre el hecho en el pr
 | --- | --- | --- | --- |
 | MS-1 | El evento mínimo obliga a cada consumidor a leer la base. | Los consumidores futuros quedan acoplados a la base, y la presión de lectura crece con cada uno (QA-6). | Evolución compatible con un campo opcional `estado` en el evento (alternativa A3). Agrupar eventos por viaje (ADR-0004). |
 | MS-2 | La notificación cruda del trabajo puede contener datos personales y queda retenida en el log. | Exposición de datos personales durante la ventana de retención (R-4). | Retención acotada (ADR-0009). No incluir contenido de correo ni tokens. Acceso restringido al broker y revisión por región. |
-| MS-3 | La idempotencia depende de la disciplina de cada consumidor. | Un consumidor nuevo no idempotente duplicaría efectos y rompería CRN-N4. | Pruebas de reentrega para cada consumidor (ADR-0003, BR-2). Todo consumidor declara cómo es idempotente. Los consumidores con efectos externos usan una tabla de `idMensaje`. |
+| MS-3 | La idempotencia depende de la disciplina de cada consumidor. | Un consumidor nuevo no idempotente duplicaría efectos y rompería CRN-N4. | Pruebas de reentrega para cada consumidor (ADR-0003, CRN-N4). Todo consumidor declara cómo es idempotente. Los consumidores con efectos externos usan una tabla de `idMensaje`. |
 | MS-4 | Mensajes viejos retenidos conviven con versiones nuevas del contrato. | Un consumidor que no entienda una versión retenida aparta mensajes válidos al reprocesar (QA-8). | Soportar la versión actual y la anterior. Retención acotada (ADR-0009). Pruebas de contrato con mensajes de la versión anterior. |
 | MS-5 | La clave del trabajo es la reserva del proveedor y no el viaje. | Dos notificaciones del mismo viaje con claves distintas se procesan en paralelo y compiten por la versión del viaje, con reintentos por conflicto (QA-1). | El guardado compara la versión y reintenta ante conflicto. La versión del viaje define el orden final (ADR-0002, ADR-0004). |
+| MS-6 | Sin la versión del proveedor, el worker no detecta una notificación vieja que el proveedor envía después de una nueva. | Si la notificación trae la reserva completa, el worker la toma como un cambio y guarda un estado viejo (CRN-N4). | Orden por clave en el log para lo que el proveedor envía en orden. Para proveedores que no garantizan orden, el worker usa *Consultar* para leer el estado actual en lugar de *Traducir* (ADR-0006). |
