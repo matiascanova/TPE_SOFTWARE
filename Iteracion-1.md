@@ -1,7 +1,7 @@
 # Iteración 1 de ADD: estructura general de Trotamundos
 
 - **Estado:** Borrador para revisión
-- **Fecha:** 23/10/2026 (versión 4, ver historial al final)
+- **Fecha:** 23/10/2026 
 - **Equipo:** grupo TPE
 ---
 
