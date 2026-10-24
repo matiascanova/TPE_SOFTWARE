@@ -49,50 +49,64 @@ En esta primera iteración se documentan solo los conceptos que se desprenden di
 ### 4.1 Vista modular
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'fontFamily': 'Arial, sans-serif', 'fontSize': '14px', 'lineColor': '#475569'}, 'flowchart': {'curve': 'basis', 'nodeSpacing': 45, 'rankSpacing': 70}}}%%
 flowchart LR
     CL([Clientes web / móvil])
-    PV(Proveedores de viaje)
-    MC(Proveedores de correo)
-    RM[("Read model<br/>(Redis)")]
-    DB[("BD")]
-    AA[("Almacén analítico")]
+    PV([Proveedores de viaje])
+    MC([Proveedores de correo])
 
-    subgraph TROT[Trotamundos]
-        direction LR
-        API["Panel API<br/>lecturas, gestión manual,<br/>compartir, auth<br/>+ mantiene el read model"]
+    subgraph TROT[" Trotamundos "]
+        API["<b>Panel API</b><br/>lecturas, gestión manual,<br/>compartir, auth<br/>mantiene el read model"]
 
-        subgraph INGD[Ingesta]
-            direction LR
-            RX["Receptor de notificaciones<br/>solo encola y responde"]
-            PS["Planificador de sondeo<br/>de correo"]
-            WK["Workers de ingesta<br/>adaptadores de proveedores<br/>y de correo"]
-            RL["Relay del outbox"]
+        subgraph INGD[" Ingesta "]
+            RX["<b>Receptor</b><br/>solo encola y responde"]
+            PS["<b>Planificador de sondeo</b><br/>de correo"]
+            WK["<b>Workers</b><br/>adaptadores de proveedores<br/>y de correo"]
+            RL["<b>Relay</b><br/>del outbox"]
         end
 
-        BR[["Broker con log persistente"]]
-        CA["Analítica"]
+        BR[["<b>Broker con log persistente</b><br/>stream de trabajo + stream de eventos"]]
+        CA["<b>Analítica</b>"]
     end
-    
+
+    subgraph DATOS[" Almacenes de datos "]
+        DB[("<b>BD operacional</b><br/>incluye outbox")]
+        RM[("<b>Read model</b><br/>Redis")]
+        AA[("<b>Almacén analítico</b>")]
+    end
+
     CL --> API
     API <-->|"lee y escribe"| DB
     API <-->|"lee y actualiza"| RM
 
-    
-    PV -- "notificaciones" --> RX
-    MC -- "notificaciones push" --> RX
-    PS -- "encola sondeo" --> BR
-    RX -- "encola trabajo" --> BR
-    BR -- "entrega trabajo" --> WK
-    WK <-- "consulta detalles" -- PV
-    WK -- "lee correo" --> MC
-    WK -- "cambio + evento<br/>misma transacción" --> DB
+    PV -->|"notificaciones"| RX
+    MC -->|"notificaciones push"| RX
+    PS -->|"encola sondeo"| BR
+    RX -->|"encola trabajo"| BR
+    BR -->|"entrega trabajo"| WK
+    WK -->|"consulta detalles"| PV
+    WK -->|"lee correo"| MC
+    WK -->|"cambio + evento<br/>(1 transacción)"| DB
 
-    DB -- "eventos pendientes" --> RL
-    RL -- "publica eventos" --> BR
-    BR -- "eventos" --> API
+    DB -->|"eventos pendientes"| RL
+    RL -->|"publica eventos"| BR
+    BR -->|"eventos"| API
 
-    DB -- "copia periódica" --> AA
-    CA <-- "consultas analíticas" --> AA
+    DB -->|"copia periódica"| AA
+    CA <-->|"consultas analíticas"| AA
+
+    classDef actor fill:#f1f5f9,stroke:#64748b,color:#0f172a;
+    classDef app fill:#dbeafe,stroke:#2563eb,color:#0f172a;
+    classDef broker fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#0f172a;
+    classDef store fill:#ffedd5,stroke:#c2410c,color:#0f172a;
+    class CL,PV,MC actor;
+    class API,RX,PS,WK,RL,CA app;
+    class BR broker;
+    class DB,RM,AA store;
+
+    style TROT fill:#f8fafc,stroke:#1e293b,stroke-width:2px,color:#0f172a
+    style INGD fill:#eff6ff,stroke:#2563eb,stroke-dasharray:6 4,color:#0f172a
+    style DATOS fill:#fff7ed,stroke:#c2410c,stroke-width:2px,color:#0f172a
 ```
 
 **Clave.** Los rectángulos son elementos de código desplegable, los cilindros son almacenes, el rectángulo con doble borde es el broker y los óvalos son actores externos. Las flechas son comunicación, con su sentido y su motivo. La ingesta es un único artefacto con tres roles (receptor, workers y relay) que corren como procesos separados y escalan por separado; el planificador de sondeo se suma para el correo y su diseño queda para la Iteración 2.
