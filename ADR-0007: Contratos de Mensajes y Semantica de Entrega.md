@@ -15,6 +15,7 @@ Los ADR-0002 y 0003 fijaron la forma general de la comunicación: un stream de t
 Este documento responde dos preguntas:
 
 **Desicion A:** **¿Qué campos y qué estructura tienen los mensajes del stream de trabajo y del stream de eventos?**
+
 **Desicion B:** **¿Cómo logra cada consumidor que la entrega al menos una vez no produzca efectos duplicados?**
 
 **Tensiones:**
