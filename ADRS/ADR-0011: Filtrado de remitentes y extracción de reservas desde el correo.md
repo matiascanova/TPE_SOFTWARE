@@ -42,6 +42,8 @@ Se deciden juntas porque el filtro define qué llega al extractor, y la lista de
 
 | Criterio | Qué mide en esta decisión | Se usa en |
 |---|---|---|
+| QA-7 | Que leer correos que no son de viajes no consuma capacidad que el correo de viajes próximos necesita (ADR-0012). | A |
+| R-3 | Que la extracción no dependa de lo que cada remitente incluya en el correo, que no se controla. | B |
 | QA-9 | Que el 95%\* de los correos de la *whitelist*, dentro de los formatos soportados, se extraiga correctamente en menos de 15 s, y que el porcentaje se pueda medir. | A / B |
 | QA-8 | Que lo que no se puede procesar se identifique y se registre con motivo, sin frenar el resto. | A / B |
 | QA-12 | Que un remitente, un formato o un tipo de reserva nuevo se agregue sin modificar el núcleo ni lo existente, con un esfuerzo máximo de 2 días-persona\*. | A / B |
@@ -151,5 +153,5 @@ Se deciden juntas porque el filtro define qué llega al extractor, y la lista de
 | EX-1 | Un remitente cambia su plantilla y el extractor falla, o extrae mal sin que la validación lo detecte. | Baja el porcentaje de extracciones correctas (QA-9) y puede entrar una reserva con datos errados (CRN-N5). | Validación por esquema e invariantes. Alerta por salto de rechazos por remitente. Pruebas de contrato con el corpus. Versión del formato. |
 | EX-2 | Cada remitente y formato exige una plantilla y mantenimiento propios. | Cobertura limitada a los remitentes soportados y esfuerzo por cada uno (QA-12, R-6). | Plantillas declarativas. Remitentes priorizados por volumen de reservas. Evolución a cascada (B4). |
 | EX-3 | Al reprocesar un correo rechazado, puede aplicarse un estado más viejo que el guardado. | Una reserva puede quedar con un estado desactualizado (CRN-N5). | El reproceso solo toma correos rechazados, en orden de fecha dentro de la cuenta. Se acepta como el riesgo MS-6 del ADR-0007. |
-| EX-4 | No se conserva el correo. | No se puede auditar ni reprocesar un correo que el usuario borró o cuya cuenta se revocó (R-4, QA-9). | Se acepta a cambio de no retener datos personales. La fila del registro permite ubicar el correo en el proveedor. El usuario puede cargar la reserva manualmente (CU-04). |
+| EX-4 | No se conserva el correo. | No se puede auditar ni reprocesar un correo que el usuario borró o cuya cuenta se revocó (R-4, QA-9). | Se acepta a cambio de no retener datos personales. Para los correos rechazados, la fila del registro permite ubicar el correo en el proveedor. El usuario puede cargar la reserva manualmente (CU-04). |
 | EX-5 | Se agrega un motivo («formato no soportado») y una fila del registro por correo, no por mensaje del log. | Cambia el vocabulario cerrado del ADR-0006 y el uso del registro del ADR-0008 (QA-8). | Actualizar el vocabulario de motivos y el registro al aceptar este ADR. El correo no entra al stream de apartados porque el cuerpo no se conserva (R-4). |
