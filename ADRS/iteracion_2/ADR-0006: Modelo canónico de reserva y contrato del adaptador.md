@@ -1,7 +1,6 @@
 # ADR-0006: Modelo canónico de reserva y contrato del adaptador
 
 - **Estado:** Propuesto
-- **Fecha:** 23/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md y Iteracion-1.md. CU-02, CU-03, CU-04. Otros drivers: R-2, R-3, R-6, QA-8, QA-12 y CRN-N1.
 - **ADR relacionados:** ADR-0001 (estilo C-lite), ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0004 (read model), ADR-0005 (motor de la BD), ADR-0007 (contratos de mensajes y semántica de entrega), ADR-0008 (resiliencia de la ingesta por proveedor)
