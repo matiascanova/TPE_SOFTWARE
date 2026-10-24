@@ -15,6 +15,7 @@ Cada proveedor de viaje (aerolíneas, hoteles, rentadoras) y de correo expone su
 Este documento responde estas preguntas:
 
 **Desicion A:** **¿Qué modelo canónico representa una reserva para todo el sistema?**
+
 **Desicion B:** **¿Qué interfaz implementa cada adaptador y cuándo un mensaje es válido o inválido?**
 
 **Tensiones:**
