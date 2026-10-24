@@ -4,13 +4,13 @@
 - **Fecha:** 24/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** Análisis inicial y drivers e Iteración 1: CU-02 y CU-03. Otros drivers: CRN-N1, QA-1, QA-5, QA-8, R-3, R-4 y R-6.
-- **ADR relacionados:** ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0006 (modelo canónico y adaptador), ADR-0007 (contratos de mensajes y semántica de entrega), ADR-0009 (tecnología del broker, retención y relay)
+- **ADR relacionados:** ADR-0001 (estilo C-lite), ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0005 (motor de la BD), ADR-0006 (modelo canónico y adaptador), ADR-0007 (contratos de mensajes y semántica de entrega), ADR-0009 (tecnología del broker, retención y relay)
 
 ---
 
 ## 1. Contexto y problema
 
-Los ADR-0002 y 0003 prevén colas, pools y circuit breaker por proveedor (W-1, CRN-N1), un stream separado para los mensajes inválidos y los reintentos agotados, y una reconciliación con el proveedor cuando vuelve su API (BR-3). El ADR-0007 deja a este documento la cantidad de reintentos, las esperas y el destino de los mensajes apartados. Va antes del ADR-0009 porque la retención del log sale de la ventana de reconciliación que se fija acá.
+Los ADR-0002 y 0003 prevén colas, pools y circuit breaker por proveedor (W-1, CRN-N1), un stream separado para los mensajes inválidos y los reintentos agotados, y una reconciliación con el proveedor cuando vuelve su API (BR-2). El ADR-0007 deja a este documento la cantidad de reintentos, las esperas y el destino de los mensajes apartados, y el ADR-0006 le deja el registro de los inválidos y la reconciliación con el proveedor, que puede sumar operaciones al adaptador. Va antes del ADR-0009 porque la retención del log sale de la ventana de reconciliación que se fija acá.
 
 Este documento responde tres preguntas:
 
@@ -64,9 +64,9 @@ Se deciden juntas porque el circuit breaker de A marca el inicio y el fin de la 
 
 **Descripción de la decisión.** Cada proveedor tiene un tabique (patrón *Bulkhead*), es decir, recursos reservados que solo él agota. Tiene además un circuit breaker que deja de llamarlo cuando falla y lo prueba de a poco. Como ninguno de los dos patrones está en el catálogo de la cátedra, se apoyan en sus tácticas *Exception Detection*, *Retry*, *Removal from Service*, *Introduce Concurrency* y *Limit Event Response*.
 
-- **Particiones por proveedor.** El stream se divide por el proveedor del campo `origen` (ADR-0007) y, dentro de cada uno, en particiones por hash de la `claveDeOrden`, con un solo consumidor activo por partición (ADR-0002).
+- **Particiones por proveedor.** Son las colas por proveedor que prevé la iteración 1 (CRN-N1). El stream se divide por el proveedor del campo `origen` (ADR-0007) y, dentro de cada uno, en particiones por hash de la `claveDeOrden`, con un solo consumidor activo por partición (ADR-0002).
 - **Recursos propios.** Cada proveedor tiene su pool de conexiones, su límite de concurrencia y su limitador de tasa, ajustados a sus límites de uso (R-3).
-- **Reintento según la falla.** Una falla del proveedor (tiempo de espera, error de red o 5xx) se reintenta hasta 3 veces con espera creciente\*. Un 429 respeta la espera que pide el proveedor. Un inválido nunca se reintenta. Un error propio causado por el mensaje se reintenta hasta 5 entregas\* y después se aparta como «agotado». Una falla de la BD o del broker pausa el consumo sin apartar nada.
+- **Reintento según la falla.** Una falla del proveedor (tiempo de espera, error de red o 5xx) se reintenta hasta 3 veces con espera creciente\*. Un 429 respeta la espera que pide el proveedor. Un inválido nunca se reintenta. Un error propio causado por el mensaje se reintenta hasta 5 entregas\* y después se aparta como «agotado». Una falla de la BD o del broker pausa el consumo sin apartar nada (ADR-0005).
 - **Circuito que pausa.** Si la mitad de las últimas 20 llamadas falla\*, el circuito se abre y las particiones del proveedor dejan de consumirse: sus mensajes esperan en el log. El circuito prueba con una llamada real cada vez más espaciada, hasta un máximo de 60 s\*. Ese tope deja al menos 4 de los 5 minutos de QA-5 para ponerse al día.
 
 ### 3.3 Por qué no las otras alternativas
@@ -97,12 +97,12 @@ Se deciden juntas porque el circuit breaker de A marca el inicio y el fin de la 
 - **Un stream de apartados por stream de origen** (trabajo y eventos), con el mensaje original, el motivo y los intentos. El original se confirma solo después de apartarlo y registrarlo.
 - **Registro sin el cuerpo.** La tabla guarda `idMensaje` (único), `origen`, `claveDeOrden`, `correlacion`, motivo, intentos, hora y estado, pero no datos de la reserva (R-4). Es la fuente para medir QA-8.
 - **Motivos cerrados:** los de contenido del ADR-0006, «contrato» (ADR-0007) y «agotado». Una caída del proveedor nunca es un motivo.
-- **Reproceso explícito.** Después de corregir un adaptador, los apartados se republican con el mismo `idMensaje`. Si la reserva ya existe, el worker usa *Consultar* para no volver a un estado viejo.
+- **Reproceso explícito.** Después de corregir un adaptador, los apartados se republican con el mismo `idMensaje`. Si la reserva ya existe, el worker usa *Consultar* (ADR-0006) para no volver a un estado viejo.
 
 ### 4.3 Por qué no las otras alternativas
 
 - **B1.** El mensaje no se puede reprocesar (ADR-0003), y contar el 99% de QA-8 sobre texto libre no es confiable.
-- **B3.** Guarda datos personales sin plazo de borrado en la BD (R-4) y suma escrituras grandes a la base, que ya es el punto de presión (ADR-0005, BD-1).
+- **B3.** Guarda datos personales sin plazo de borrado en la BD (R-4) y suma escrituras grandes a la base, que ya es el punto de presión (ADR-0005, CRN-N2).
 - **B4.** Un mensaje que siempre falla bloquea su partición para siempre (QA-8, QA-1) y nunca queda registrado.
 
 ---
@@ -135,7 +135,7 @@ La API de la aerolínea X cae a las 14:00. A los pocos segundos el circuito se a
 
 ### 5.4 Por qué no las otras alternativas
 
-- **C1.** El log no tiene lo que el proveedor nunca notificó (ADR-0003, BR-3), así que QA-5 no se cumple.
+- **C1.** El log no tiene lo que el proveedor nunca notificó (ADR-0003, BR-2), así que QA-5 no se cumple.
 - **C3.** Consulta todo aunque nada haya fallado: agota los límites de uso (R-3) y carga la BD. Con un período largo, además, no cumple los 5 minutos de QA-5.
 - **C4.** Depende de un comportamiento del proveedor que no se controla (R-3), así que QA-5 no se puede verificar.
 
