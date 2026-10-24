@@ -71,7 +71,7 @@ Se deciden juntas porque el lugar donde viven los tokens determina qué se puede
 
 **Descripción de la decisión.** Cada cuenta de correo conectada tiene una fila con su proveedor, su estado y sus dos tokens cifrados. El módulo de credenciales expone operaciones mínimas (entregar la credencial de una cuenta activa, renovarla y revocarla) y es la única parte del código que conoce el almacenamiento. Aplica las tácticas de seguridad *Encrypt Data*, *Limit Exposure* y *Separate Entities*.
 
-- **Tabla y rol propios.** La tabla de credenciales tiene un rol de base de datos propio. Lo usan los workers de correo (lectura) y el Panel API (alta y revocación). Ningún otro módulo la lee.
+- **Tabla y rol propios.** La tabla de credenciales tiene un rol de base de datos propio, que solo usa el módulo de credenciales. Quienes necesitan una credencial la piden a través de sus operaciones. El planificador de sondeo solo consulta el estado de la cuenta (activa o revocada) y nunca recibe tokens. Ningún otro módulo accede a la tabla.
 - **Cifrado de aplicación.** Los tokens se cifran antes de guardarse, con una clave que no está en la BD. En el prototipo la clave está en la configuración. En producción vive en el gestor de claves de la plataforma.
 - **Sin salida del almacén.** Los tokens no viajan en mensajes del log, en los apartados ni en el outbox, no se escriben en los registros de la aplicación y la copia periódica hacia el almacén analítico excluye la tabla.
 - **Permiso mínimo.** La autorización que se pide al usuario es de solo lectura del correo.
@@ -102,7 +102,7 @@ Se deciden juntas porque el lugar donde viven los tokens determina qué se puede
 
 **Descripción de la decisión.** Una **lectura posterior** es una llamada al proveedor de correo que empieza después de que se confirma (`COMMIT`) la transacción de revocación. Con B1 el corte es inmediato, porque la verificación se hace contra la fuente de verdad y no contra una copia. El trabajo ya encolado no se borra del log: se consume y se descarta sin llamar al proveedor.
 
-- **Revocación atómica.** El Panel API pasa la cuenta a revocada en una sola transacción y registra la hora en la auditoría. Desde ese momento el módulo de credenciales deja de entregar los tokens a los workers. Una tarea de limpieza pide al proveedor que revoque el token (si ofrece un endpoint para eso), con reintentos acotados, y después borra los tokens.
+- **Revocación atómica.** El Panel API pasa la cuenta a revocada en una sola transacción y registra la hora en la auditoría. Desde ese momento el módulo de credenciales deja de entregar los tokens a los workers y solo los entrega a la tarea de limpieza. Esta cancela primero la suscripción de notificaciones de la cuenta, si la tiene (ADR-0012), porque necesita un token válido para hacerlo. Si la cancelación falla, sigue con la revocación: los avisos que lleguen se descartan al consumirlos. Después pide al proveedor que revoque el token (si ofrece un endpoint para eso), con reintentos acotados, y por último borra los tokens.”
 - **Verificación antes de cada lectura.** Es una consulta por clave primaria, sin caché. Una lectura que ya empezó antes del `COMMIT` no cuenta como posterior y su duración está acotada por el tiempo de espera.
 - **Trabajo pendiente descartado al consumirlo.** El worker confirma el trabajo sin leer el correo. No va al stream de apartados y no cuenta como inválido (QA-8).
 - **Revocación desde el proveedor.** Si el usuario revoca desde la cuenta del proveedor, el sistema lo detecta en la siguiente llamada: una respuesta de acceso denegado por token revocado, o una renovación rechazada, marca la cuenta como revocada. No se reintenta, no cuenta como falla del proveedor para el circuit breaker y no cuenta como mensaje inválido. Se distingue de un tiempo de espera, un 5xx o un 429, que siguen las reglas del ADR-0008. Esto amplía los resultados del adaptador de correo (ADR-0006) y la clasificación de fallas (ADR-0008) con un caso que no es inválido ni falla del proveedor: contarlo como inválido falsearía QA-8, y contarlo como falla abriría el circuito de todo un proveedor por la decisión de un solo usuario.
@@ -113,7 +113,7 @@ Se deciden juntas porque el lugar donde viven los tokens determina qué se puede
 Un usuario desconecta su Gmail desde Trotamundos. Su cuenta de correo es la 789, y hay un trabajo de sondeo `correo:789` esperando en el log.
 
 1. El Panel API pasa la cuenta 789 a revocada y registra la hora en la auditoría, todo en una transacción.
-2. Una tarea de limpieza pide a Gmail que revoque el token y después borra los tokens de la fila.
+2. Una tarea de limpieza cancela la suscripción de notificaciones de la cuenta, pide a Gmail que revoque el token y después borra los tokens de la fila.
 3. Un worker toma el trabajo encolado, consulta el estado de la cuenta 789, ve que está revocada, confirma el trabajo y no llama a Gmail.
 4. El planificador de sondeo (ADR-0012) consulta el estado y no vuelve a encolar la cuenta.
 
@@ -141,7 +141,7 @@ Un usuario desconecta su Gmail desde Trotamundos. Su cuenta de correo es la 789,
 - La revocación hecha desde Trotamundos corta la lectura al confirmarse la transacción, y la medida de cero lecturas posteriores es verificable con un proveedor simulado (QA-10).
 - Una cuenta revocada no abre circuitos ni se cuenta como mensaje inválido, así que QA-8 sigue midiendo la calidad de los mensajes y no la voluntad de los usuarios.
 - Los tokens se borran al completarse la revocación y no salen de su tabla: no pasan por el log, los apartados ni el almacén analítico (R-4, CRN-N6).
-- No suma tecnologías ni piezas desplegables: usa PostgreSQL, que el grupo domina (R-6, CRN-2).
+- No suma tecnologías nuevas: usa PostgreSQL, que el grupo domina (R-6, CRN-2). La única pieza nueva es la tarea de limpieza.
 - Cada trabajo de correo cuesta una consulta por clave primaria, que es barata y no depende de purgar el log (QA-7, CRN-N6).
 
 ### Negativas y riesgos aceptados
