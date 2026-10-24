@@ -156,7 +156,7 @@ Con `horaDelHecho` y `correlacion` se mide cuánto pasó entre el hecho en el pr
 - El log retiene eventos sin datos de la reserva y trabajos sin contenido de correo ni tokens, lo que reduce la exposición de datos personales (R-4).
 - No suma piezas ni escrituras: usa las claves y versiones que ya existen en los ADR-0002, 0004 y 0005 (R-6).
 
-### Negativas y riesgos aceptados (máximo 5)
+### Negativas y riesgos aceptados
 
 | ID | Riesgo | Efecto | Mitigación |
 | --- | --- | --- | --- |
