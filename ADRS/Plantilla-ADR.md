@@ -33,7 +33,6 @@ Esta plantilla sirve para redactar ADR nuevos y para corregir ADR existentes. La
 # ADR-<NNNN>: <Título corto que nombre la decisión, no el tema>
 
 - **Estado:** <Propuesto | Aceptado | Rechazado | Reemplazado por ADR-NNNN>
-- **Fecha:** <DD/MM/AAAA>
 - **Decisores:** <Quiénes toman la decisión>
 - **Drivers de entrada:** <Enlace al documento de drivers. CU sin límite y otros drivers hasta 10, solo los que condicionan esta decisión>
 - **ADR relacionados:** <ADR de los que depende o que dependen de este. Omitir si no hay>
