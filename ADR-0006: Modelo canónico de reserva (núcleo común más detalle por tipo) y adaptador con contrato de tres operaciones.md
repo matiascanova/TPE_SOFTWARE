@@ -28,9 +28,6 @@ Este documento responde estas preguntas:
 
 - Campos de los mensajes del stream de trabajo y del de eventos, y semántica de entrega (ADR-0007).
 - Colas, pools y circuit breaker por proveedor, cola de mensajes inválidos y su registro, y reconciliación con el proveedor (ADR-0008).
-
-  ```
-  ```
 - Motor de la BD y definición física de tablas y columnas (ADR-0005).
 - Verificación de autenticidad de las notificaciones (la hace el receptor, según la iteración 1).
 - Extracción de reservas desde el texto de los correos (CU-03, QA-9). El adaptador de correo cumple este mismo contrato, pero su pipeline se decide en otra iteración.
