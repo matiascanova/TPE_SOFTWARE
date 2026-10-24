@@ -1,7 +1,6 @@
 # ADR-0004: Read model del panel en almacén clave-valor en memoria (CQRS)
 
 - **Estado:** Propuesto
-- **Fecha:** 21/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01, CU-04, CU-06; QA-1, QA-2, QA-3, QA-4, QA-6, QA-11; R-6; CRN-2)
 - **ADR relacionados:** ADR-0001 (estilo C-lite), ADR-0002 (workers y outbox), ADR-0003 (broker)
