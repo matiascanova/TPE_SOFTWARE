@@ -1,4 +1,4 @@
-# ADR-0006: Modelo canónico de reserva (núcleo común más detalle por tipo) y adaptador con contrato de tres operaciones
+# ADR-0006: Modelo canónico de reserva y contrato del adaptador
 
 - **Estado:** Propuesto
 - **Fecha:** 23/10/2026
