@@ -57,7 +57,6 @@ flowchart LR
     subgraph TROT[Trotamundos]
         direction LR
         API["Panel API<br/>lecturas, gestión manual,<br/>compartir, auth<br/>+ mantiene el read model"]
-        RM[("Read model<br/>(Redis)")]
 
         subgraph INGD[Ingesta]
             direction LR
@@ -68,15 +67,16 @@ flowchart LR
         end
 
         BR[["Broker con log persistente"]]
-        DB[("BD")]
-        AA[("Almacén analítico")]
         CA["Analítica"]
     end
-
+    RM[("Read model<br/>(Redis)")]
+    DB[("BD")]
+    AA[("Almacén analítico")]
     CL --> API
     API <-->|"lee y escribe"| DB
     API <-->|"lee y actualiza"| RM
 
+    
     PV -- "notificaciones" --> RX
     MC -- "notificaciones push" --> RX
     PS -- "encola sondeo" --> BR
