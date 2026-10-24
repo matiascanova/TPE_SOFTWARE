@@ -1,7 +1,7 @@
 # Iteración 1 de ADD: estructura general de Trotamundos
 
 - **Estado:** Borrador para revisión
-- **Fecha:** 20/10/2026 
+- **Fecha:** 23/10/2026 
 - **Equipo:** grupo TPE
 ---
 
@@ -21,7 +21,7 @@ Al tratarse de un desarrollo nuevo, el elemento a refinar es el **sistema comple
 |---|---|
 | CU-01, CU-02, CU-03, CU-04 | Funcionalidad primaria. Concentran la mayor parte de los requisitos de calidad. |
 | QA-1, QA-6 | Los de mayor prioridad y dificultad del análisis inicial. Condicionan el estilo arquitectónico. |
-| QA-2, QA-3, QA-4, QA-5, QA-7, QA-8, QA-12 | Intervienen en la decisión de estilo o en los riesgos de los ADR (QA-4 en BR-4, QA-8 en ES-1 y W-1, QA-12 en los adaptadores). Se abordan de forma parcial o quedan pendientes. |
+| QA-2, QA-3, QA-4, QA-5, QA-7, QA-8, QA-12 | Intervienen en la decisión de estilo o en los riesgos de los ADR (QA-4 en BR-3, QA-8 en ES-1 y W-1, QA-12 en los adaptadores). Se abordan de forma parcial o quedan pendientes. |
 | CU-06, QA-11 | El read model incluye la lista de personas autorizadas y define el borrado de entradas ante cambios de permisos (ADR-0004). Se abordan de forma parcial. |
 | R-2, R-6 | R-2 moldea la integración (adaptadores por proveedor). R-6 (prototipo en plazo acotado) hace de la viabilidad de implementación un criterio de decisión de primer orden. |
 | CRN-1 | Se moldea el concepto general del sistema (ADR-0001). |
@@ -115,7 +115,7 @@ Las interfaces concretas (contratos de trabajo y de eventos, modelo canónico y 
 
 ## 5. Consecuencias negativas y nuevos drivers
 
-Los ADR-0001 a 0004 registran 14 riesgos aceptados. Muchos se repiten entre ADR o se resuelven con drivers que ya están en la sección 2. Para no cerrar la iteración con una lista inmanejable, 14 se consolidan en **cuatro concerns nuevas** y los 6 restantes se resuelven donde indica la sección 5.2. Los identificadores W, BR y RM son los de los ADR-0002, 0003 y 0004. Los riesgos del ADR-0001 se citan como ES. Los IDs de las concerns son provisionales hasta incorporarlas al catálogo de drivers.
+Los ADR-0001 a 0004 registran 14 riesgos aceptados. Muchos se repiten entre ADR o se resuelven con drivers que ya están en la sección 2. Para no cerrar la iteración con una lista inmanejable, 9 se consolidan en **cuatro concerns nuevas** y los 5 restantes se resuelven donde indica la sección 5.2. Los identificadores W, BR y RM son los de los ADR-0002, 0003 y 0004. Los riesgos del ADR-0001 se citan como ES. Los IDs de las concerns son provisionales hasta incorporarlas al catálogo de drivers.
 
 ### 5.1 Concerns nuevas
 
@@ -184,4 +184,27 @@ Los siguientes drivers del análisis inicial no se abordan en esta iteración, y
   - CRN-N2 (capacidad de la base compartida)
   - CRN-N3 (operar broker, relay y read model)
   - CRN-N4 (consistencia y reconstrucción de datos)
+
+## 7. Decisiones pendientes y próximas iteraciones
+
+ADR necesarios, derivados de las concerns nuevas y de los drivers parciales:
+
+1. Modelo canónico, contratos de adaptadores y validación de mensajes (R-2, QA-8, QA-12, CU-02, CU-03, CRN-N1).
+2. Contratos de mensajes del stream de trabajo y del de eventos: identificador, versión, clave de orden y campo de deduplicación (CRN-N4).
+3. Tecnología del broker (ADR-0003, sección 1, Fuera de alcance), valor de retención del log y revisión del valor del replay (QA-5).
+4. Reconciliación con los proveedores y política de recuperación tras una interrupción, dentro de los 5 minutos (QA-5).
+5. Pipeline de ingesta de correo, incluido el planificador de sondeo (CU-03, QA-7).
+6. Almacenamiento operacional: motor de la base, partición del outbox, capacidad y réplica de lectura (CRN-N2, CRN-2).
+7. Despliegue, alta disponibilidad y monitoreo del broker, el relay y el read model (QA-4, CRN-N3).
+8. Lecturas del panel, gestión manual de reservas, compartir itinerarios y reconstrucción del read model (CU-01, CU-04, CU-06, QA-11, CRN-N4).
+9. Aislamiento de la analítica, copia periódica y acceso a los datos (CRN-3).
+10. Multi-región y protección de datos por región (R-4).
+11. Módulo avanzado obligatorio del enunciado: Opción A (recomendación) u Opción B (asistente virtual). <PENDIENTE: el grupo debe elegir una opción.>
+12. Vistas arquitectónicas complementarias a la modular: despliegue y secuencia. <PENDIENTE: asignar a iteración.>
+
+Propuesta de orden:
+
+- **Iteración 2: ingesta y eventos.** Modelo canónico, adaptadores, contratos de mensajes, tecnología del broker, reconciliación con proveedores y pipeline de correo (CU-02, CU-03, QA-1, QA-5, QA-7, QA-8, R-2, CRN-N1, CRN-N4).
+- **Iteración 3: panel, almacenamiento y disponibilidad.** Lecturas del panel, gestión manual, compartir, almacenamiento operacional, despliegue y monitoreo (CU-01, CU-04, CU-06, QA-2, QA-3, QA-4, QA-6, QA-11, CRN-N2, CRN-N3).
+- **Iteración 4 o posterior.** Aislamiento de la analítica (CRN-3), multi-región (R-4) y módulo avanzado.
 
