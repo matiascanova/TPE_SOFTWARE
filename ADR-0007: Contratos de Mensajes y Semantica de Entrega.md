@@ -42,13 +42,13 @@ Este documento responde dos preguntas:
 
 | Criterio | Qué mide en esta decisión | Se usa en |
 | --- | --- | --- |
-| CRN-N4 (consistencia) | Si duplicados, reentregas y mensajes fuera de orden no tienen efecto, y si los datos se pueden reconstruir. | A, B |
-| QA-1 (actualización en 5 minutos) | Si cada mensaje permite medir la demora por etapa y si el contrato no agrega etapas ni escrituras. | A, B |
-| QA-5 (recuperación) | Si la reentrega y el replay no pierden mensajes ni duplican efectos. | A, B |
-| QA-8 (interoperabilidad) | Si un mensaje mal formado se identifica y se aparta sin frenar el consumo del resto. | A, B |
-| QA-12 y R-2 (evolución e integración) | Si un proveedor, un medio de transporte o un tipo de reserva nuevo se suma sin cambiar el contrato. | A |
-| R-4 (protección de datos) | Si el log retiene solo los datos personales imprescindibles. | A |
-| R-6 (implementación en plazo) | Esfuerzo para el grupo y piezas o escrituras nuevas respecto de la iteración 1. | A, B |
+| CRN-N4 | Si duplicados, reentregas y mensajes fuera de orden no tienen efecto, y si los datos se pueden reconstruir. | A / B |
+| QA-1 | Si cada mensaje permite medir la demora por etapa y si el contrato no agrega etapas ni escrituras. | A / B |
+| QA-5 | Si la reentrega y el replay no pierden mensajes ni duplican efectos. | A / B |
+| QA-8 | Si un mensaje mal formado se identifica y se aparta sin frenar el consumo del resto. | A / B |
+| QA-12 y R-2 | Si un proveedor, un medio de transporte o un tipo de reserva nuevo se suma sin cambiar el contrato. | A |
+| R-4 | Si el log retiene solo los datos personales imprescindibles. | A |
+| R-6 | Esfuerzo para el grupo y piezas o escrituras nuevas respecto de la iteración 1. | A / B |
 
 ---
 
