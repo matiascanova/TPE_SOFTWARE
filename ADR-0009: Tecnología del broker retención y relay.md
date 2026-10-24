@@ -4,13 +4,13 @@
 - **Fecha:** 24/10/2026
 - **Decisores:** Equipo de diseño (grupo TPE)
 - **Drivers de entrada:** Análisis inicial y drivers e Iteración 1: CU-01, CU-02 y CU-03. Otros drivers: QA-1, QA-5, QA-6, R-4, R-6, CRN-2 y CRN-N3.
-- **ADR relacionados:** ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0004 (read model), ADR-0007 (contratos de mensajes y semántica de entrega), ADR-0008 (resiliencia de la ingesta por proveedor)
+- **ADR relacionados:** ADR-0002 (workers y outbox), ADR-0003 (broker), ADR-0004 (read model), ADR-0005 (motor de la BD), ADR-0007 (contratos de mensajes y semántica de entrega), ADR-0008 (resiliencia de la ingesta por proveedor)
 
 ---
 
 ## 1. Contexto y problema
 
-El ADR-0003 eligió un broker con log persistente, pero dejó abiertas la tecnología (Redis Streams o RabbitMQ Streams) y la retención. También pidió revisar si el replay justifica un log frente a una cola (BR-5). El ADR-0002 fijó un relay que lee el outbox «cada pocos segundos», sin un valor. Este documento va último en la iteración porque implementa la estructura de streams del ADR-0008 y toma su retención de la ventana de reconciliación de ese ADR.
+El ADR-0003 eligió un broker con log persistente, pero dejó abiertas la tecnología (Redis Streams o RabbitMQ Streams) y la retención. También pidió revisar si el replay justifica un log frente a una cola (BR-4). El ADR-0002 fijó un relay que lee el outbox «cada pocos segundos», sin un valor. Este documento va último en la iteración porque implementa la estructura de streams del ADR-0008 y toma su retención de la ventana de reconciliación de ese ADR.
 
 Este documento responde tres preguntas:
 
@@ -22,7 +22,7 @@ Este documento responde tres preguntas:
 
 **Tensiones:**
 
-- **Conocimiento frente a capacidad.** Redis ya está en el sistema (ADR-0004), pero guarda en memoria. RabbitMQ Streams guarda en disco, pero es nuevo para el grupo (CRN-2, R-6).
+- **Tecnologías nuevas frente a capacidad.** El grupo no tiene experiencia con Redis ni con RabbitMQ Streams (CRN-2). Redis ya entra al sistema por el read model (ADR-0004), así que usarlo no suma una tecnología más, pero guarda en memoria. RabbitMQ Streams guarda en disco, pero sería una segunda tecnología nueva para aprender y operar (R-6).
 - **Retención frente a datos personales y costo.** Retener más permite absorber interrupciones largas (QA-5), pero expone más datos personales (R-4) y cuesta más memoria con 15 M de cuentas (QA-6).
 - **Durabilidad frente a latencia.** El receptor responde al proveedor cuando el broker confirma (ADR-0007). Si el broker confirma algo que no persistió, una caída lo pierde. Persistir antes de confirmar suma demora (QA-1).
 
@@ -38,7 +38,7 @@ Este documento responde tres preguntas:
 | QA-5 | Si un mensaje confirmado sobrevive a una caída y si la retención cubre la interrupción que se quiere absorber. | A / B |
 | QA-6 | Si la retención sostiene el volumen de 15 M de cuentas. | A / B |
 | R-4 | Si los datos personales se retienen solo el tiempo necesario. | B |
-| R-6 y CRN-2 | Si el grupo conoce la tecnología y la puede demostrar en el plazo. | A / C |
+| R-6 y CRN-2 | Cuántas tecnologías nuevas suma para el grupo, que no tiene experiencia con brokers, y si la puede demostrar en el plazo. | A / C |
 | CRN-N3 | Tecnologías distintas para operar, y si la tecnología da lo que necesita el ADR-0008. | A |
 
 ---
@@ -62,14 +62,14 @@ Este documento responde tres preguntas:
 
 - **Instancia dedicada sin expulsión.** El read model borra entradas cuando se llena (ADR-0004). El broker usa `noeviction`: si se llena, la escritura falla y el proveedor reintenta, sin pérdida silenciosa.
 - **Confirmar solo lo persistido.** El broker escribe en disco antes de responder (`appendfsync always`). En producción, además, espera la confirmación de una réplica (`WAIT`).
-- **Mapeo del ADR-0008.** Cada partición es un stream (`trabajo:<proveedor>:<n>`), y se suman `eventos`, `apartados:trabajo` y `apartados:eventos`. Un arriendo con vencimiento asegura un consumidor por partición. Si el worker cae, otro toma la partición y reclama sus pendientes (`XAUTOCLAIM`).
+- **Mapeo del ADR-0008.** El stream de trabajo de la iteración 1 se implementa como un stream por partición. Cada partición es un stream (`trabajo:<proveedor>:<n>`), y se suman `eventos`, `apartados:trabajo` y `apartados:eventos`. Un arriendo con vencimiento asegura un consumidor por partición. Si el worker cae, otro toma la partición y reclama sus pendientes (`XAUTOCLAIM`).
 - **Detrás del puerto.** Solo el adaptador de mensajería conoce Redis (ADR-0003). Se usa Redis 6.2 o posterior, y en el prototipo es un contenedor más en docker-compose.
 
 ### 3.3 Por qué no las otras alternativas
 
 - **T2.** La expulsión del read model puede borrar streams con mensajes sin confirmar (QA-5), y un atraso del broker le quitaría memoria al panel (CU-01).
-- **T3.** Retiene mejor en disco, pero es nueva para el grupo y suma una segunda tecnología para operar (R-6, CRN-2, CRN-N3). Además no cuenta entregas, así que el contador del ADR-0008 habría que llevarlo aparte. Queda como evolución detrás del puerto si la memoria no alcanza (BK-1).
-- **T4.** Elimina el replay, que el diseño usa para reprocesar lotes (ADR-0007), releer eventos (ADR-0004) y retener el trabajo de un proveedor pausado (ADR-0008). Así se cierra BR-5: el log se mantiene.
+- **T3.** Retiene mejor en disco, pero, como Redis, es nueva para el grupo y, a diferencia de Redis, suma una segunda tecnología para aprender y operar (R-6, CRN-2, CRN-N3). Además no cuenta entregas, así que el contador del ADR-0008 habría que llevarlo aparte. Queda como evolución detrás del puerto si la memoria no alcanza.
+- **T4.** Elimina el replay, que el diseño usa para reprocesar lotes (ADR-0007), releer eventos (ADR-0004) y retener el trabajo de un proveedor pausado (ADR-0008). Así se cierra BR-4: el log se mantiene.
 
 ---
 
@@ -94,7 +94,7 @@ Este documento responde tres preguntas:
 | Trabajo de proveedores | 48 h\* | La ventana de 24 h del ADR-0008 más un margen para drenar y reprocesar. |
 | Trabajo de correo | 24 h\* (provisional) | El correo permite recuperar cambios desde una marca de la casilla. Lo revisa el ADR del pipeline. |
 | Eventos | 24 h\* | Después, el read model se reconstruye desde la BD. |
-| Apartados | 7 días\* | Tiempo para corregir el adaptador y reprocesar. |
+| Apartados | 7 días\* | Tiempo para corregir el adaptador y reprocesar (ADR-0008). |
 
 - **La retención sigue a la ventana.** Cambiar la ventana del ADR-0008 obliga a revisar la retención del trabajo.
 - **Alertas.** Salta una alerta al 70% de la memoria\* y otra cuando un mensaje pendiente se acerca a su recorte.
@@ -134,7 +134,7 @@ Este documento responde tres preguntas:
 ### 5.3 Por qué no las otras alternativas
 
 - **P1.** Suma hasta 5 s sin ahorro real, y con lotes de 500 publica como máximo 100 eventos por segundo, menos que un pico ×10 (QA-6).
-- **P3.** En PostgreSQL, `NOTIFY` toma un bloqueo global al confirmar. Sobre el outbox, la tabla más escrita (ADR-0002, W-3), serializa la ingesta.
+- **P3.** En PostgreSQL (ADR-0005), `NOTIFY` toma un bloqueo global al confirmar. Sobre el outbox, la tabla más escrita (ADR-0002, W-3), serializa la ingesta.
 - **P4.** Suma un conector y configuración de replicación sin mejorar QA-1 frente a 1 s (R-6). Queda como la evolución que prevé el ADR-0002.
 
 ---
@@ -143,7 +143,7 @@ Este documento responde tres preguntas:
 
 ### Positivas
 
-- Una sola tecnología para el read model y el broker, que el grupo ya usa (R-6, CRN-2).
+- Una sola tecnología nueva para el read model y el broker: el grupo aprende y opera una en lugar de dos (R-6, CRN-2).
 - El contador de entregas y la reclamación de pendientes son nativos y sostienen el ADR-0008.
 - Lo que se confirma al proveedor está persistido (QA-5), y cada stream retiene solo lo necesario (R-4).
 - El relay suma como máximo 1 s y el presupuesto por etapa permite ubicar demoras (QA-1).
@@ -155,3 +155,4 @@ Este documento responde tres preguntas:
 | BK-1 | La retención vive en memoria y Redis recorta aunque haya mensajes pendientes. | El correo a escala puede no entrar en una instancia (QA-6), y una interrupción más larga que la retención pierde mensajes retenidos (QA-5). | Retención por stream y alertas. Reconciliación por estado actual (ADR-0008). Evolución a RabbitMQ Streams. |
 | BK-2 | Persistir antes de confirmar reduce el rendimiento, y la réplica es asíncrona. | Más demora en el receptor (QA-1), y un failover puede perder unos pocos mensajes (QA-5). | Medir en la prueba de carga. Esperar la réplica. La reconciliación cubre lo perdido. |
 | BK-3 | Los arriendos por partición son código propio, y hay dos instancias de Redis con configuraciones opuestas. | Dos consumidores en una partición rompen el orden (ADR-0002), y confundir las instancias provoca pérdidas (CRN-N3). | La idempotencia del ADR-0007 protege el resultado. Pruebas de caída de workers. Chequeo de la configuración al arrancar. |
+| BK-4 | El grupo no tiene experiencia con Redis (CRN-2). Además, si el read model usa el reemplazo en PostgreSQL que prevé el ADR-0004, el broker deja de compartir tecnología con él. | Más esfuerzo de aprendizaje y riesgo de configurar mal la persistencia (R-6, QA-5). Sin Redis en el read model, T1 pierde su ventaja frente a T3. | Prueba temprana del broker en el prototipo, con caídas y reentregas. Chequeo de la configuración al arrancar. El broker queda detrás del puerto (ADR-0003), así que cambiar a T3 no afecta al resto. |
