@@ -23,7 +23,6 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 5. **Máximo 5 alternativas en total, elegida incluida, y todas realistas.** No se listan alternativas sin sentido para el problema ni las que otro ADR ya descartó y deben ser distintas entre si, no sirve si son muy similares. Cada descartada lleva un motivo concreto atado a un driver. No se aceptan «es peor» ni «no conviene».
 6. **Sin pesos.** No se escriben puntajes, ponderaciones ni rankings. Alta/Media/Baja solo si aclara algo, nunca por criterio. Los valores medibles del driver («en 5 minutos») sí se escriben.
 7. **Corto, concreto y sin repetir.** Una idea por frase, en afirmativo. No se explican conceptos conocidos: se nombran y, si hace falta, se enlaza una referencia. Cada dato vive en un solo ADR y los demás lo enlazan. El ADR cabe en una página y se entiende sin leer los demás.
-8. **Todo ADR indica qué queda fuera de alcance.**
 
 ---
 
