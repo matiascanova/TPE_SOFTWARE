@@ -151,11 +151,7 @@ Drivers nuevos desde la iteración anterior: <IDs con una línea cada uno, o «n
 ### 7.3 Evaluación y resultado
 
 - **¿Se alcanzó el objetivo del Paso 2?** <Sí | Parcial | No>. <Justificación con decisiones (por ADR), vistas y estados.>
-- **¿Se cumple el propósito del diseño?** <Sí | Todavía no>. <Una frase.>
-- **Drivers que cambiaron de estado:** <ID: estado anterior → estado nuevo. Evidencia y lo que falta.>
 - **Resultado:** <Tres a cinco líneas: estructura obtenida, decisiones principales (por ID de ADR) y pendientes que condicionan la siguiente iteración.>
-- **Próximo objetivo:** <Propuesta de objetivo para la siguiente iteración, o «cierre del round» con el motivo.>
-
 ---
 
 ## Lista de control
@@ -192,7 +188,6 @@ Drivers nuevos desde la iteración anterior: <IDs con una línea cada uno, o «n
 - [ ] ¿Cada cambio de estado de 7.3 cita evidencia y respeta la definición de Abordado?
 - [ ] ¿Hay 5 concerns nuevas o menos, cada una ligada a riesgos de ADR y con ID provisional que continúa el catálogo?
 - [ ] ¿El Kanban de 7.2 incluye todos los drivers del backlog?
-- [ ] ¿La evaluación dice si se continúa y propone el próximo objetivo?
 
 **General**
 
