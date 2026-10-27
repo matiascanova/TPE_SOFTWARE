@@ -11,8 +11,6 @@ Una casilla contiene sobre todo correos personales que no son de viaje, y leerlo
 
 **Pregunta:** ¿Qué correos lee Trotamundos de una casilla, qué conserva y cómo extrae la reserva?
 
-**Fuera de alcance:** revocación del acceso (ADR-0010), detección del correo nuevo y planificación (ADR-0012), extractores concretos por remitente e importación de correos anteriores a la conexión.
-
 ---
 
 ## 2. Decisión
