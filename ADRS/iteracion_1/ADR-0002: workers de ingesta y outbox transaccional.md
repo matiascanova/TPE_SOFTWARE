@@ -11,8 +11,6 @@ Una notificación casi nunca trae la reserva completa: hay que consultar al prov
 
 **Pregunta:** ¿Cómo se procesa cada notificación y cómo se garantiza que el panel se entere del cambio sin pérdidas ni invenciones?
 
-**Fuera de alcance:** el broker y sus streams (ADR-0003), el read model y su mantenimiento (ADR-0004), el motor y la partición de la base, el pipeline de ingesta de correo y la analítica.
-
 ---
 
 ## 2. Decisión
