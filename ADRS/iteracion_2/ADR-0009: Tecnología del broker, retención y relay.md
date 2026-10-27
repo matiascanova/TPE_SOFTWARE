@@ -18,7 +18,7 @@ Se requiere definir la tecnología concreta que soportará el log persistente de
 
 ## 2. Decisión
 
-**Se elige T1/R2/P2: Implementar el broker mediante Redis Streams en una instancia dedicada con persistencia síncrona en disco (`appendfsync always`), políticas de retención recortadas por tiempo según el tipo de stream (`XTRIM`), y un proceso relay de lectura en lotes de hasta 500 filas con espera de 1 s si la lectura no completó el lote.**
+**Se elige A2: Implementar el broker mediante Redis Streams en una instancia dedicada con persistencia síncrona en disco (`appendfsync always`), políticas de retención recortadas por tiempo según el tipo de stream (`XTRIM`), y un proceso relay de lectura en lotes de hasta 500 filas con espera de 1 s si la lectura no completó el lote.**
 
 - La instancia de Redis del broker opera aislada del read model con política `noeviction` para evitar pérdida silenciosa de mensajes.
 - La retención se configura diferenciada: 48 h para trabajo de proveedores, 24 h para eventos y 7 días para apartados.
@@ -30,14 +30,12 @@ Se requiere definir la tecnología concreta que soportará el log persistente de
 
 | Alternativa | Motivo |
 |---|---|
-| Redis Streams en la misma instancia del read model | La política de expulsión de memoria del read model puede borrar mensajes no confirmados (QA-5). |
-| RabbitMQ Streams | Suma una segunda tecnología desconocida a la pila operativa del grupo, violando R-6 y CRN-2. |
-| Colas destructivas (RabbitMQ Quorum) | Elimina la capacidad de relectura y replay requerida por el sistema (ADR-0004, ADR-0007). |
-| Retención por cantidad de mensajes | En picos de tráfico reduce drásticamente la ventana temporal retenida, violando QA-5 y QA-6. |
-| Retención uniforme de 7 días | Aumenta masivamente el uso de memoria (QA-6) y prolonga la exposición de datos personales (R-4). |
-| Relay con intervalo fijo largo (5 s) | Consume una porción excesiva del presupuesto temporal de 5 minutos, afectando QA-1. |
-| Notificaciones via PostgreSQL `LISTEN/NOTIFY` | Genera bloqueos globales en las escrituras sobre la tabla outbox, degradando la ingesta (QA-1). |
-| Captura CDC (Debezium/Kafka Connect) | Agrega complejidad de despliegue e infraestructura no justificada para el prototipo (R-6). |
+| A1.Redis Streams en la misma instancia del read model | La política de expulsión de memoria del read model puede borrar mensajes no confirmados (QA-5). |
+| A3.RabbitMQ Streams | Suma una segunda tecnología desconocida a la pila operativa del grupo, violando R-6 y CRN-2. |
+| A4.Colas destructivas (RabbitMQ Quorum) | Elimina la capacidad de relectura y replay requerida por el sistema (ADR-0004, ADR-0007). |
+| A5.Retención por cantidad de mensajes | En picos de tráfico reduce drásticamente la ventana temporal retenida, violando QA-5 y QA-6. |
+| A6.Retención uniforme de 7 días | Aumenta masivamente el uso de memoria (QA-6) y prolonga la exposición de datos personales (R-4). |
+| A7.Relay con intervalo fijo largo (5 s) | Consume una porción excesiva del presupuesto temporal de 5 minutos, afectando QA-1. |
 
 ---
 
