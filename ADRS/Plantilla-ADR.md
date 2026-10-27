@@ -92,25 +92,11 @@ Este documento responde <una pregunta> | estas preguntas:
 
 **Descripción de la decisión.** <Una o dos frases que expliquen la solución a alguien que no la conoce.>
 
-- **<Nombre de la regla>.** <Qué se debe cumplir al implementarla.>
-- **<Nombre de la regla>.** <...>
-
 **Tácticas que incorpora de otras alternativas:** <Solo en decisiones híbridas. Lista corta.>
 **Tácticas que difiere:** <Solo en decisiones híbridas. Qué se posterga a propósito y se documenta como evolución prevista.>
 
-> Qué va: la decisión en negrita y su descripción simple. Si la decisión impone restricciones verificables, hasta 5 reglas en viñetas, cada una con nombre y qué se debe cumplir. Sin restricciones, solo la descripción. El motivo detallado va en 3.4; una frase corta de motivo en una regla es válida si sin ella no se entiende.
->
+> Qué va: la decisión en negrita y su descripción simple. Si la decisión impone restricciones verificables. Sin restricciones, solo la descripción. El motivo detallado va en 3.4; una frase corta de motivo en una regla es válida si sin ella no se entiende.
 > Las dos líneas de tácticas se usan solo cuando la decisión es un híbrido que toma ideas de alternativas más pesadas. Se listan únicamente las tácticas que distinguen la elección de las descartadas, no las que cualquier alternativa tendría. En decisiones que no son híbridas se omiten.
-
-### 3.3 Cómo funciona (opcional)
-
-<Caso práctico paso a paso con un ejemplo concreto del dominio.>
-
-| Qué falla | Qué pasa | Resultado |
-|---|---|---|
-| <Falla> | <Comportamiento del diseño> | <Efecto visible> |
-
-> Qué va: solo si la decisión es difícil de imaginar. Un ejemplo corto y una tabla con las fallas relevantes. Si la decisión se entiende sin esto, se omite.
 
 ### 3.4 Por qué no las otras alternativas
 
