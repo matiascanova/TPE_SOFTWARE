@@ -1,6 +1,6 @@
 # ADR-0008: Tabiques por proveedor con circuit breaker y stream de apartados
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md e Iteracion-1.md. CU-02, CU-03. Otros: CRN-N1, QA-1, QA-5, QA-8, R-3, R-4, R-6.
 
 ---
