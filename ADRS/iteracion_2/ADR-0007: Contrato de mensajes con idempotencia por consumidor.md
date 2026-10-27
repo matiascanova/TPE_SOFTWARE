@@ -11,8 +11,6 @@ Los ADR-0002 y 0003 fijaron streams de trabajo y de eventos con entrega al menos
 
 **Pregunta:** ¿Qué estructura tienen los mensajes de trabajo y de eventos, y cómo logra cada consumidor que la entrega al menos una vez no duplique efectos?
 
-**Fuera de alcance:** tecnología del broker (ADR-0010), retención (ADR-0009), reintentos y apartados (ADR-0008), modelo canónico (ADR-0006), mecanismo del outbox (ADR-0002), campos de los esquemas y cambios manuales del viajero (ADR-0004).
-
 ---
 
 ## 2. Decisión
