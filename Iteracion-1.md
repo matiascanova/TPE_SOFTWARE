@@ -1,202 +1,240 @@
-# Iteración 1 de ADD: estructura general de Trotamundos
+# Iteración 1 de Trotamundos: establecer la estructura general
 
 - **Estado:** Borrador para revisión
-- **Fecha:** 23/10/2026 
-- **Equipo:** grupo TPE
+- **Fecha:** 27/10/2026
+
 ---
 
-## 1. Resumen ejecutivo
+## Paso 1. Revisar las entradas del diseño
 
-Esta iteración fija la estructura global de Trotamundos. Se eligió una arquitectura en capas/hexagonal con **tres desplegables** (Panel API, ingesta y analítica). La ingesta y el Panel API se comunican por un **broker con log persistente y outbox**, el panel lee de un **read model** propio (CQRS solo en el panel) y la analítica queda aislada del sistema operativo, con un almacén analítico propio y su diseño detallado para iteraciones futuras (alternativa C-lite del ADR-0001, con los ADR-0002 a 0004).
+### 1.1 Contexto
 
-La estructura da un camino de cumplimiento defendible a los drivers de mayor prioridad y dificultad (QA-1, QA-6) y deja la evolución hacia más servicios como camino previsto, sin reescritura. Los riesgos aceptados en los ADR se consolidan en **cuatro concerns nuevas** (sección 5), con una iteración prevista para cada una.
+Trotamundos unifica los arreglos de viaje en un panel (CU-01). Recibe notificaciones push de los proveedores de viaje y sondea el correo de forma programada (15 M de cuentas, QA-7); traduce ambos a un modelo canónico. El panel tiene 2 M de usuarios activos semanales y picos ×10* (QA-6). Es la primera iteración: no hay iteraciones previas y la estructura general no está fijada. Sus decisiones quedan en ADR-0001 a ADR-0004, hoy en estado Propuesto, más una decisión menor sin ADR (PostgreSQL, 6.2).
 
-## 2. Objetivo de la iteración y drivers seleccionados
+### 1.2 Entradas
 
-**Objetivo.** Establecer la estructura global del sistema (estilo arquitectónico, comunicación entre desplegables y aislamiento de la analítica) de modo que los drivers de mayor prioridad y dificultad tengan un camino de cumplimiento defendible y el diseño sea implementable por el grupo en el plazo del TPE.
+**Iteración 1**
 
-Al tratarse de un desarrollo nuevo, el elemento a refinar es el **sistema completo**, que en esta iteración se descompone (refinamiento por descomposición) en desplegables y almacenes de apoyo.
-
-| Driver | Motivo de la selección |
+| Categoría | Detalle |
 |---|---|
-| CU-01, CU-02, CU-03, CU-04 | Funcionalidad primaria. Concentran la mayor parte de los requisitos de calidad. |
-| QA-1, QA-6 | Los de mayor prioridad y dificultad del análisis inicial. Condicionan el estilo arquitectónico. |
-| QA-2, QA-3, QA-4, QA-5, QA-7, QA-8, QA-12 | Intervienen en la decisión de estilo o en los riesgos de los ADR (QA-4 en BR-3, QA-8 en ES-1 y W-1, QA-12 en los adaptadores). Se abordan de forma parcial o quedan pendientes. |
-| CU-06, QA-11 | El read model incluye la lista de personas autorizadas y define el borrado de entradas ante cambios de permisos (ADR-0004). Se abordan de forma parcial. |
-| R-2, R-6 | R-2 moldea la integración (adaptadores por proveedor). R-6 (prototipo en plazo acotado) hace de la viabilidad de implementación un criterio de decisión de primer orden. |
-| CRN-1 | Se moldea el concepto general del sistema (ADR-0001). |
-| CRN-2 | Interviene en la elección del almacén del read model (ADR-0004). Se aborda de forma parcial. |
-| CRN-3 | Aislar los casos de uso secundarios. En esta iteración solo se diseña el aislamiento de la analítica (CU-05) respecto del sistema operativo. El diseño detallado queda para iteraciones futuras. |
+| Propósito del diseño | Greenfield. Prototipo en plazo acotado (R-6) |
+| Primary functionality | CU-01, CU-02, CU-03 y CU-04. Secundarios: CU-05 a CU-09 (CU-06 se toca por ADR-0004) |
+| QA scenarios primarios | Los de prioridad Alta del catálogo. QA-1: actualizaciones de un proveedor en el panel en < 5 min. QA-4: tolerar la caída de una instancia o zona con ≤ 5 min mensuales de inactividad (≈ 99,99 %). QA-6: 15 M de cuentas, 2 M de usuarios activos semanales y picos ×10*, cumpliendo QA-1 y QA-2. QA-8: 99 % de los mensajes válidos procesados y 99 % de los inválidos registrados, sin afectar a otros proveedores |
+| Constraints | R-1 a R-6. Condicionan esta iteración R-2 (APIs estándar de los proveedores, sin modificarlas) y R-6 (prototipo rápido en plazo acotado) |
+| Concerns | CRN-1 (estructura general), CRN-2 (aprovechar el conocimiento del equipo: Java, PostgreSQL, C++, Python, entre otros), CRN-3 (aislar los casos de uso secundarios) |
 
-## 3. Conceptos de diseño
+\* Medida propuesta por el equipo (catálogo de drivers, sección 4).
 
-En esta primera iteración se documentan solo los conceptos que se desprenden directamente de los ADR. Las tácticas de detalle que enumera el ADR-0001 (circuit breaker, reintentos, cola de mensajes inválidos y otras) no se repiten acá.
+---
 
-| Concepto | Drivers | ADR | Alternativas descartadas |
+## Paso 2. Establecer el objetivo de la iteración seleccionando drivers
+
+### 2.1 Objetivo
+
+**Objetivo:** Fijar la estructura general de Trotamundos (CRN-1), de modo que la ingesta cubra QA-1 y QA-5 a nivel de decisiones: estilo, desplegables, conector entre ingesta y panel, almacén de lectura del panel y tecnología de la base.
+
+**Tipo:** Un driver importante (CRN-1)
+
+### 2.2 Drivers seleccionados
+
+| Driver | Rol | Por qué condiciona las decisiones |
+|---|---|---|
+| CRN-1 | Principal | Fija estilo, desplegables, conector y almacenes |
+| QA-1 | Principal | Las actualizaciones de proveedores llegan al panel en < 5 min; prioridad y dificultad Altas, y la dificultad está en la ingesta |
+| QA-5 | Principal | Con la API de un proveedor caída, el panel muestra la última versión conocida y, dentro de 5 min* de restablecida, se recupera el 99 % de los eventos generados durante la caída |
+| QA-2 | Contexto | El panel responde en < 800 ms con carga normal |
+| QA-6 | Contexto | 15 M de cuentas, 2 M de usuarios semanales y picos ×10* cumpliendo QA-1 y QA-2: exige separar las lecturas del panel de las escrituras de la ingesta |
+| QA-7 | Contexto | El correo de usuarios con viajes próximos se procesa en ≤ 15 min* para el 95 %*: condiciona planificador y workers |
+| QA-8 | Contexto | 99 % de los mensajes válidos procesados y 99 % de los inválidos registrados sin afectar a otros proveedores: condiciona el aislamiento por adaptador |
+| R-6 | Contexto | La viabilidad en un plazo acotado es criterio de primer orden |
+| CRN-2 | Contexto | Fija PostgreSQL como tecnología de la base |
+| CRN-3 | Contexto | La analítica (CU-05) va en un desplegable propio, aislada del sistema operativo |
+| CU-01 a CU-04 | Contexto | Flujos de ingesta y panel que la estructura debe soportar |
+
+### 2.3 Alcance
+
+**Dentro:** Estilo general, desplegables y piezas de apoyo (ADR-0001), conector de la ingesta (ADR-0003), workers con outbox (ADR-0002), read model del panel (ADR-0004) y tecnología de la base (6.2). R-2, QA-3, QA-4, QA-11, QA-12 y CU-06 los citan los ADR sin ser objetivo y se evalúan como relacionados en 7.1.
+
+**Fuera de alcance:** Partición de la base operacional, almacén analítico y copia hacia él. Pipeline de correo y planificador de sondeo. Despliegue, seguridad, diseño interno de la analítica, tecnología concreta del broker, dimensionamiento y réplicas del read model, y compartir entre regiones. El resto de los drivers queda sin tratar (7.3).
+
+---
+
+## Paso 3. Elegir uno o más elementos del sistema para refinar
+
+### 3.1 Elementos seleccionados
+
+El sistema Trotamundos completo (diagrama de contexto).
+
+**Tipo de refinamiento:** Descomposición (top-down)
+
+### 3.2 Límite del refinamiento
+
+Se descompone en tres desplegables (Panel API, Ingesta y Analítica) y cuatro piezas de apoyo (base relacional, read model, broker y almacén analítico), con los roles internos de la Ingesta. El diseño interno de cada desplegable más allá de capas y puertos queda fuera.
+
+---
+
+## Paso 4. Elegir conceptos de diseño que satisfagan los drivers seleccionados
+
+### 4.1 Conceptos seleccionados
+
+| Concepto | Tipo | Drivers |
+|---|---|---|
+| C-lite: capas/hexagonal con tres desplegables | Patrón | QA-1, QA-2, QA-5, QA-6, QA-7, QA-8, R-2, R-6, CRN-1, CRN-3 |
+| Broker con log persistente | Patrón | QA-1, QA-4, QA-5, QA-6, QA-7, R-6 |
+| Workers asíncronos con outbox transaccional | Patrón | QA-1, QA-5, QA-6, QA-7, QA-8, QA-12, R-2, R-6 |
+| CQRS en el panel con read model en una instancia de base propia | Patrón | QA-1, QA-2, QA-3, QA-4, QA-6, QA-11, R-6, CRN-2 |
+| Aislamiento por adaptador: circuit breaker, reintentos con backoff y cola de mensajes inválidos | Táctica | QA-5, QA-6, QA-7, QA-8, R-2 |
+
+### 4.2 Cómo se combinan
+
+Los conceptos forman una cadena: receptor, trabajo, outbox, eventos y read model. Su costo conjunto es el retraso acumulado contra los 5 minutos de QA-1 (BR-1) y la base operacional compartida entre Panel API y Workers (W-2, RM-1); ambos se recogen en CRN-4 y CRN-5.
+
+---
+
+## Paso 5. Instanciar elementos, asignar responsabilidades y definir interfaces
+
+### 5.1 Elementos instanciados
+
+Los flujos entre elementos están en la vista 6.1; acá solo se indica con quién y cómo se comunica cada uno.
+
+| Elemento | Tipo | Responsabilidades | Se comunica con (mecanismo) |
 |---|---|---|---|
-| Arquitectura en capas/hexagonal con 3 desplegables (C-lite) | QA-1, QA-2, QA-5, QA-6, QA-7, QA-8, R-2, R-6, CRN-1, CRN-3 | 0001 | Monolito modular (A), microservicios (B), híbrida de 5-6 servicios (C), serverless (D), capas/N-tier (E) |
-| Workers de ingesta asíncronos, con un adaptador por proveedor y por medio de transporte | CU-02, CU-03, QA-1, QA-5, QA-6, QA-7, QA-8, QA-12, R-2 | 0002 | Procesar en el receptor, un servicio por proveedor, funciones serverless por evento |
-| Outbox transaccional con relay por polling | QA-1, QA-5 | 0002 | Doble escritura directa, publicar primero y guardar después, captura de cambios (CDC), transacción distribuida |
-| Broker con log persistente, con un stream de trabajo (buffer de entrada) y uno de eventos | QA-1, QA-4, QA-5, QA-6, QA-7 | 0003 | Comunicación síncrona directa, base de datos como bus, cola durable simple, plataforma de streaming completa |
-| Read model del panel en un almacén clave-valor en memoria (CQRS solo en el panel) | CU-01, CU-04, CU-06, QA-1, QA-2, QA-3, QA-4, QA-6, QA-11, CRN-2 | 0004 | Sin read model, tablas de lectura en la base relacional, base documental propia |
+| Panel API | Componente (desplegable) | Atiende el panel, verifica la lista de personas de un itinerario compartido y mantiene el read model a partir de los eventos | Usuarios (HTTP); Base relacional (SQL); Read model (puerto); Broker (mensajes) |
+| Ingesta | Componente (desplegable) | Agrupa Receptor, Planificador de sondeo, Workers y Relay, que corren y escalan por separado | Sus roles |
+| Receptor | Componente (rol de Ingesta) | Recibe el push y lo encola; responde con error si el broker no está, para que el proveedor reintente | Proveedores (push); Broker (mensajes) |
+| Planificador de sondeo | Componente (rol de Ingesta) | Dispara el sondeo programado del correo (diseño fuera de alcance, 2.3) | Broker (mensajes) |
+| Workers | Componente (rol de Ingesta) | Traducen al modelo canónico con un adaptador aislado por proveedor y medio; guardan cambio y evento en una transacción; reconcilian al volver el proveedor | Broker (mensajes); Proveedores (API o casilla); Base relacional (SQL) |
+| Relay | Componente (rol de Ingesta) | Publica por polling los eventos pendientes del outbox, al menos una vez | Base relacional (SQL); Broker (mensajes) |
+| Analítica | Componente (desplegable) | Procesa datos sobre su almacén propio; sin acceso a la base operacional ni al log | Almacén analítico |
+| Base relacional | Almacén | Fuente de verdad: itinerarios, cambios y outbox | Panel API, Workers y Relay |
+| Read model | Almacén | Documento por viaje e índice por usuario en una instancia propia; se reconstruye desde la base relacional | Panel API |
+| Broker con log persistente | Otro (conector) | Streams de trabajo, eventos e inválidos con offset por consumidor; no es fuente de verdad | Receptor, Planificador, Workers, Relay y Panel API |
+| Almacén analítico | Almacén | Datos de la analítica, alimentados con una copia periódica de la base | Analítica; Base relacional (copia) |
+| Proveedores de viaje y de correo | Otro (externo) | Los de viaje envían push y exponen una API; los de correo exponen casillas | Receptor; Workers |
+| Usuarios del panel | Otro (externo) | Consultan, editan (CU-04) y comparten itinerarios (CU-06) | Panel API |
 
-**Tecnologías.** El read model usa Redis (ADR-0004); las tablas de lectura en PostgreSQL quedan como reemplazo si el equipo prefiere no sumarlo. La tecnología del broker queda por definir. El motor de la BD queda por definir.
+### 5.2 Tecnologías
 
-**Costo explícito.** La estructura suma piezas que operar (broker, relay, read model, almacén analítico) y datos que mantener consistentes entre sí. Ese costo se refleja en las concerns de la sección 5.
+| Tecnología | Elemento o concepto |
+|---|---|
+| PostgreSQL | Base relacional y Read model (instancia propia) |
 
-## 4. Vista modular y elementos instanciados
+**Por definir:** Broker (ADR-0003), partición de la base y almacén analítico (fuera de alcance, 2.3), lenguajes y frameworks (CRN-2).
 
-### 4.1 Vista modular
+### 5.3 Interfaces y contratos
+
+| Elemento | Tipo | Operación | Contrato |
+|---|---|---|---|
+| Puerto de mensajería | Interna | Publicar y consumir en un stream | Al menos una vez y consumidores idempotentes; orden por clave (el viaje en eventos; en trabajo, a definir), sin orden global; inválidos y reintentos agotados van al stream de inválidos |
+| Workers y Base relacional | Interna | Guardar cambio y evento | Una transacción, idempotente por identificador de notificación o versión del proveedor |
+| Puerto del read model | Interna | Reemplazar documento; borrar entradas | Reemplaza solo si la versión nueva es mayor o igual a la guardada (atómico); borra las entradas afectadas ante un cambio de permisos; si falta una, se reconstruye desde la base relacional |
+
+**Pendientes de detallar:** Modelo canónico. Contratos del push y de la API o casillas de los proveedores. API externa del Panel API. Clave de orden del stream de trabajo y retención de los streams (ADR-0003). Contrato de la copia hacia el almacén analítico (CRN-8).
+
+---
+
+## Paso 6. Esbozar vistas y registrar decisiones de diseño
+
+### 6.1 Vistas
+
+**Vista: Ingesta, panel y almacenes**
+
+- **Tipo de vista:** Component & Connector
+- **Qué muestra:** Los elementos en ejecución y los flujos de la ingesta y del panel.
+
+Diagrama:
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'fontFamily': 'Arial, sans-serif', 'fontSize': '14px', 'lineColor': '#475569'}, 'flowchart': {'curve': 'basis', 'nodeSpacing': 45, 'rankSpacing': 70}}}%%
 flowchart LR
-    CL([Clientes web / móvil])
-    PV([Proveedores de viaje])
-    MC([Proveedores de correo])
+  Usuarios(["Usuarios del panel"])
+  Proveedores(["Proveedores de viaje y de correo"])
 
-    subgraph TROT[" Trotamundos "]
-        API["<b>Panel API</b><br/>lecturas, gestión manual,<br/>compartir, auth<br/>mantiene el read model"]
+  subgraph Ingesta["Ingesta (desplegable)"]
+    Receptor["Receptor"]
+    Planificador["Planificador de sondeo"]
+    Workers["Workers"]
+    Relay["Relay"]
+  end
 
-        subgraph INGD[" Ingesta "]
-            RX["<b>Receptor</b><br/>solo encola y responde"]
-            PS["<b>Planificador de sondeo</b><br/>de correo"]
-            WK["<b>Workers</b><br/>adaptadores de proveedores<br/>y de correo"]
-            RL["<b>Relay</b><br/>del outbox"]
-        end
+  subgraph PanelD["Panel API (desplegable)"]
+    PanelAPI["Panel API"]
+  end
 
-        BR[["<b>Broker con log persistente</b><br/>stream de trabajo + stream de eventos"]]
-        CA["<b>Analítica</b>"]
-    end
+  subgraph AnaliticaD["Analítica (desplegable)"]
+    Analitica["Analítica"]
+  end
 
-    subgraph DATOS[" Almacenes de datos "]
-        DB[("<b>BD operacional</b><br/>incluye outbox")]
-        RM[("<b>Read model</b><br/>Redis")]
-        AA[("<b>Almacén analítico</b>")]
-    end
+  subgraph Broker["Broker con log persistente"]
+    SWork[("Stream de trabajo")]
+    SEv[("Stream de eventos")]
+    SInv[("Stream de inválidos")]
+  end
 
-    CL --> API
-    API <-->|"lee y escribe"| DB
-    API <-->|"lee y actualiza"| RM
+  Base[("Base relacional")]
+  ReadModel[("Read model")]
+  AlmAn[("Almacén analítico")]
 
-    PV -->|"notificaciones"| RX
-    MC -->|"notificaciones push"| RX
-    PS -->|"encola sondeo"| BR
-    RX -->|"encola trabajo"| BR
-    BR -->|"entrega trabajo"| WK
-    WK -->|"consulta detalles"| PV
-    WK -->|"lee correo"| MC
-    WK -->|"cambio + evento<br/>(1 transacción)"| DB
-
-    DB -->|"eventos pendientes"| RL
-    RL -->|"publica eventos"| BR
-    BR -->|"eventos"| API
-
-    DB -->|"copia periódica"| AA
-    CA <-->|"consultas analíticas"| AA
-
-    classDef actor fill:#f1f5f9,stroke:#64748b,color:#0f172a;
-    classDef app fill:#dbeafe,stroke:#2563eb,color:#0f172a;
-    classDef broker fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#0f172a;
-    classDef store fill:#ffedd5,stroke:#c2410c,color:#0f172a;
-    class CL,PV,MC actor;
-    class API,RX,PS,WK,RL,CA app;
-    class BR broker;
-    class DB,RM,AA store;
-
-    style TROT fill:#f8fafc,stroke:#1e293b,stroke-width:2px,color:#0f172a
-    style INGD fill:#eff6ff,stroke:#2563eb,stroke-dasharray:6 4,color:#0f172a
-    style DATOS fill:#fff7ed,stroke:#c2410c,stroke-width:2px,color:#0f172a
+  Proveedores -->|"notificación push"| Receptor
+  Receptor ==>|"encola"| SWork
+  Planificador ==>|"encola sondeo"| SWork
+  SWork ==>|"consume"| Workers
+  Workers -->|"consulta API o lee correo"| Proveedores
+  Workers -->|"transacción: cambio + outbox"| Base
+  Workers ==>|"inválidos y reintentos agotados"| SInv
+  Relay -->|"lee outbox pendiente"| Base
+  Relay ==>|"publica evento"| SEv
+  SEv ==>|"consume"| PanelAPI
+  PanelAPI ==>|"inválidos"| SInv
+  Usuarios -->|"consulta y edita"| PanelAPI
+  PanelAPI -->|"lee y escribe"| Base
+  PanelAPI -->|"lee; escribe por versión"| ReadModel
+  Base -.->|"copia periódica"| AlmAn
+  Analitica -->|"lee y procesa"| AlmAn
 ```
 
-**Clave.** Los rectángulos son elementos de código desplegable, los cilindros son almacenes, el rectángulo con doble borde es el broker y los óvalos son actores externos. Las flechas son comunicación, con su sentido y su motivo. La ingesta es un único artefacto con tres roles (receptor, workers y relay) que corren como procesos separados y escalan por separado; el planificador de sondeo se suma para el correo y su diseño queda para la Iteración 2.
+Clave:
 
-### 4.2 Elementos y responsabilidades
+- Óvalo: actor externo. Rectángulo: elemento de software. Cilindro: almacén o stream del log.
+- Recuadro con título: desplegable o broker.
+- Flecha fina: llamada o acceso directo. Flecha gruesa: mensaje asíncrono por el broker. Flecha punteada: copia periódica.
 
-| Elemento | Responsabilidades | Comunicación |
+### 6.2 Registro de decisiones
+
+| Decisión | ADR | Descartadas | Justificación (solo si no hay ADR) |
+|---|---|---|---|
+| C-lite: capas/hexagonal con tres desplegables | ADR-0001 | Capas / N-tier, Monolito modular, Microservicios | — |
+| Broker con log persistente | ADR-0003 | Base de datos como bus, Cola durable simple, Plataforma de streaming completa | — |
+| Workers asíncronos con outbox transaccional | ADR-0002 | Procesar en el receptor, Doble escritura sin outbox, Outbox con CDC | — |
+| CQRS en el panel con read model en una instancia de base propia | ADR-0004 | Sin read model, Tablas de lectura en la misma base operacional, Almacén en memoria | — |
+| Aislamiento por adaptador: circuit breaker, reintentos con backoff y cola de mensajes inválidos | ADR-0002 y ADR-0003 | Sin alternativas registradas | — |
+| PostgreSQL como tecnología de la base relacional y del read model | «menor» | Sin alternativas registradas | Es la tecnología que el equipo conoce (CRN-2). |
+
+---
+
+## Paso 7. Analizar el diseño y revisar el objetivo y el propósito del diseño
+### 7.1 Concerns nuevas
+
+| ID | Concern | Riesgos de origen | Mitigación prevista |
+|---|---|---|---|
+| CRN-4 | Las medidas de latencia no están verificadas bajo carga: la cadena receptor, trabajo, outbox, eventos y read model suma retrasos contra los 5 minutos de QA-1 (15 en el correo, QA-7), y el read model en disco debe sostener los picos ×10 de QA-2 y QA-3 | BR-1, W-3, RM-1, RM-2 | Presupuesto por etapa; alertas por retraso de consumo y por antigüedad de la fila más vieja del outbox; prueba de carga con picos ×10; caché en memoria delante del read model si no alcanza (ADR-0004) |
+| CRN-5 | Los límites internos se sostienen por disciplina y no por separación física: base operacional compartida, adaptadores en un mismo proceso y capas | W-1, W-2, ES-2, ES-3 (base compartida) | Colas, pools y circuit breaker por adaptador; reglas de dependencia en CI; cada módulo dueño de sus tablas; read model separado; prueba de carga |
+| CRN-6 | La ingesta depende del broker y del proveedor para no perder datos: el broker está en el camino de entrada, el log no recupera lo que el proveedor nunca entregó y su ventaja sobre una cola depende de usar el replay | BR-2, BR-3, BR-4 | Broker gestionado o clusterizado y multi-AZ; error al proveedor para que reintente; reconciliación de los adaptadores (ADR-0002); el puerto de mensajería permite pasar a una cola durable |
+| CRN-7 | El read model puede servir datos pisados o con permisos desactualizados | RM-3, RM-4 | Escritura condicional por versión; borrar la entrada ante un cambio de permisos, con reintentos; verificar la lista en cada acceso y registrar los rechazos |
+| CRN-8 | La copia periódica hacia el almacén analítico no tiene elemento responsable: la analítica no accede a la base operacional (CRN-3) y la copia sale de ella | ES-3 (tramo de la copia) | Asignar la copia a un elemento y definir si lee de una réplica o en ventanas controladas |
+
+Los IDs son provisionales y continúan el catálogo (último: CRN-3).
+
+### 7.2 Kanban al cierre
+
+| Not Yet Addressed | Partially Addressed | Completely Addressed |
 |---|---|---|
-| **Panel API** | Lecturas del panel (CU-01), gestión manual de reservas (CU-04), compartir itinerarios y autenticación. Mantiene el read model a partir de los eventos y de sus propios cambios. | HTTP con clientes web y móvil. Lee y escribe en la BD. Lee y actualiza el read model. Consume el stream de eventos del broker. |
-| **Read model** | Copia derivada del panel: un documento por viaje y un índice por usuario, con la lista de personas autorizadas a ver cada itinerario. No es fuente de verdad: se reconstruye desde la BD. | Lo lee y lo actualiza el Panel API. |
-| **Ingesta: receptor de notificaciones** | Recibe las notificaciones push de proveedores de viaje y de correo, verifica su autenticidad, las encola y responde. | Recibe de los proveedores. Publica en el stream de trabajo del broker. |
-| **Ingesta: planificador de sondeo** | Programa el sondeo periódico del correo de los usuarios y encola el trabajo. Diseño en el pipeline de correo (Iteración 2). | Publica en el stream de trabajo del broker. |
-| **Ingesta: workers** | Adaptadores de proveedores de viaje (CU-02) y de correo (CU-03). Traducen al modelo canónico. Guardan el cambio y el evento en la BD en una sola transacción (outbox). | Toman trabajo del stream de trabajo. Consultan a los proveedores de viaje y leen el correo. Escriben en la BD. |
-| **Ingesta: relay del outbox** | Publica en el stream de eventos los eventos pendientes del outbox. | Lee de la BD. Publica en el broker. |
-| **Broker con log persistente** | Dos streams: de trabajo (buffer de entrada) y de eventos (hacia el panel). Buffer de picos, replay dentro de la retención y reintentos. | Producción: receptor, planificador y relay. Consumo: workers y Panel API. |
-| **BD** | Usuarios, viajes, reservas, permisos, auditoría y outbox. Motor por definir. | Panel API, workers, relay y copia periódica hacia el almacén analítico. |
-| **Almacén analítico** | Copia derivada para las consultas pesadas del equipo de datos. No es fuente de verdad. | Se alimenta con una copia periódica de la BD. Lo consulta la analítica. |
-| **Analítica** | Queda aislada del sistema operativo (CRN-3): lee y escribe solo en su almacén analítico, sin acceder a la BD operacional ni al log. Su diseño detallado queda para iteraciones futuras. | Consultas sobre el almacén analítico. El detalle de la copia se define en iteraciones futuras. |
+| CU-05, CU-07, CU-08, CU-09, QA-9, QA-10, R-1, R-3, R-4, R-5, CRN-4, CRN-5, CRN-6, CRN-7, CRN-8 | CU-01, CU-02, CU-03, CU-04, CU-06, QA-1, QA-2, QA-3, QA-4, QA-5, QA-6, QA-7, QA-8, QA-11, QA-12, R-2, R-6, CRN-2, CRN-3 | CRN-1 |
 
-Las interfaces concretas (contratos de trabajo y de eventos, modelo canónico y API del panel) quedan para las próximas iteraciones.
+### 7.3 Evaluación final
 
-## 5. Consecuencias negativas y nuevos drivers
+- **¿Se alcanzó el objetivo del paso 2?** Sí. La estructura general quedó fijada (ADR-0001 a ADR-0004 y 6.2) y QA-1 y QA-5 cuentan con buffer, replay y outbox a nivel de decisiones. Sus medidas no están verificadas, por eso quedan en Parcial (7.2).
 
-Los ADR-0001 a 0004 registran 14 riesgos aceptados. Muchos se repiten entre ADR o se resuelven con drivers que ya están en la sección 2. Para no cerrar la iteración con una lista inmanejable, 9 se consolidan en **cuatro concerns nuevas** y los 5 restantes se resuelven donde indica la sección 5.2. Los identificadores W, BR y RM son los de los ADR-0002, 0003 y 0004. Los riesgos del ADR-0001 se citan como ES. Los IDs de las concerns son provisionales hasta incorporarlas al catálogo de drivers.
+### Resultado de la iteración
 
-### 5.1 Concerns nuevas
-
-| ID | Concern | Riesgos de origen | Mitigación ya prevista en los ADR |
-|---|---|---|---|
-| CRN-N1 | Aislar la falla de un proveedor del resto de la ingesta | ES-1, W-1 | Colas, pools y circuit breaker por proveedor dentro del worker. |
-| CRN-N2 | Evitar que la base operacional compartida sea el cuello de botella | ES-3, W-2, W-3, RM-1 | Cada módulo es dueño de sus tablas. Partición y descarte del outbox. Lecturas por clave indexada y agrupadas. Réplica de lectura. Copia analítica desde réplica o en ventanas controladas. Prueba de carga. |
-| CRN-N3 | Operar y mantener disponibles el broker, el relay y el read model | BR-3, W-3 | Broker gestionado o clusterizado y multi-AZ. El receptor responde con error para que el proveedor reintente. Alertas por antigüedad de la fila pendiente y retraso de consumo. Reinicio automático. |
-| CRN-N4 | Mantener consistentes los datos entre BD, log y read model, y poder reconstruirlos | BR-3, RM-3, RM-2 | Idempotencia por identificador de notificación o versión del proveedor y por versión del viaje. Escritura condicional por versión en el read model. Reconstrucción del read model desde la BD. |
-
-### 5.2 Riesgos que no se consolidan en una concern nueva
-
-| Riesgo | Dónde se resuelve |
-|---|---|
-| ES-2 (fugas entre capas) | Reglas de dependencia verificadas en CI. |
-| BR-1 (presupuesto de tiempo de QA-1) | QA-1, presupuesto por etapa (ítems 2 y 3 de la sección 7). |
-| BR-2 (el log no recupera lo que el proveedor no entregó) | QA-5, reconciliación con proveedores (ítem 4). |
-| BR-4 (valor del replay) | Revisión del valor del replay (ítem 3). |
-| RM-4 (permisos desactualizados en el read model) | CU-06 y QA-11, ítem 8. |
-
-## 6. Estado de los drivers al cierre
-
-Evaluación para esta documentación, con tres estados: no abordado, parcialmente abordado y abordado. La tabla muestra los drivers abordados o parcialmente abordados. Los no abordados se listan debajo.
-
-| Driver | Estado | Fundamento | Pendiente |
-|---|---|---|---|
-| CRN-1 | Abordado | Estructura general definida y justificada: C-lite con tres desplegables, broker, outbox y read model. | — |
-| CRN-2 | Parcial | El read model usa Redis, que no figura entre las tecnologías del equipo, con PostgreSQL como reemplazo (ADR-0004). | Confirmar la experiencia del equipo con Redis. Elegir el motor de la BD. |
-| CRN-3 | Parcial | La analítica (CU-05) queda como desplegable aislado, con almacén analítico propio y sin acceso a la BD operacional. | Diseño de la copia y del acceso a los datos. Aislamiento del resto de los casos de uso secundarios. |
-| R-2 | Abordado a nivel de estructura | Adaptadores por proveedor y por medio de transporte en los workers. | Contratos concretos y modelo canónico. |
-| R-6 | Parcial | Se descartaron las alternativas de mayor costo de implementación (microservicios, híbrida, serverless, plataforma de streaming). Tres desplegables y cuatro piezas de apoyo (BD, broker, Redis y almacén analítico) ejecutables con docker-compose y proveedores simulados. | Reverificar el esfuerzo en cada iteración, en particular el costo de operar las piezas nuevas (CRN-N3). |
-| CU-01 | Parcial | El Panel API lee del read model, mantenido por eventos. | Diseño de las lecturas del panel. |
-| CU-02 | Parcial | Workers con un adaptador por proveedor de viaje. | Modelo canónico y contratos de adaptadores. |
-| CU-03 | Parcial | Workers con adaptador de correo, buffer de entrada y planificador de sondeo. | Pipeline de ingesta de correo. |
-| CU-04 | Parcial | El Panel API guarda el cambio manual en la BD y actualiza el read model directamente, sin pasar por el broker. | API de gestión manual de reservas y reglas de validación. |
-| CU-06 | Parcial | El read model incluye la lista de personas autorizadas y se borra ante cambios de permisos. | Diseño del compartir itinerarios y de la gestión de permisos. |
-| QA-1 | Parcial | Buffer de entrada, outbox, log persistente y read model actualizado por eventos. | Presupuesto de tiempo por etapa, tecnología del broker e intervalo del relay. |
-| QA-2, QA-3 | Parcial | El panel lee de un read model en memoria, aislado de las escrituras de la ingesta. | Dimensionamiento y prueba de carga. QA-3 depende además del cliente. |
-| QA-4 | Parcial | El panel sirve desde el read model si cae el broker. Broker multi-AZ previsto (BR-3). | Despliegue y alta disponibilidad de BD, broker y read model. |
-| QA-5 | Parcial | La última versión conocida queda en la BD y se sirve desde el read model. Outbox sin pérdida y replay del log dentro de la retención. | Reconciliación con el proveedor al restablecerse la API, valor de retención y política de recuperación dentro de los 5 minutos. |
-| QA-6 | Parcial | Ingesta escalable por separado, buffer de entrada y lecturas aisladas de las escrituras. | CRN-N2. Dimensionamiento. |
-| QA-7 | Parcial | Workers escalables de forma independiente y buffer de entrada. | Pipeline de ingesta de correo. |
-| QA-8 | Parcial | Adaptador y circuit breaker por proveedor, y stream de mensajes inválidos. | Validación de mensajes y contratos. |
-| QA-11 | Parcial | El Panel API verifica la lista de personas en cada acceso y registra los rechazos en la auditoría (ADR-0004). | Diseño del compartir itinerarios. |
-| QA-12 | Parcial | Adaptadores por puertos: un transporte nuevo es un adaptador nuevo (ADR-0002). | Modelo canónico y contratos de adaptadores. |
-
-### Drivers no abordados
-
-Los siguientes drivers del análisis inicial no se abordan en esta iteración, y las concerns nuevas quedan pendientes:
-
-- **Funcionalidad secundaria:**
-  - CU-05 (analítica de datos; solo se registra su aislamiento a través de CRN-3)
-  - CU-07 (agrupar reservas por viaje y archivado automático)
-  - CU-08 (filtros y *whitelists* de remitentes)
-  - CU-09 (resolución de problemas con la agencia de viajes)
-- **Atributos de calidad:**
-  - QA-9 (extracción de reservas desde el correo)
-  - QA-10 (revocación del acceso al correo)
-- **Restricciones:**
-  - R-1 (sistema multiplataforma)
-  - R-3 (dependencia de sistemas externos)
-  - R-4 (protección de datos por región)
-  - R-5 (soporte limitado en celulares de tecnología móvil antigua)
-- **Concerns nuevas de esta iteración:**
-  - CRN-N1 (aislar la falla de un proveedor)
-  - CRN-N2 (capacidad de la base compartida)
-  - CRN-N3 (operar broker, relay y read model)
-  - CRN-N4 (consistencia y reconstrucción de datos)
+Trotamundos queda estructurado en tres desplegables (Panel API, Ingesta y Analítica), con broker de log persistente, workers con outbox y un read model en una instancia PostgreSQL propia para el panel (ADR-0001 a ADR-0004); la base se fija en PostgreSQL por ser la tecnología que el equipo conoce. CRN-1 queda Abordado y el resto de los drivers tocados en Parcial. Quedan sin verificar QA-1, QA-5 y los picos del panel, y sin definir el modelo canónico y las interfaces externas.
 
