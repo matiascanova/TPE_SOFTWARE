@@ -9,7 +9,7 @@
 
 ### 1.1 Contexto
 
-Trotamundos unifica los arreglos de viaje en un panel (CU-01). Recibe notificaciones push de los proveedores de viaje y sondea el correo de forma programada (15 M de cuentas, QA-7); traduce ambos a un modelo canónico. El panel tiene 2 M de usuarios activos semanales y picos ×10† (QA-6). Es la primera iteración: no hay iteraciones previas y la estructura general no está fijada. Sus decisiones quedan en ADR-0001 a ADR-0004, hoy en estado Propuesto, más una decisión menor sin ADR (PostgreSQL, Paso 4).
+Trotamundos unifica los arreglos de viaje en un panel (CU-01). Recibe notificaciones push de los proveedores de viaje y sondea el correo de forma programada (15 M de cuentas, QA-7); traduce ambos a un modelo canónico. El panel tiene 2 M de usuarios activos semanales y picos ×10† (QA-6). Es la primera iteración: no hay iteraciones previas y la estructura general no está fijada. Sus decisiones quedan en ADR-0001 a ADR-0004, más una decisión menor sin ADR (PostgreSQL, Paso 4).
 
 ### 1.2 Entradas
 
@@ -51,7 +51,7 @@ Trotamundos unifica los arreglos de viaje en un panel (CU-01). Recibe notificaci
 
 - **Elementos seleccionados:** El sistema Trotamundos completo (diagrama de contexto).
 - **Tipo de refinamiento:** Descomposición (top-down)
-- **Límite y fuera de alcance:** Se descompone en tres desplegables (Panel API, Ingesta y Analítica) y cuatro piezas de apoyo (base relacional, read model, broker y almacén analítico), con los roles internos de la Ingesta; el diseño interno de cada desplegable más allá de capas y puertos queda fuera. También quedan fuera la partición de la base operacional, el almacén analítico y la copia hacia él, el pipeline de correo y el planificador de sondeo, el despliegue, la seguridad, el diseño interno de la analítica, el dimensionamiento y las réplicas del read model, y compartir entre regiones (<PENDIENTE: iteración donde se trata cada uno>); la tecnología concreta del broker se trata en ADR-0003. QA-3, QA-4, QA-11, QA-12, R-2 y CU-06 se tocan por los ADR sin ser objetivo; el resto de los drivers queda sin tratar (Kanban, 7.2).
+- **Límite y fuera de alcance:** Se descompone en tres desplegables (Panel API, Ingesta y Analítica) y cuatro piezas de apoyo (base relacional, read model, broker y almacén analítico), con los roles internos de la Ingesta; el diseño interno de cada desplegable más allá de capas y puertos queda fuera. También quedan fuera la partición de la base operacional, el almacén analítico y la copia hacia él, el pipeline de correo y el planificador de sondeo, el despliegue, la seguridad, el diseño interno de la analítica, el dimensionamiento y las réplicas del read model, y compartir entre regiones; la tecnología concreta del broker se trata en ADR-0003. QA-3, QA-4, QA-11, QA-12, R-2 y CU-06 se tocan por los ADR sin ser objetivo; el resto de los drivers queda sin tratar (Kanban, 7.2).
 
 ---
 
@@ -65,7 +65,6 @@ Trotamundos unifica los arreglos de viaje en un panel (CU-01). Recibe notificaci
 | Broker con log persistente | Patrón | QA-1, QA-4, QA-5, QA-6, QA-7, R-6 | ADR-0003 | Base de datos como bus, Cola durable simple, Plataforma de streaming completa | — |
 | Workers asíncronos con outbox transaccional | Patrón | QA-1, QA-5, QA-6, QA-7, QA-8, QA-12, R-2, R-6 | ADR-0002 | Procesar en el receptor, Doble escritura sin outbox, Outbox con CDC | — |
 | CQRS en el panel con read model en una instancia de base propia | Patrón | QA-1, QA-2, QA-3, QA-4, QA-6, QA-11, R-6, CRN-2 | ADR-0004 | Sin read model, Tablas de lectura en la misma base operacional, Almacén en memoria | — |
-| Aislamiento por adaptador: circuit breaker, reintentos con backoff y cola de mensajes inválidos | Táctica | QA-5, QA-6, QA-7, QA-8, R-2 | ADR-0002 y ADR-0003 | Sin alternativas registradas | — |
 | PostgreSQL (base relacional y read model) | Tecnología | CRN-2 | menor | Sin alternativas registradas | Es la tecnología que el equipo conoce (CRN-2). |
 
 ### 4.2 Cómo se combinan
