@@ -11,8 +11,6 @@ El usuario puede revocar el acceso de Trotamundos a su casilla desde el panel o 
 
 **Pregunta:** ¿Cómo se corta la lectura de una casilla cuando el usuario revoca el acceso, desde el panel o desde el proveedor de correo?
 
-**Fuera de alcance:** almacenamiento de los tokens, filtrado y extracción del correo (ADR-0011), detección del correo nuevo y planificación (ADR-0012) e importación de correos anteriores a la conexión.
-
 ---
 
 ## 2. Decisión
