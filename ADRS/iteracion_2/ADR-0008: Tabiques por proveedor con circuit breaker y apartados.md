@@ -11,7 +11,7 @@ Los ADR-0002 y 0003 prevén colas, pools y circuit breaker por proveedor y un st
 
 **Pregunta:** ¿Cómo se evita que la falla de un proveedor afecte a los demás, y adónde va un mensaje que no se puede procesar?
 
-**Fuera de alcance:** reconciliación y retención (ADR-0009), tecnología del broker (ADR-0010), campos de los mensajes (ADR-0007), criterio de validez (ADR-0006), alta disponibilidad y monitoreo (iteración 3) y pipeline de correo. Los valores con \* son propuestas para el prototipo y se ajustan con proveedores simulados.
+**Fuera de alcance:** reconciliación y retención (ADR-0009), tecnología del broker (ADR-0010), campos de los mensajes (ADR-0007), criterio de validez (ADR-0006), alta disponibilidad y monitoreo (a futuro) y pipeline de correo. Los valores con \* son propuestas para el prototipo y se ajustan con proveedores simulados.
 
 ---
 
