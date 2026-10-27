@@ -12,7 +12,7 @@ Hay que fijar la estructura global de Trotamundos (CRN-1) antes de las iteracion
 
 **Pregunta:** ¿Qué estilo arquitectónico general adopta Trotamundos?
 
-**Fuera de alcance:** el broker (ADR-0003), los workers y el outbox (ADR-0002), el read model (ADR-0004), el motor de la base (decisión de almacenamiento posterior, Iteración 3), el despliegue, la seguridad y el diseño interno de la analítica (iteraciones futuras).
+**Fuera de alcance:** el broker (ADR-0003), los workers y el outbox (ADR-0002), el read model (ADR-0004), el motor de la base (decisión de almacenamiento posterior, Iteración 2), el despliegue, la seguridad y el diseño interno de la analítica (iteraciones futuras).
 
 ---
 
@@ -21,7 +21,7 @@ Hay que fijar la estructura global de Trotamundos (CRN-1) antes de las iteracion
 **Se elige C-lite: arquitectura en capas/hexagonal con tres desplegables (Panel API, ingesta y analítica), con la ingesta y el Panel API comunicados por un broker con log persistente y un outbox (ADR-0003, ADR-0002).**
 
 - Cada desplegable se organiza en capas (presentación, aplicación, dominio e infraestructura): el dominio depende de puertos y la tecnología vive en infraestructura, con un adaptador por proveedor y por medio de transporte que traduce al modelo canónico (R-2).
-- La ingesta es un solo artefacto con tres roles (receptor, workers y relay) que corren como procesos separados y escalan por separado, más un planificador de sondeo para el correo (Iteración 2).
+- La ingesta es un solo artefacto con tres roles (receptor, workers y relay) que corren como procesos separados y escalan por separado, más un planificador de sondeo para el correo (Iteración 3).
 - La analítica queda fuera del flujo de ingesta y del panel: no accede a la base operacional ni al log y trabaja sobre un almacén analítico propio, alimentado con una copia periódica (CRN-3).
 
 **Incorpora:** de capas/N-tier, la organización interna en capas. De los microservicios, el buffer de entrada con replay por log persistente, el outbox transaccional, CQRS solo en el panel, circuit breaker, reintentos con backoff, cola de mensajes inválidos y el escalado independiente de la ingesta. **Difiere:** separar notificaciones y procesador de itinerarios en servicios propios, y la ingesta de correo de la de proveedores. Queda como evolución prevista sin reescritura, porque los límites internos ya son módulos con puertos.
