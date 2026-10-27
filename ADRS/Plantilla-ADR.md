@@ -68,7 +68,7 @@ Este documento responde <una pregunta> | estas preguntas:
 | <Driver o QA> | <Qué se verifica concretamente en las alternativas> |
 | <...> | <...> |
 
-> Qué va: los criterios con los que se comparan las alternativas. Cada criterio sale de un driver de la cabecera (máximo 10 que no sean CU). Sin columna de peso. Si hay decisiones agrupadas, se puede agregar una columna «Se usa en» con las decisiones (A, B).
+> Qué va: los criterios con los que se comparan las alternativas. Cada criterio sale de un driver de la cabecera (máximo 10 que no sean CU). Sin columna de peso. 
 
 ---
 
