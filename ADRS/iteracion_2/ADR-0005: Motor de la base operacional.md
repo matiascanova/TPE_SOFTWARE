@@ -28,10 +28,6 @@ C-lite (ADR-0001) tiene una base compartida que guarda el **modelo de escritura*
 | La velocidad del motor | Solo como "suficiente". SQL no es intrínsecamente más rápido: el panel lee del read model y las consultas críticas son por clave indexada. | No es un criterio a favor. El límite real (un único primario de escritura) se trata como riesgo. |
 | Todos los datos tienen el mismo formato | Solo para el núcleo. Los atributos por tipo y los mensajes crudos no son uniformes. Además, es un argumento sobre el esquema, no sobre el motor. | Se reformula: el núcleo es relacional y uniforme, y la variabilidad por tipo se aísla en un campo de detalle validado. |
 
-**Fuera de alcance:** el read model del panel (ADR-0004), el mecanismo de workers y outbox (ADR-0002), el broker y su tecnología (ADR-0003 y ADR-0009), el almacén analítico, y el almacenamiento de los tokens de correo, que se decide con QA-10. La partición de la base, la réplica de lectura y el acceso cruzado entre módulos se deciden con CRN-N2.
-
-Como en los otros ADR, la viabilidad de implementación es un criterio de primer orden con plazo acotado (R-6).
-
 ## 2. Criterios de decisión
 
 | Criterio | Qué mide en esta decisión |
