@@ -18,7 +18,7 @@ Las fallas o caídas en la API de un proveedor de viajes no deben impactar el pr
 
 ## 2. Decisión
 
-**Se elige A2/B2: Aislar la ingesta mediante particiones del stream de trabajo por proveedor con recursos propios y Circuit Breaker, derivando los mensajes no procesables a un stream de apartados y registrando sus metadatos y motivo codificado en BD sin almacenar el cuerpo.**
+**Se elige A2: Aislar la ingesta mediante particiones del stream de trabajo por proveedor con recursos propios y Circuit Breaker, derivando los mensajes no procesables a un stream de apartados y registrando sus metadatos y motivo codificado en BD sin almacenar el cuerpo.**
 
 - Cada proveedor dispone de pools de conexiones, límites de concurrencia e instancias de Circuit Breaker independientes dentro del worker.
 - Los reintentos por falla de proveedor se acotan a 3 intentos con espera creciente; las fallas de validez de contenido se separan de inmediato a apartados.
@@ -30,12 +30,10 @@ Las fallas o caídas en la API de un proveedor de viajes no deben impactar el pr
 
 | Alternativa | Motivo |
 |---|---|
-| Pool compartido con reintento ilimitado | Permite que un proveedor lento agote los recursos globales de ingesta, violando CRN-N1 y QA-1. |
-| Circuit breaker sobre stream único sin particiones | Rompe el ordenamiento por clave al reinsertar mensajes en streams diferidos, afectando QA-1. |
-| Un servicio desplegable por proveedor | Incrementa los costos operativos y la cantidad de componentes, violando R-6. |
-| Descartar mensajes e informar solo en log | Impide el reprocesamiento posterior y dificulta la auditoría objetiva del 99% de QA-8. |
-| Almacenar el cuerpo completo del apartado en BD | Aumenta la exposición de datos personales (R-4) e incrementa el volumen de escritura en BD (CRN-N2). |
-| Reintento indefinido sin apartar | Bloquea la partición por tiempo indeterminado impidiendo procesar mensajes válidos (QA-8). |
+| A1.Pool compartido con reintento ilimitado | Permite que un proveedor lento agote los recursos globales de ingesta, violando CRN-N1 y QA-1. |
+| A3.Un servicio desplegable por proveedor | Incrementa los costos operativos y la cantidad de componentes, violando R-6. |
+| A4.Descartar mensajes e informar solo en log | Impide el reprocesamiento posterior y dificulta la auditoría objetiva del 99% de QA-8. |
+| A5.Almacenar el cuerpo completo del apartado en BD | Aumenta la exposición de datos personales (R-4) e incrementa el volumen de escritura en BD (CRN-N2). |
 
 ---
 
