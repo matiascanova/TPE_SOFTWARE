@@ -11,8 +11,6 @@ El panel concentra la mayor parte del tráfico: 2 M de usuarios activos semanale
 
 **Pregunta:** ¿Desde dónde lee el panel y cómo se mantiene esa copia al día con los eventos de la ingesta y con los cambios manuales (CU-04)?
 
-**Fuera de alcance:** el motor de la base operacional y su partición, el mecanismo de workers y outbox (ADR-0002), el broker y sus streams (ADR-0003), el dimensionamiento y la cantidad de réplicas del read model (despliegue) y el compartir entre regiones (ADR de multi-región).
-
 ---
 
 ## 2. Decisión
