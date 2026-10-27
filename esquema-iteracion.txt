@@ -1,195 +1,201 @@
-Plantilla de iteración ADD (Attribute-Driven Design 3.0)
-Sirve para redactar iteraciones nuevas y corregir existentes. Las líneas con > son instrucciones y se borran en el documento final. Lo que está entre <...> es un campo a completar.
-Instrucciones para la IA
-Cómo redactar una iteración nueva
+# Plantilla de iteración ADD (Attribute-Driven Design 3.0)
+
+Sirve para redactar iteraciones nuevas y corregir existentes. Las líneas con `>` son instrucciones y se borran en el documento final. Lo que está entre `<...>` es un campo a completar.
+
+## Instrucciones para la IA
+
+### Cómo redactar una iteración nueva
+
 1. Leer los drivers, la iteración anterior (o el backlog inicial si es la primera) y esta plantilla.
-2. Fijar primero el objetivo (paso 2) y comprobar que es acotado. Recién después completar el resto en orden.
-3. Cada decisión estructural tiene su ADR (con la plantilla de ADR). La iteración lo referencia por ID en el paso 6 y no repite sus alternativas, motivos ni consecuencias.
-4. Si falta un dato, dejar <PENDIENTE: qué falta>. No inventar drivers, cifras, IDs de ADR, tecnologías, interfaces ni estados.
-Cómo corregir una iteración existente
+2. Fijar primero el objetivo (Paso 2) y comprobar que es acotado. Recién después completar el resto en orden.
+3. Cada decisión estructural tiene su ADR (con la plantilla de ADR). La iteración lo referencia por ID en el Paso 4 y no repite sus alternativas, motivos ni consecuencias.
+4. Si falta un dato, dejar `<PENDIENTE: qué falta>`. No inventar drivers, cifras, IDs de ADR, tecnologías, interfaces ni estados.
+
+### Cómo corregir una iteración existente
+
 1. Leer la iteración completa y esta plantilla.
 2. Conservar el fondo (objetivo, decisiones, vistas, riesgos, estados) y reubicar cada pieza en su ítem. No cambiar lo decidido.
 3. Aplicar las reglas. Si cumplirlas obliga a recortar, agrupar o mover contenido a un ADR, hacerlo sin perder lo esencial.
-4. Si falta contenido obligatorio, dejar <PENDIENTE: qué falta>.
+4. Si falta contenido obligatorio, dejar `<PENDIENTE: qué falta>`.
 5. Entregar la iteración corregida y, aparte, una lista breve de lo que se movió, se recortó o quedó pendiente.
-Reglas obligatorias
-1. Todo se completa. Los pasos 1 a 7 siempre están. Solo son opcionales los ítems marcados «(opcional)». Lo opcional que no aplica se omite entero.
-2. Un objetivo por iteración, del tamaño justo. Puede ser un driver importante, un conjunto de drivers similares o un conjunto de relacionados (CU + QA). Se enuncia en una frase verificable. Si hay dos objetivos, son dos iteraciones.
-3. Máximo 10 drivers seleccionados que no sean CU. Se marca cuáles son «Principal» y cuáles «Contexto». Los CU no tienen límite.
-4. No se copia el catálogo de drivers. La iteración 1 resume las entradas por categoría. Las siguientes parten del Kanban. Solo se citan los drivers que condicionan o se tocan en la iteración.
-5. Cada dato vive en un solo lugar. El rationale, las alternativas descartadas (con su motivo) y las consecuencias de cada decisión viven en su ADR. La iteración los referencia por ID y solo nombra algunas descartadas, sin justificarlas.
-6. Toda decisión estructural lleva ADR: un concepto de diseño, una tecnología con alternativa real o un compromiso entre drivers. Una decisión por ADR. Todas las decisiones se registran en el paso 6 (6.2); las menores, sin ADR, llevan una frase de justificación.
-7. Conceptos tipificados y atados a drivers. Cada concepto es reference architecture, patrón, táctica o componente externo, y cita al menos un driver. Si no hay alternativas realistas, se escribe «sin alternativas registradas». No se inventan para llenar la celda.
-8. Sin pesos. No se escriben puntajes, ponderaciones ni rankings. Los valores medibles del driver («< 100 ms», «99.9 %») sí se escriben.
-9. Estado por evidencia, no por intención. Un driver es Abordado solo si hay elementos, responsabilidades, interfaces o despliegue que lo satisfacen y su response measure está verificada o razonada con evidencia (test, prototipo, análisis). Si falta parte de eso es Parcial. Si no se tocó, No abordado. Cada estado cita su evidencia y lo que falta.
-10. Vistas con clave y nombres coherentes. Todo diagrama indica su tipo de vista (módulo, C&C, asignación o secuencia), lleva clave y usa los mismos nombres que la tabla 5.1.Crucial que sean simples, preferible tener mas de una vista simple a una muy abrumadora para los stakeholders.
-11. Interfaces honestas. Las externas se derivan del diagrama de contexto y las internas de los diagramas de secuencia. Lo que no está detallado se lista como pendiente en 5.3, con la iteración donde se define. No se inventan contratos.
-12. Riesgos con destino. Los riesgos viven en los ADR y no se repiten. Se agrupan en concerns nuevas y solo se registran las aceptadas o no resueltas, listas para atacar en próximas iteraciones (máximo 5). Las concerns nuevas reciben un ID provisional que continúa la numeración del catálogo (CRN-n). Nunca se reutiliza un ID.
-13. Corto, concreto y sin repetir. Una idea por frase, en afirmativo. No se explican conceptos conocidos (CQRS, Kafka, JWT): se nombran y, si hace falta, se enlaza una referencia. La iteración cabe en dos páginas sin contar los diagramas.
-14. Coherencia con lo anterior. No contradice decisiones de iteraciones o ADR previos. Si lo hace, indica qué ADR reemplaza.
-Plantilla
-Iteración <N> de <Nombre del sistema>: <objetivo en una frase>
-• Estado: <Borrador para revisión | Revisado>
-• Fecha: <DD/MM/AAAA>
-Paso 1. Revisar las entradas del diseño
-1.1 Contexto
+
+## Reglas obligatorias
+
+1. **Todo se completa.** Los pasos 1 a 7 siempre están. Solo son opcionales los ítems marcados «(opcional)». Lo opcional que no aplica se omite entero.
+2. **Un objetivo por iteración, del tamaño justo.** Puede ser un driver importante, un conjunto de drivers similares o un conjunto de relacionados (CU + QA). Se enuncia en una frase verificable. Si hay dos objetivos, son dos iteraciones.
+3. **Máximo 10 drivers seleccionados que no sean CU.** Los «Principales» (los que definen el éxito de la iteración) se marcan con `*`; el resto es contexto. Los CU no tienen límite.
+4. **No se copia el catálogo de drivers.** La iteración 1 resume las entradas por categoría. Las siguientes parten del Kanban. Solo se citan los drivers que condicionan o se tocan en la iteración.
+5. **Cada dato vive en un solo lugar.** El rationale, las alternativas descartadas (con su motivo) y las consecuencias de cada decisión viven en su ADR. La iteración los referencia por ID y solo nombra algunas descartadas, sin justificarlas.
+6. **Toda decisión estructural lleva ADR:** un concepto de diseño, una tecnología con alternativa real o un compromiso entre drivers. Una decisión por ADR. Todas las decisiones se registran en la tabla del Paso 4; las menores, sin ADR, llevan una frase de justificación.
+7. **Conceptos tipificados y atados a drivers.** Cada concepto es reference architecture, patrón, táctica o componente externo (y cada tecnología se marca como tal), y cita al menos un driver. Si no hay alternativas realistas, se escribe «sin alternativas registradas». No se inventan para llenar la celda.
+8. **Sin pesos.** No se escriben puntajes, ponderaciones ni rankings. Los valores medibles del driver («< 100 ms», «99.9 %») sí se escriben.
+9. **Estado por evidencia, no por intención.** Un driver es Abordado solo si hay elementos, responsabilidades, interfaces o despliegue que lo satisfacen y su response measure está verificada o razonada con evidencia (test, prototipo, análisis). Si falta parte de eso es Parcial. Si no se tocó, No abordado. Cada cambio de estado cita su evidencia y lo que falta (Paso 7.3).
+10. **Vistas simples, con clave y nombres coherentes.** Todo diagrama indica su tipo de vista (módulo, C&C, asignación o secuencia), lleva clave y usa los mismos nombres que la tabla del Paso 5. Es preferible más de una vista simple a una sola abrumadora para los stakeholders.
+11. **Interfaces honestas.** Las externas se derivan del diagrama de contexto y las internas de los diagramas de secuencia. Lo que no está detallado se lista como pendiente en el bloque de interfaces del Paso 5, con la iteración donde se define. No se inventan contratos.
+12. **Riesgos con destino.** Los riesgos viven en los ADR y no se repiten. Se agrupan en concerns nuevas y solo se registran las aceptadas o no resueltas, listas para atacar en próximas iteraciones (máximo 5). Las concerns nuevas reciben un ID provisional que continúa la numeración del catálogo (CRN-n). Nunca se reutiliza un ID.
+13. **Corto, concreto y sin repetir.** Una idea por frase, en afirmativo. No se explican conceptos conocidos (CQRS, Kafka, JWT): se nombran y, si hace falta, se enlaza una referencia. La iteración cabe en dos páginas sin contar los diagramas.
+14. **Coherencia con lo anterior.** No contradice decisiones de iteraciones o ADR previos. Si lo hace, indica qué ADR reemplaza.
+
+---
+
+## Plantilla
+
+# Iteración <N> de <Nombre del sistema>: <objetivo en una frase>
+
+- Estado: <Borrador para revisión | Revisado>
+- Fecha: <DD/MM/AAAA>
+
+## Paso 1. Revisar las entradas del diseño
+
+### 1.1 Contexto
+
 <Un párrafo: qué sistema se diseña, en qué estado está el desarrollo y qué decisiones previas (ADR o iteraciones, por ID) condicionan esta iteración.>
-1.2 Entradas
-Iteración 1
-Categoría
-Detalle
-Propósito del diseño
-<Greenfield, brownfield, dominio nuevo o maduro>
-Primary functionality
-<IDs de CU>
-QA scenarios primarios
-<IDs con su response measure>
-Constraints
-<IDs>
-Concerns
-<IDs>
-Iteración 2 en adelante
-Not Yet Addressed
-Partially Addressed
-Completely Addressed
-<IDs>
-<IDs>
-<IDs>
+
+### 1.2 Entradas
+
+**Iteración 1**
+
+| Categoría | Detalle |
+|---|---|
+| Propósito del diseño | <Greenfield, brownfield, dominio nuevo o maduro> |
+| Primary functionality | <IDs de CU> |
+| QA scenarios primarios | <IDs con su response measure> |
+| Constraints | <IDs> |
+| Concerns | <IDs> |
+
+**Iteración 2 en adelante**
+
+| Not Yet Addressed | Partially Addressed | Completely Addressed |
+|---|---|---|
+| <IDs> | <IDs> | <IDs> |
+
 Drivers nuevos desde la iteración anterior: <IDs con una línea cada uno, o «ninguno»>
-Qué va: se conserva solo la variante que corresponde. La iteración 1 carga el design backlog entero en «Not Yet Addressed». Las siguientes copian el Kanban de salida de la anterior, sin reevaluarlo.
-Paso 2. Establecer el objetivo de la iteración seleccionando drivers
-2.1 Objetivo
-Objetivo: <Una frase verificable: qué drivers quedan abordados y hasta qué nivel al cerrar la iteración.>
-Tipo: <Un driver importante | Drivers similares | Drivers relacionados (CU + QA)>
-2.2 Drivers seleccionados
-Driver
-Rol
-Por qué condiciona las decisiones
-<ID>
-<Principal>
-<Motivo, con su response measure si es QA>
-<ID>
-<Contexto>
-<Motivo>
-2.3 Alcance
-Dentro: <Qué se resuelve en esta iteración.>
-Fuera de alcance: <Qué se deja y en qué iteración o ADR se trata.>
-Qué va: el objetivo es uno solo. Los drivers «Principal» definen el éxito de la iteración; los de «Contexto» solo restringen las decisiones. Si un driver no cambia ninguna decisión, no se lista.
-Paso 3. Elegir uno o más elementos del sistema para refinar
-3.1 Elementos seleccionados
-<Elementos que se refinan. En la iteración 1, indicar si es el sistema completo (contexto).>
-Tipo de refinamiento: <Descomposición (top-down) | Combinación (bottom-up) | Mejora>
-3.2 Límite del refinamiento
-<Una o dos frases: hasta dónde se descompone o profundiza y dónde se frena.>
-Paso 4. Elegir conceptos de diseño que satisfagan los drivers seleccionados
-4.1 Conceptos seleccionados
-Concepto
-Tipo
-Drivers
-<Nombre>
-<Reference architecture / Patrón / Táctica / Componente externo>
-<IDs>
-4.2 Cómo se combinan (opcional)
+
+> Qué va: se conserva solo la variante que corresponde. La iteración 1 carga el design backlog entero en «Not Yet Addressed». Las siguientes copian el Kanban de salida de la anterior, sin reevaluarlo.
+
+## Paso 2. Establecer el objetivo de la iteración seleccionando drivers
+
+**Objetivo:** <Una frase verificable: qué drivers quedan abordados y hasta qué nivel al cerrar la iteración.>
+
+**Tipo:** <Un driver importante | Drivers similares | Drivers relacionados (CU + QA)>
+
+| Driver | Motivo por el que condiciona las decisiones |
+|---|---|
+| <ID>* | <Motivo, con su response measure si es QA> |
+| <ID> | <Motivo> |
+
+> Qué va: el objetivo es uno solo. Los drivers con `*` (Principales) definen el éxito de la iteración; los demás solo restringen las decisiones. Si un driver no cambia ninguna decisión, no se lista.
+
+## Paso 3. Elegir uno o más elementos del sistema para refinar
+
+- **Elementos seleccionados:** <Elementos que se refinan. En la iteración 1, indicar si es el sistema completo (contexto).>
+- **Tipo de refinamiento:** <Descomposición (top-down) | Combinación (bottom-up) | Mejora>
+- **Límite y fuera de alcance:** <Una o dos frases: hasta dónde se refina y qué se deja para después, con la iteración o el ADR donde se trata.>
+
+## Paso 4. Elegir conceptos de diseño y registrar las decisiones
+
+### 4.1 Decisiones
+
+| Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
+|---|---|---|---|---|---|
+| <Nombre> | <Reference architecture / Patrón / Táctica / Componente externo / Tecnología> | <IDs> | <ADR-NNNN / «menor»> | <Hasta 3, o «sin alternativas registradas»> | <Una frase> |
+
+### 4.2 Cómo se combinan (opcional)
+
 <Una a tres frases sobre cómo interactúan los conceptos y el costo conjunto que ningún ADR individual refleja. Omitir si hay un solo concepto.>
-Qué va: la tabla nombra, no justifica. Las alternativas, el ADR y la justificación se registran en 6.2. Las tecnologías concretas van en 5.2, no acá.
-Paso 5. Instanciar elementos, asignar responsabilidades y definir interfaces
-5.1 Elementos instanciados
-Elemento
-Tipo
-Responsabilidades
-Se comunica con (mecanismo)
-<Nombre>
-<Componente / Microservicio / Almacén / Nodo / Otro>
-<Responsabilidades asignadas>
-<Elemento y mecanismo: REST, evento, SQL…>
-5.2 Tecnologías
-Tecnología
-Elemento o concepto
-<Nombre>
-<A qué se asigna>
-Por definir: <Tecnologías pendientes y la concern o iteración donde se eligen, o «ninguna».>
-5.3 Interfaces y contratos
-Elemento
-Tipo
-Operación
-Contrato
-<Nombre>
-<Externa / Interna>
-<Operación, o método y ruta con versión>
-<Entrada → salida, errores y, si es un evento, tópico y clave>
-Pendientes de detallar: <Interfaces que por ahora solo existen como comunicación en 5.1 y la iteración donde se definen, o «ninguna».>
-Qué va: cada elemento nuevo aparece en 5.1 con responsabilidades de alta cohesión. Una responsabilidad que no cabe en una frase indica que el elemento hay que dividirlo. En 5.1 va quién se comunica con quién y cómo; en 5.3, el contrato de cada operación, solo cuando ya se puede definir (las externas salen del diagrama de contexto; las internas, de los diagramas de secuencia del paso 6). Lo que todavía no se puede definir va en «Pendientes de detallar».
-Paso 6. Esbozar vistas y registrar decisiones de diseño
-6.1 Vistas
-Repetir el bloque por cada vista. Los diagramas son sketches; se incluyen como Mermaid, imagen o enlace. Un diagrama de secuencia es una vista más y sirve para derivar las interfaces internas.
-Vista: <Nombre>
-• Tipo de vista: <Módulo | Component & Connector | Asignación | Secuencia>
-• Qué muestra: <Una frase.>
-Diagrama:
-<Insertar el diagrama.>
-Clave:
-<Símbolos, tipos de elemento, tipos de flecha y colores.>
-6.2 Registro de decisiones
-Decisión
-ADR
-Descartadas
-Justificación (solo si no hay ADR)
-<Concepto o tecnología, con el nombre de 4.1 o 5.2>
-<ADR-NNNN / «menor»>
-<Nombres, hasta 3, o «sin alternativas registradas»>
-<Una frase>
-Qué va: una fila por cada concepto de 4.1 y cada tecnología de 5.2. El motivo de elegir y de descartar vive en el ADR. Solo las decisiones menores se justifican acá.
-Paso 7. Analizar el diseño y revisar el objetivo y el propósito del diseño
-7.1 Concerns nuevas
-ID
-Concern
-Riesgos de origen
-Mitigación prevista
-<CRN-n>
-<Descripción>
-<IDs de riesgos en los ADR>
-<Mitigación o iteración donde se trata>
-Qué va: los riesgos de los ADR (por ID), agrupados por causa común; solo los aceptados o no resueltos. Si no hay, escribir «ninguna».
-7.2 Kanban al cierre
-Not Yet Addressed
-Partially Addressed
-Completely Addressed
-<IDs>
-<IDs>
-<IDs>
-Qué va: solo IDs, sin texto. Es la entrada del paso 1 de la próxima iteración.
-7.3 Evaluación final
-• ¿Se alcanzó el objetivo del paso 2? <Sí | Parcial | No>. <Justificación con decisiones, vistas y estados de 7.1.>
-• ¿Se cumple el propósito del diseño? <Sí | Todavía no>. <Una frase.>
-Resultado de la iteración
-<Tres a cinco líneas: estructura obtenida, decisiones principales (por ID de ADR), drivers que cambiaron de estado y pendientes que condicionan la siguiente iteración.>
-Lista de control
-Encabezado y paso 1
-[ ] ¿Solo está la variante de entradas que corresponde (iteración 1 o posteriores)?
-[ ] ¿Se resumieron las entradas sin copiar el catálogo de drivers?
-Paso 2
-[ ] ¿El objetivo es uno solo, de una frase y verificable?
-[ ] ¿Hay como máximo 10 drivers que no son CU, cada uno con rol y motivo?
-[ ] ¿Se indica qué queda fuera de alcance y dónde se trata?
-Pasos 3 y 4
-[ ] ¿Está indicado el tipo de refinamiento y su límite?
-[ ] ¿Cada concepto tiene tipo y drivers?
-[ ] ¿Los conceptos se nombran sin justificarlos ni puntuarlos (eso va en 6.2)?
-Paso 5
-[ ] ¿Cada elemento tiene responsabilidades de una frase y mecanismo de comunicación?
-[ ] ¿Las tecnologías pendientes indican dónde se eligen?
-[ ] ¿Las interfaces que no se pueden definir todavía figuran en «Pendientes de detallar» con su iteración?
-Paso 6
-[ ] ¿Cada vista indica su tipo de vista y tiene clave?
-[ ] ¿Los nombres del diagrama coinciden con los de 5.1?
-[ ] ¿Cada concepto de 4.1 y cada tecnología de 5.2 está en 6.2 con sus drivers, su ADR (o su justificación si es menor) y sus descartadas?
-Paso 7
-[ ] ¿Cada estado de 7.1 cita evidencia y respeta la definición de Abordado?
-[ ] ¿Hay 5 concerns nuevas o menos, cada una ligada a riesgos de ADR?
-[ ] ¿Las concerns nuevas tienen ID provisional que continúa el catálogo?
-[ ] ¿El Kanban de 7.3 incluye todos los drivers del backlog?
-[ ] ¿La evaluación dice si se continúa y propone el próximo objetivo?
-General
-[ ] ¿Cada decisión estructural tiene su ADR y no se repite su contenido acá?
-[ ] ¿Es coherente con las iteraciones y ADR anteriores?
-[ ] ¿Cabe en dos páginas sin diagramas y se entiende sin leer las otras iteraciones?
+
+> Qué va: una fila por cada concepto y por cada tecnología elegida en el Paso 5 (se agrega con tipo «Tecnología»). La tabla nombra, no justifica: el motivo de elegir y de descartar vive en el ADR. Solo las decisiones menores se justifican acá, en una frase.
+
+## Paso 5. Instanciar elementos, asignar responsabilidades y definir interfaces
+
+| Elemento | Responsabilidad (una frase) | Tecnología | Se comunica con (mecanismo) |
+|---|---|---|---|
+| <Nombre> | <Responsabilidad asignada> | <Nombre, o PENDIENTE: concern o iteración donde se elige> | <Elemento y mecanismo: REST, evento, SQL…> |
+
+**Interfaces (opcional):**
+
+- <Elemento> · <Operación, o método y ruta con versión>: <entrada → salida; errores; si es un evento, tópico y clave>
+- Pendientes: <Interfaces que por ahora solo existen como comunicación en la tabla, y la iteración donde se definen>
+
+> Qué va: cada elemento nuevo tiene una responsabilidad de alta cohesión. Si no cabe en una frase, el elemento hay que dividirlo. El tipo de elemento va en la clave de la vista, no en la tabla. Las interfaces se listan solo cuando ya se pueden definir (las externas salen del diagrama de contexto; las internas, de los diagramas de secuencia del Paso 6). Si no se puede definir ninguna ni hay pendientes que registrar, se omite el bloque.
+
+## Paso 6. Esbozar vistas
+
+> Las decisiones y su rationale se registran en el Paso 4. Repetir el bloque por cada vista. Los diagramas son sketches; se incluyen como Mermaid, imagen o enlace. Un diagrama de secuencia es una vista más y sirve para derivar las interfaces internas.
+
+**Vista: <Nombre>**
+
+- Tipo de vista: <Módulo | Component & Connector | Asignación | Secuencia>
+- Qué muestra: <Una frase.>
+- Diagrama: <Insertar el diagrama.>
+- Clave: <Símbolos, tipos de elemento, tipos de flecha y colores.>
+
+## Paso 7. Analizar el diseño y revisar el objetivo y el propósito del diseño
+
+### 7.1 Concerns nuevas
+
+| ID | Concern | Riesgos de origen | Mitigación prevista |
+|---|---|---|---|
+| <CRN-n> | <Descripción> | <IDs de riesgos en los ADR> | <Mitigación o iteración donde se trata> |
+
+> Qué va: los riesgos de los ADR (por ID), agrupados por causa común; solo los aceptados o no resueltos. Si no hay, escribir «ninguna».
+
+### 7.2 Kanban al cierre
+
+| Not Yet Addressed | Partially Addressed | Completely Addressed |
+|---|---|---|
+| <IDs> | <IDs> | <IDs> |
+
+> Qué va: solo IDs, sin texto. Incluye todos los drivers del backlog. Es la entrada del Paso 1 de la próxima iteración.
+
+### 7.3 Evaluación y resultado
+
+- **¿Se alcanzó el objetivo del Paso 2?** <Sí | Parcial | No>. <Justificación con decisiones (por ADR), vistas y estados.>
+- **¿Se cumple el propósito del diseño?** <Sí | Todavía no>. <Una frase.>
+- **Drivers que cambiaron de estado:** <ID: estado anterior → estado nuevo. Evidencia y lo que falta.>
+- **Resultado:** <Tres a cinco líneas: estructura obtenida, decisiones principales (por ID de ADR) y pendientes que condicionan la siguiente iteración.>
+- **Próximo objetivo:** <Propuesta de objetivo para la siguiente iteración, o «cierre del round» con el motivo.>
+
+---
+
+## Lista de control
+
+**Encabezado y Paso 1**
+
+- [ ] ¿Solo está la variante de entradas que corresponde (iteración 1 o posteriores)?
+- [ ] ¿Se resumieron las entradas sin copiar el catálogo de drivers?
+
+**Paso 2**
+
+- [ ] ¿El objetivo es uno solo, de una frase y verificable?
+- [ ] ¿Hay como máximo 10 drivers que no son CU, con los Principales marcados con `*` y cada uno con su motivo?
+
+**Pasos 3 y 4**
+
+- [ ] ¿Están indicados el tipo de refinamiento, su límite y lo que queda fuera de alcance (con dónde se trata)?
+- [ ] ¿Cada concepto y cada tecnología está en la tabla del Paso 4 con tipo, drivers, ADR (o justificación si es menor) y descartadas?
+- [ ] ¿Se nombran sin justificarlos ni puntuarlos (eso va en el ADR)?
+
+**Paso 5**
+
+- [ ] ¿Cada elemento tiene responsabilidad de una frase, tecnología (o PENDIENTE con dónde se elige) y mecanismo de comunicación?
+- [ ] ¿Las interfaces que no se pueden definir todavía figuran como pendientes con su iteración?
+
+**Paso 6**
+
+- [ ] ¿Cada vista indica su tipo de vista y tiene clave?
+- [ ] ¿Los nombres de los diagramas coinciden con los de la tabla del Paso 5?
+- [ ] ¿Las vistas son simples (mejor varias chicas que una abrumadora)?
+
+**Paso 7**
+
+- [ ] ¿Cada cambio de estado de 7.3 cita evidencia y respeta la definición de Abordado?
+- [ ] ¿Hay 5 concerns nuevas o menos, cada una ligada a riesgos de ADR y con ID provisional que continúa el catálogo?
+- [ ] ¿El Kanban de 7.2 incluye todos los drivers del backlog?
+- [ ] ¿La evaluación dice si se continúa y propone el próximo objetivo?
+
+**General**
+
+- [ ] ¿Cada decisión estructural tiene su ADR y no se repite su contenido acá?
+- [ ] ¿Es coherente con las iteraciones y ADR anteriores?
+- [ ] ¿Cabe en dos páginas sin diagramas y se entiende sin leer las otras iteraciones?
