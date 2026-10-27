@@ -11,8 +11,6 @@ Trotamundos lee 15 M de casillas (QA-6) y debe procesar el correo de los usuario
 
 **Pregunta:** ¿Cómo se entera Trotamundos de que llegó correo nuevo a una casilla y con qué frecuencia se sondea cada cuenta?
 
-**Fuera de alcance:** revocación del acceso (ADR-0010), filtrado y extracción (ADR-0011), frecuencias concretas por clase e importación de correos anteriores a la conexión.
-
 ---
 
 ## 2. Decisión
