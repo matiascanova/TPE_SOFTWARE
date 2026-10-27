@@ -98,7 +98,7 @@ Decisiones que el diseño debe respetar y que no se discuten durante ADD.
 | R-2 | La integración con aerolíneas, hoteles y rentadoras debe realizarse a través de las APIs estándar que esos proveedores ya exponen. El sistema se adapta a sus contratos; no puede modificarlos. | Técnica |
 | R-3 | El sistema depende de sistemas externos que no controla (proveedores de viaje, correo y agencias): su disponibilidad, formatos y límites de uso son condiciones dadas. | Técnica |
 | R-4 | Al procesar información personal y operar en el mercado internacional, el sistema debe cumplir las normativas de protección de datos de cada región donde opere. | Legal |
-| R-5 | El sistema no garantizara soporte optimo a celulares con tecnologia de telefonia movil de 3GB o inferior | Técnica |
+| R-5 | El sistema no garantizara soporte optimo a celulares con tecnologia de telefonia movil de 3G o inferior | Técnica |
 | R-6 | Se requiera una implementacion rapida de un prototipo en un plazo acotado de tiempo | Implementacion |
 
 ## 6. Concerns
