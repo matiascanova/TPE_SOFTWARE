@@ -76,7 +76,7 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 |---|---|---|---|
 | <XX-1> | <Qué puede salir mal> | <Qué driver afecta> | <Qué se hace o «se acepta»> |
 
-> Qué va: una línea por celda. El ID lleva un prefijo propio del ADR (por ejemplo W-1, BD-1) para referenciarlo desde otros documentos. Las cuatro celdas se completan siempre.
+> Qué va: una línea por celda. El ID lleva un prefijo propio del ADR (por ejemplo W-1, BD-1) para referenciarlo desde otros documentos. Las cuatro celdas se completan siempre. La ultima columna es un primer acercamiento a la idea, esta puede modificarse si por una idea mejor a futuro
 
 ---
 
