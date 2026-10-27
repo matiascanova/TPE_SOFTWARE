@@ -1,6 +1,6 @@
 # ADR-0004: Read model del panel en una instancia PostgreSQL propia (CQRS)
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01, CU-04, CU-06; QA-1, QA-2, QA-3, QA-4, QA-6, QA-11; R-6; CRN-2)
 
 ---
