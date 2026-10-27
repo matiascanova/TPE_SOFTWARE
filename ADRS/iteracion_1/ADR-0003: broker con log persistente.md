@@ -11,8 +11,6 @@ La ingesta recibe notificaciones push de proveedores de viaje y de correo, y ade
 
 **Pregunta:** ¿Qué conector usa la ingesta: un log persistente u otra forma de comunicación?
 
-**Fuera de alcance:** la tecnología concreta del broker, el procesamiento de las notificaciones y el outbox (ADR-0002), el pipeline de correo y el planificador de sondeo (Iteración 2), el read model (ADR-0004) y la analítica, que no consume del log.
-
 ---
 
 ## 2. Decisión
