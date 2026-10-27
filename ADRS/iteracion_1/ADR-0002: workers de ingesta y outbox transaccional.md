@@ -51,6 +51,6 @@ Una notificación casi nunca trae la reserva completa: hay que consultar al prov
 
 | ID | Riesgo | Efecto | Mitigación |
 |---|---|---|---|
-| W-1 | Un adaptador defectuoso afecta a los workers. | Puede interrumpir la integración con otros proveedores (QA-8). | Colas, pools y circuit breaker por proveedor. |
+| W-1 | Un adaptador defectuoso sigue afectando a los workers. | Puede interrumpir la integración con otros proveedores (QA-8). | Colas, pools y circuit breaker por proveedor. |
 | W-2 | Workers y Panel API comparten la base. | Cuello de botella de escritura (QA-6) y acoplamiento por esquema. | Cada módulo es dueño de sus tablas, read model separado (ADR-0004) y prueba de carga. |
 | W-3 | El relay agrega latencia y puede detenerse. | Suma hasta un intervalo de demora a los 5 minutos de QA-1. Si se detiene, el panel deja de actualizarse sin que falle otro componente. | Intervalo corto y presupuesto por etapa (ADR-0003, BR-1), alerta por antigüedad de la fila pendiente más vieja, reinicio automático y outbox particionado por tiempo para descartar filas viejas. |
