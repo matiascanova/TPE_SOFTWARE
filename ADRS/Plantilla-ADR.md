@@ -16,13 +16,13 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 
 ### Reglas obligatorias
 
-1. **Todo se completa.** Solo son opcionales «ADR relacionados», las reglas y las tácticas. Lo opcional que no aplica se omite entero.
+1. **Todo se completa.** Solo son opcionales «ADR relacionados», las reglas y la línea Incorpora/Difiere. Lo opcional que no aplica se omite entero.
 2. **Una decisión por ADR.** Un paquete cuyas partes no tienen sentido por separado (por ejemplo, workers con outbox) es una sola decisión y sus alternativas se comparan como paquetes completos.
 3. **Máximo 10 drivers que no sean CU** entre el encabezado y la sección 1. Los CU no tienen límite.
 4. **Máximo 5 consecuencias negativas.** Si hay más, se agrupan por causa común.
-5. **Toda alternativa descartada se justifica** con un motivo concreto atado a un driver. No se aceptan «es peor» ni «no conviene».
+5. **Máximo 5 alternativas en total, elegida incluida, y todas realistas.** No se listan alternativas sin sentido para el problema ni las que otro ADR ya descartó. Cada descartada lleva un motivo concreto atado a un driver. No se aceptan «es peor» ni «no conviene».
 6. **Sin pesos.** No se escriben puntajes, ponderaciones ni rankings. Alta/Media/Baja solo si aclara algo, nunca por criterio. Los valores medibles del driver («en 5 minutos») sí se escriben.
-7. **Corto y concreto.** Una idea por frase, en afirmativo. No se explican conceptos conocidos: se nombran y, si hace falta, se enlaza una referencia. El ADR cabe en una página, se entiende sin leer los demás y enlaza los relacionados.
+7. **Corto, concreto y sin repetir.** Una idea por frase, en afirmativo. No se explican conceptos conocidos: se nombran y, si hace falta, se enlaza una referencia. Cada dato vive en un solo ADR y los demás lo enlazan. El ADR cabe en una página y se entiende sin leer los demás.
 8. **Todo ADR indica qué queda fuera de alcance.**
 
 ---
@@ -32,7 +32,6 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 # ADR-<NNNN>: <Título corto que nombre la decisión, no el tema>
 
 - **Estado:** <Propuesto | Aceptado | Rechazado | Reemplazado por ADR-NNNN>
-- **Decisores:** <Quiénes toman la decisión>
 - **Drivers de entrada:** <Enlace al documento de drivers. CU sin límite y hasta 10 más, solo los que condicionan esta decisión>
 - **ADR relacionados:** <ADR de los que depende o que dependen de este. Omitir si no hay>
 
@@ -40,18 +39,13 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 
 ## 1. Contexto
 
-<Un párrafo: qué se necesita decidir y por qué ahora.>
+<Un párrafo: qué se necesita decidir, por qué ahora y qué drivers del encabezado condicionan la decisión (citados por ID) y por qué se oponen.>
 
 **Pregunta:** <¿...?>
 
-**Tensiones:**
-
-- **<Nombre> (<driver>).** <Una línea: qué hace difícil la decisión y qué se verifica en las alternativas.>
-- **<Nombre> (<driver>).** <...>
-
 **Fuera de alcance:** <Qué NO se decide acá y en qué ADR o iteración se trata.>
 
-> Qué va: el problema, no la solución. Hay una sola pregunta. Cada tensión sale de un driver del encabezado y su verificación es el criterio con que se comparan las alternativas. No hay tabla de criterios.
+> Qué va: el problema, no la solución. Hay una sola pregunta. No hay lista de tensiones ni tabla de criterios: los drivers se citan en el párrafo y el motivo de cada alternativa dice cuál incumple.
 
 ---
 
@@ -60,19 +54,17 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 **Se elige <ID>: <enunciado completo y autosuficiente, en una o dos frases>.**
 
 - <Regla: una frase sobre qué se debe cumplir al implementarla.>
-- <...>
 
 **Incorpora:** <Solo en híbridos: tácticas tomadas de alternativas más pesadas.> **Difiere:** <Solo en híbridos: qué se posterga a propósito como evolución prevista.>
 
-### Alternativas consideradas
+### Alternativas descartadas
 
-| ID | Alternativa | Motivo |
-|---|---|---|
-| <A1> | <Nombre> | <Qué driver incumple o qué costo no compensa. Si queda como evolución, decir por qué pasar a ella no exige una reescritura.> |
-| <A2> | **<Nombre de la elegida>** | <Qué drivers cumple.> |
-| <A3> | <Nombre> | <...> |
+| Alternativa | Motivo |
+|---|---|
+| <Nombre> | <Qué driver incumple o qué costo no compensa. Si queda como evolución, decir por qué pasar a ella no exige una reescritura.> |
+| <Nombre> | <...> |
 
-> Qué va: la decisión en negrita y, si impone restricciones verificables, hasta 3 reglas de una frase. Sin restricciones, solo el enunciado. Las alternativas incluyen la elegida (en negrita), mínimo 3 cuando sea posible, y cada descartada tiene su motivo, sin excepción. Incorpora/Difiere se usan solo en híbridos y listan únicamente lo que distingue la elección de las descartadas.
+> Qué va:Las reglas son hasta 3, de una frase, y solo si no están ya definidas en otro ADR. Sin restricciones propias, solo el enunciado. La tabla lista solo las descartadas, sin excepción. Incorpora/Difiere se usan solo en híbridos y listan únicamente lo que distingue la elección de las descartadas.
 
 ---
 
@@ -88,7 +80,7 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 |---|---|---|---|
 | <XX-1> | <Qué puede salir mal> | <Qué driver afecta> | <Qué se hace o «se acepta»> |
 
-> Qué va: una línea por celda. El ID lleva un prefijo propio del ADR (por ejemplo W-1, BD-1) para referenciarlo desde otros documentos.
+> Qué va: una línea por celda. El ID lleva un prefijo propio del ADR (por ejemplo W-1, BD-1) para referenciarlo desde otros documentos. Las cuatro celdas se completan siempre.
 
 ---
 
@@ -97,11 +89,12 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 - [ ] ¿El título nombra una decisión y no un tema?
 - [ ] ¿La pregunta tiene su decisión en la sección 2?
 - [ ] ¿Hay como máximo 10 drivers que no son CU?
-- [ ] ¿Cada tensión nombra su driver y qué se verifica?
-- [ ] ¿Cada alternativa descartada tiene motivo atado a un driver?
+- [ ] ¿El contexto cita los drivers que condicionan la decisión?
+- [ ] ¿Hay 5 alternativas o menos, todas realistas y no descartadas en otro ADR?
+- [ ] ¿Cada descartada tiene motivo atado a un driver?
 - [ ] ¿Sin pesos ni puntajes?
-- [ ] ¿Las reglas, si hay, son 3 o menos y de una frase?
+- [ ] ¿Las reglas, si hay, son 3 o menos, de una frase y no repetidas de otro ADR?
 - [ ] ¿Si es híbrido, indica qué incorpora y qué difiere?
-- [ ] ¿Las consecuencias negativas son 5 o menos, con mitigación?
+- [ ] ¿Las consecuencias negativas son 5 o menos, con las cuatro celdas completas?
 - [ ] ¿Indica qué queda fuera de alcance?
-- [ ] ¿Cabe en una página y se entiende sin leer los otros?
+- [ ] ¿Cabe en una página, se entiende sin leer los otros y no repite datos de ellos?
