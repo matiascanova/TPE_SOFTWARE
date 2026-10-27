@@ -2,7 +2,6 @@
 
 - **Estado:** Propuesto
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md e Iteracion-1.md. CU-02, CU-03, CU-04. Otros: R-2, R-3, R-6, QA-8, QA-12, CRN-N1.
-- **ADR relacionados:** ADR-0002 (outbox), ADR-0004 (read model), ADR-0007 (mensajes), ADR-0008 (resiliencia), ADR-0009 (reconciliación)
 
 ---
 
