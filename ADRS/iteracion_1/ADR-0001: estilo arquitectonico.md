@@ -11,8 +11,6 @@ Hay que fijar la estructura global de Trotamundos (CRN-1), porque condiciona bro
 
 **Pregunta:** ¿Qué estilo arquitectónico general adopta Trotamundos?
 
-**Fuera de alcance:** el broker (ADR-0003), los workers y el outbox (ADR-0002), el read model (ADR-0004), el motor de la base (decisión de almacenamiento posterior, Iteración 2), el despliegue, la seguridad y el diseño interno de la analítica (iteraciones futuras).
-
 ---
 
 ## 2. Decisión
