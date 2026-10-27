@@ -140,16 +140,7 @@ Justificación (solo si no hay ADR)
 <Una frase>
 Qué va: una fila por cada concepto de 4.1 y cada tecnología de 5.2. El motivo de elegir y de descartar vive en el ADR. Solo las decisiones menores se justifican acá.
 Paso 7. Analizar el diseño y revisar el objetivo y el propósito del diseño
-7.1 Estado de los drivers
-Definición de Abordado: <Criterio del proyecto: por ejemplo, decisiones tomadas + response measure verificada por test, prototipo o análisis.>
-No abordados
-Parcialmente abordados
-Abordados
-<IDs>
-<IDs>
-<IDs>
-Qué va: solo los drivers tocados en esta iteración.
-7.2 Concerns nuevas
+7.1 Concerns nuevas
 ID
 Concern
 Riesgos de origen
@@ -159,7 +150,7 @@ Mitigación prevista
 <IDs de riesgos en los ADR>
 <Mitigación o iteración donde se trata>
 Qué va: los riesgos de los ADR (por ID), agrupados por causa común; solo los aceptados o no resueltos. Si no hay, escribir «ninguna».
-7.3 Kanban al cierre
+7.2 Kanban al cierre
 Not Yet Addressed
 Partially Addressed
 Completely Addressed
@@ -167,7 +158,7 @@ Completely Addressed
 <IDs>
 <IDs>
 Qué va: solo IDs, sin texto. Es la entrada del paso 1 de la próxima iteración.
-7.4 Evaluación final
+7.3 Evaluación final
 • ¿Se alcanzó el objetivo del paso 2? <Sí | Parcial | No>. <Justificación con decisiones, vistas y estados de 7.1.>
 • ¿Se cumple el propósito del diseño? <Sí | Todavía no>. <Una frase.>
 Resultado de la iteración
