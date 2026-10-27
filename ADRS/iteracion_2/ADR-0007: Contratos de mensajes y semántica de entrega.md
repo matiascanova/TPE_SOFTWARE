@@ -18,7 +18,7 @@ El sistema utiliza un stream de trabajo y un stream de eventos bajo entrega al m
 
 ## 2. Decisión
 
-**Se elige A2/B1: Utilizar un sobre común de seis campos (`idMensaje`, `versionContrato`, `claveDeOrden`, `horaDelHecho`, `correlacion`, `origen`) con notificación cruda en el stream de trabajo y avisos mínimos con referencias en el de eventos, asegurando idempotencia mediante restricciones únicas en BD y comparación de versiones del viaje.**
+**Se elige A1: Utilizar un sobre común de seis campos (`idMensaje`, `versionContrato`, `claveDeOrden`, `horaDelHecho`, `correlacion`, `origen`) con notificación cruda en el stream de trabajo y avisos mínimos con referencias en el de eventos, asegurando idempotencia mediante restricciones únicas en BD y comparación de versiones del viaje.**
 
 - Confirmación tardía: Todo consumidor confirma el mensaje en el broker únicamente tras la ejecución exitosa de su transacción o escritura.
 - Los workers validan si la traducción modifica el estado antes de incrementar la versión del viaje o emitir eventos.
@@ -30,13 +30,11 @@ El sistema utiliza un stream de trabajo y un stream de eventos bajo entrega al m
 
 | Alternativa | Motivo |
 |---|---|
-| Sin contrato común | Impide medir tiempos por etapa (QA-1), no permite trazar hechos ni detectar contratos inválidos (QA-8). |
-| Evento con estado completo | Incrementa la retención de datos personales en el log (R-4) y viola el diseño de releer el estado actual (ADR-0004). |
-| Esquemas binarios con Schema Registry | Introduce infraestructura y tecnología adicional innecesaria en el prototipo, afectando R-6. |
-| Notificación interpretada en el receptor | Impide el reprocesamiento desde el log ante fallas en los adaptadores (QA-5) y ralentiza la recepción (QA-1). |
-| Tabla de mensajes procesados | Agrega escrituras a la BD compartida (QA-1) y no detecta reintentos del proveedor con distinto `idMensaje`. |
-| Entrega como máximo una vez | Riesgo de pérdida de mensajes ante caídas del consumidor, violando QA-1 y QA-5. |
-| Exactamente una vez (End-to-End) | Requiere transacciones distribuidas no soportadas por la infraestructura y descartadas en ADR-0002. |
+| A2.Sin contrato común | Impide medir tiempos por etapa (QA-1), no permite trazar hechos ni detectar contratos inválidos (QA-8). |
+| A3.Esquemas binarios con Schema Registry | Introduce infraestructura y tecnología adicional innecesaria en el prototipo, afectando R-6. |
+| A4.Notificación interpretada en el receptor | Impide el reprocesamiento desde el log ante fallas en los adaptadores (QA-5) y ralentiza la recepción (QA-1). |
+| A5.Tabla de mensajes procesados | Agrega escrituras a la BD compartida (QA-1) y no detecta reintentos del proveedor con distinto `idMensaje`. |
+| A6.Entrega como máximo una vez | Riesgo de pérdida de mensajes ante caídas del consumidor, violando QA-1 y QA-5. |
 
 ---
 
