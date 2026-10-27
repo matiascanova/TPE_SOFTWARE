@@ -25,9 +25,8 @@ Reglas obligatorias
 10. Vistas con clave y nombres coherentes. Todo diagrama indica su tipo de vista (módulo, C&C, asignación o secuencia), lleva clave y usa los mismos nombres que la tabla 5.1.
 11. Interfaces honestas. Las externas se derivan del diagrama de contexto y las internas de los diagramas de secuencia. Lo que no está detallado se lista como pendiente en 5.3, con la iteración donde se define. No se inventan contratos.
 12. Riesgos con destino. Los riesgos viven en los ADR y no se repiten. Se agrupan en concerns nuevas y solo se registran las aceptadas o no resueltas, listas para atacar en próximas iteraciones (máximo 5). Las concerns nuevas reciben un ID provisional que continúa la numeración del catálogo (CRN-n). Nunca se reutiliza un ID.
-13. Cierre con decisión. El paso 7 termina diciendo si se continúa o se cierra el round (let risk be your guide) y, si se continúa, propone el objetivo de la próxima iteración.
-14. Corto, concreto y sin repetir. Una idea por frase, en afirmativo. No se explican conceptos conocidos (CQRS, Kafka, JWT): se nombran y, si hace falta, se enlaza una referencia. La iteración cabe en dos páginas sin contar los diagramas.
-15. Coherencia con lo anterior. No contradice decisiones de iteraciones o ADR previos. Si lo hace, indica qué ADR reemplaza.
+13. Corto, concreto y sin repetir. Una idea por frase, en afirmativo. No se explican conceptos conocidos (CQRS, Kafka, JWT): se nombran y, si hace falta, se enlaza una referencia. La iteración cabe en dos páginas sin contar los diagramas.
+14. Coherencia con lo anterior. No contradice decisiones de iteraciones o ADR previos. Si lo hace, indica qué ADR reemplaza.
 Plantilla
 Iteración <N> de <Nombre del sistema>: <objetivo en una frase>
 • Estado: <Borrador para revisión | Revisado>
@@ -171,8 +170,6 @@ Qué va: solo IDs, sin texto. Es la entrada del paso 1 de la próxima iteración
 7.4 Evaluación final
 • ¿Se alcanzó el objetivo del paso 2? <Sí | Parcial | No>. <Justificación con decisiones, vistas y estados de 7.1.>
 • ¿Se cumple el propósito del diseño? <Sí | Todavía no>. <Una frase.>
-• ¿Se continúa? <Sí | No, se cierra el round>. <Qué riesgo lo justifica.>
-• Próxima iteración propuesta: <Objetivo en una frase, drivers principales y elemento a refinar. Omitir si se cierra el round.>
 Resultado de la iteración
 <Tres a cinco líneas: estructura obtenida, decisiones principales (por ID de ADR), drivers que cambiaron de estado y pendientes que condicionan la siguiente iteración.>
 Lista de control
