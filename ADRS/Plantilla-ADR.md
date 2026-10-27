@@ -33,7 +33,6 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 
 - **Estado:** <Propuesto | Aceptado | Rechazado | Reemplazado por ADR-NNNN>
 - **Drivers de entrada:** <Enlace al documento de drivers. CU sin límite y hasta 10 más, solo los que condicionan esta decisión>
-- **ADR relacionados:** <ADR de los que depende o que dependen de este. Omitir si no hay>
 
 ---
 
