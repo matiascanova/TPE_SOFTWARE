@@ -1,6 +1,6 @@
 # ADR-0002: Workers asíncronos de ingesta con outbox transaccional
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-02, CU-03; QA-1, QA-5, QA-6, QA-7, QA-8, QA-12; R-2, R-6)
 
 ---
