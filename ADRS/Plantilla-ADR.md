@@ -43,8 +43,6 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 
 **Pregunta:** <¿...?>
 
-**Fuera de alcance:** <Qué NO se decide acá y en qué ADR o iteración se trata.>
-
 > Qué va: el problema, no la solución. Hay una sola pregunta. No hay lista de tensiones ni tabla de criterios: los drivers se citan en el párrafo y el motivo de cada alternativa dice cuál incumple.
 
 ---
