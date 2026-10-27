@@ -18,7 +18,7 @@ Esta plantilla sirve para redactar ADR nuevos y para corregir ADR existentes. La
 ### Reglas obligatorias
 
 1. **Todos los ítems se completan.** Si un ítem opcional no aplica, se omite entero (no se deja vacío). Los ítems obligatorios nunca se omiten.
-2. **Una decisión por ADR, o varias si están muy relacionadas.** Se agrupan solo si no tiene sentido decidir una sin la otra. Cada decisión agrupada se llama Decisión A, B, C y repite el bloque completo de la sección 3 (alternativas, decisión, por qué no las otras).
+2. **Una decisión por ADR.**
 3. **Máximo 10 drivers que no sean casos de uso (CU).** Los CU pueden citarse todos los que hagan falta. Los demás drivers (QA, restricciones, riesgos, etc.) no superan 10 entre el encabezado y los criterios. Si hay más, se eligen los que realmente condicionan esta decisión.
 4. **Máximo 5 consecuencias negativas.** Si hay más, se agrupan por causa común en un solo ítem.
 5. **Toda alternativa descartada se justifica.** Cada una lleva su propio motivo, concreto y atado a un criterio. No se aceptan frases como «es peor» o «no conviene» sin razón.
@@ -74,7 +74,7 @@ Este documento responde <una pregunta> | estas preguntas:
 
 ## 3. Decisión <A> | Decisión
 
-> Si el ADR tiene una sola decisión, se usa la sección «3. Decisión» con los subítems 3.1 a 3.4. Si agrupa varias, se repite el bloque completo (3.1 a 3.4) por cada una, como «3. Decisión A» y «4. Decisión B», y las consecuencias pasan a ser la sección siguiente.
+>El ADR tiene una sola decisión, se usa la sección «3. Decisión» con los subítems 3.1 a 3.4.
 
 ### 3.1 Alternativas consideradas
 
