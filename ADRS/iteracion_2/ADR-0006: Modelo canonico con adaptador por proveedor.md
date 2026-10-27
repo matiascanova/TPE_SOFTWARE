@@ -11,8 +11,6 @@ Cada proveedor de viaje y de correo expone un formato propio que Trotamundos no 
 
 **Pregunta:** ¿Cómo se representa una reserva para todo el sistema y qué contrato cumple el adaptador que traduce y valida lo que envía cada proveedor?
 
-**Fuera de alcance:** campos de los mensajes (ADR-0007), reintentos y apartados (ADR-0008), reconciliación (ADR-0009), motor y tablas de la BD, extracción de reservas desde el texto de correos (CU-03, QA-9) y mapeos concretos por proveedor.
-
 ---
 
 ## 2. Decisión
