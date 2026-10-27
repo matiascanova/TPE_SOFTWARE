@@ -92,5 +92,4 @@ Sirve para redactar ADR nuevos y corregir existentes. Las líneas con `>` son in
 - [ ] ¿Las reglas, si hay, son 3 o menos, de una frase y no repetidas de otro ADR?
 - [ ] ¿Si es híbrido, indica qué incorpora y qué difiere?
 - [ ] ¿Las consecuencias negativas son 5 o menos, con las cuatro celdas completas?
-- [ ] ¿Indica qué queda fuera de alcance?
 - [ ] ¿Cabe en una página, se entiende sin leer los otros y no repite datos de ellos?
