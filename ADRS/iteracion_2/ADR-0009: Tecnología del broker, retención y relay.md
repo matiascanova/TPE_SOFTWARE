@@ -1,6 +1,6 @@
 # ADR-0006: Modelo canónico de núcleo y detalle versionado con adaptador por proveedor
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md e Iteracion-1.md. CU-02, CU-03, CU-04. Otros: R-2, R-3, R-6, QA-8, QA-12, CRN-N1.
 
 ---
