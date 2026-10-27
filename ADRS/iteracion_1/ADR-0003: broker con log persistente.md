@@ -1,6 +1,6 @@
 # ADR-0003: Broker con log persistente como conector de la ingesta
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01, CU-02, CU-03; QA-1, QA-4, QA-5, QA-6, QA-7; R-2, R-6)
 
 ---
