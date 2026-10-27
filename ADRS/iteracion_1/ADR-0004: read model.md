@@ -2,7 +2,6 @@
 
 - **Estado:** Propuesto
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-01, CU-04, CU-06; QA-1, QA-2, QA-3, QA-4, QA-6, QA-11; R-6; CRN-2)
-- **ADR relacionados:** ADR-0001 (estilo C-lite), ADR-0002 (workers y outbox), ADR-0003 (broker)
 
 ---
 
