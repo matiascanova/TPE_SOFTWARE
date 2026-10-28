@@ -1,4 +1,4 @@
-# ADR-0012: Aviso del proveedor con sondeo de respaldo planificado por cercanía del viaje
+# ADR-0010: Aviso del proveedor con sondeo de respaldo planificado por cercanía del viaje
 
 - **Estado:** Propuesto
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md e Iteracion-2.md. CU-03. Otros: QA-7, QA-6, R-2, R-3, R-6, CRN-9.
