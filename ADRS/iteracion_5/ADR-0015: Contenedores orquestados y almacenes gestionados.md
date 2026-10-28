@@ -1,4 +1,4 @@
-# ADR-0017: Contenedores en un orquestador gestionado, con los almacenes como servicios gestionados
+# ADR-0015: Contenedores en un orquestador gestionado, con los almacenes como servicios gestionados
 
 - **Estado:** Propuesto
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md. CU-01, CU-02, CU-03. Otros: QA-4, QA-6, QA-7, QA-1, R-6, CRN-3, CRN-6.
