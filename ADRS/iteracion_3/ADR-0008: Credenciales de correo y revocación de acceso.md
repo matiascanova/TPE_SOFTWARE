@@ -7,7 +7,7 @@
 
 ## 1. Contexto
 
-El usuario puede revocar el acceso de Trotamundos a su casilla desde el panel o desde el proveedor de correo (QA-10). Cuando lo hace pueden quedar trabajos de sondeo encolados, un aviso en vuelo o un worker por leer, y ninguno debe volver a leer la casilla (R-4). La revocación hecha desde el proveedor solo se descubre al intentar leer. Contarla como mensaje inválido falsea la medida de QA-8, y contarla como falla del proveedor abre el circuit breaker de todas las cuentas de ese proveedor (ADR-0008, CRN-5). El plazo es acotado (R-6). El corte y la clasificación se deciden juntos porque la clasificación es la forma en que se detecta la revocación hecha desde el proveedor.
+El usuario puede revocar el acceso de Trotamundos a su casilla desde el panel o desde el proveedor de correo (QA-10). Cuando lo hace pueden quedar trabajos de sondeo encolados, un aviso en vuelo o un worker por leer, y ninguno debe volver a leer la casilla (R-4). La revocación hecha desde el proveedor solo se descubre al intentar leer. Contarla como mensaje inválido falsea la medida de QA-8, y contarla como falla del proveedor abre el circuit breaker de todas las cuentas de ese proveedor (ADR-0007, CRN-5). El plazo es acotado (R-6). El corte y la clasificación se deciden juntos porque la clasificación es la forma en que se detecta la revocación hecha desde el proveedor.
 
 **Pregunta:** ¿Cómo se corta la lectura de una casilla cuando el usuario revoca el acceso, desde el panel o desde el proveedor de correo?
 
@@ -19,7 +19,7 @@ El usuario puede revocar el acceso de Trotamundos a su casilla desde el panel o 
 
 - **(a) Corte:** el cambio de estado se hace en una transacción. El worker que consume un trabajo de una cuenta revocada lo descarta y lo confirma, sin leer la casilla ni apartarlo.
 - **(b) Clasificación:** el adaptador de correo devuelve «acceso revocado» cuando el proveedor rechaza el acceso por revocación. El worker aplica el mismo cambio de estado de (a), y el resultado no cuenta para QA-8 ni para el circuit breaker.
-- Amplía los resultados del adaptador (ADR-0006) y la clasificación de fallas (ADR-0008) con un tercer caso.
+- Amplía los resultados del adaptador (ADR-0005) y la clasificación de fallas (ADR-0007) con un tercer caso.
 
 ### Alternativas descartadas
 
@@ -48,4 +48,4 @@ El usuario puede revocar el acceso de Trotamundos a su casilla desde el panel o 
 | RV-1 | Una lectura que ya empezó cuando se revoca termina igual | Se procesa un correo después de la revocación (QA-10, R-4) | Verificar el estado también antes de guardar el resultado y descartarlo si cambió |
 | RV-2 | Una consulta del estado antes de cada lectura, con millones de cuentas | Presión de lectura sobre la base compartida (QA-6, CRN-5) | Lectura por clave de la cuenta y medición en la prueba de carga |
 | RV-3 | El adaptador confunde un acceso vencido con uno revocado, o al revés | Se corta una cuenta válida o se reintenta sobre una revocada (QA-10, QA-8) | Pruebas de contrato con respuestas de vencimiento y de revocación de cada proveedor |
-| RV-4 | Los trabajos de una cuenta revocada quedan en el log hasta su retención | Referencias a la cuenta retenidas (R-4) | El trabajo de correo no lleva contenido ni tokens (ADR-0007) y la retención es acotada |
+| RV-4 | Los trabajos de una cuenta revocada quedan en el log hasta su retención | Referencias a la cuenta retenidas (R-4) | El trabajo de correo no lleva contenido ni tokens y la retención es acotada |
