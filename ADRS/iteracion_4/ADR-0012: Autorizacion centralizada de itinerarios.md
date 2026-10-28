@@ -38,7 +38,7 @@ Un viajero comparte su itinerario con personas designadas (CU-06), y el sistema 
 
 - QA-11 se cumple por construcción: no hay ruta sin verificar, se deniega por defecto y no hay respuesta de rechazo sin registro.
 - Los permisos desactualizados del read model dejan de afectar el acceso de terceros (CRN-7).
-- El dueño sigue viendo sus viajes con la base relacional caída (QA-4). Lo que cambia mientras tanto no se pierde: el trabajo espera en el stream de trabajo, los eventos en el de eventos, y el read model se pone al día al volver la base (ADR-0007, ADR-0008).
+- El dueño sigue viendo sus viajes con la base relacional caída (QA-4). Lo que cambia mientras tanto no se pierde: el trabajo espera en el stream de trabajo, los eventos en el de eventos, y el read model se pone al día al volver la base.
 
 **Negativas y riesgos aceptados (máximo 5)**
 
