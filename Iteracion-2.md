@@ -9,7 +9,7 @@
 
 ### 1.1 Contexto
 
-Trotamundos unifica los arreglos de viaje en un panel (CU-01). La Iteración 1 fijó la estructura general: tres desplegables (Panel API, Ingesta y Analítica), broker con log persistente, workers con outbox transaccional y read model en una instancia PostgreSQL propia (ADR-0001 a ADR-0004, más PostgreSQL como decisión menor). Quedaron abiertos el modelo canónico, el contrato de los mensajes, el aislamiento por proveedor y la tecnología del broker. Esta iteración refina la Ingesta, el broker y la base relacional; sus decisiones quedan en ADR-0006 a ADR-0008 y en siete decisiones menores (Paso 4).
+Trotamundos unifica los arreglos de viaje en un panel (CU-01). La Iteración 1 fijó la estructura general: tres desplegables (Panel API, Ingesta y Analítica), broker con log persistente, workers con outbox transaccional y read model en una instancia PostgreSQL propia (ADR-0001 a ADR-0004, más PostgreSQL como decisión menor). Quedaron abiertos el modelo canónico, el contrato de los mensajes, el aislamiento por proveedor y la tecnología del broker. Esta iteración refina la Ingesta, el broker y la base relacional; sus decisiones quedan en ADR-0005 a ADR-0007 y en siete decisiones menores (Paso 4).
 
 ### 1.2 Entradas
 
@@ -50,7 +50,7 @@ Drivers nuevos desde la iteración anterior:
 
 - **Elementos seleccionados:** Ingesta (Receptor, Workers y Relay), Broker con log persistente y Base relacional.
 - **Tipo de refinamiento:** Descomposición (top-down)
-- **Límite y fuera de alcance:** Se definen los adaptadores dentro de los Workers, los streams del broker y su tecnología, y lo que la base guarda de reservas y apartados. Quedan fuera el pipeline de correo y el planificador (CU-03, QA-7, QA-9, QA-10; <PENDIENTE: iteración donde se tratan>), los mapeos concretos por proveedor, las tablas de la base, y la alta disponibilidad y el monitoreo (Iteración 3, según ADR-0008). CRN-2, CRN-4, CRN-6 y QA-6 se tocan sin ser objetivo.
+- **Límite y fuera de alcance:** Se definen los adaptadores dentro de los Workers, los streams del broker y su tecnología, y lo que la base guarda de reservas y apartados. Quedan fuera el pipeline de correo y el planificador (CU-03, QA-7, QA-9, QA-10; Iteración 3), los mapeos concretos por proveedor, las tablas de la base, y la alta disponibilidad y el monitoreo (Iteración 5). CRN-2, CRN-4, CRN-6 y QA-6 se tocan sin ser objetivo.
 
 ---
 
@@ -60,9 +60,9 @@ Drivers nuevos desde la iteración anterior:
 
 | Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
 |---|---|---|---|---|---|
-| Modelo canónico de núcleo y detalle versionado, con adaptador de tres operaciones por proveedor y medio | Patrón | CU-02, CU-03, CU-04, QA-8, QA-12, R-2, R-3, R-6, CRN-5 | ADR-0006 | Modelo plano único, Sin modelo canónico, Estándar sectorial como modelo interno | — |
-| Sobre común versionado con idempotencia en cada consumidor | Patrón | CU-01, CU-02, CU-03, QA-1, QA-5, QA-8, QA-12, R-2, R-4, R-6, CRN-9 | ADR-0007 | Evento con el estado completo, Notificación interpretada en el receptor, Deduplicación por identificador | — |
-| Tabiques por proveedor con circuit breaker y stream de apartados | Táctica | CU-02, CU-03, QA-1, QA-5, QA-8, R-3, R-4, R-6, CRN-5 | ADR-0008 | Pool compartido sin apartar, Breaker sobre stream común, Apartados completos en la BD | — |
+| Modelo canónico de núcleo y detalle versionado, con adaptador de tres operaciones por proveedor y medio | Patrón | CU-02, CU-03, CU-04, QA-8, QA-12, R-2, R-3, R-6, CRN-5 | ADR-0005 | Modelo plano único, Sin modelo canónico, Estándar sectorial como modelo interno | — |
+| Sobre común versionado con idempotencia en cada consumidor | Patrón | CU-01, CU-02, CU-03, QA-1, QA-5, QA-8, QA-12, R-2, R-4, R-6, CRN-9 | ADR-0006 | Evento con el estado completo, Notificación interpretada en el receptor, Deduplicación por identificador | — |
+| Tabiques por proveedor con circuit breaker y stream de apartados | Táctica | CU-02, CU-03, QA-1, QA-5, QA-8, R-3, R-4, R-6, CRN-5 | ADR-0007 | Pool compartido sin apartar, Breaker sobre stream común, Apartados completos en la BD | — |
 | Redis Streams en instancia dedicada, con `noeviction` y persistencia antes de confirmar | Tecnología | QA-1, QA-5, R-6, CRN-2, CRN-6 | menor | RabbitMQ Streams (queda como evolución detrás del puerto) | Suma una sola tecnología nueva (R-6), trae contador de entregas nativo y queda detrás del puerto de mensajería. |
 | Retención por stream: 48 h trabajo de proveedores, 24 h eventos, 7 días apartados\* | Táctica | QA-5, QA-6, R-4 | menor | Sin alternativas registradas | Se deriva del tiempo de recuperación tras la caída de un proveedor (QA-5) y de la memoria disponible del broker. |
 | Mensajes en JSON con esquemas en el repositorio | Tecnología | QA-12, R-6 | menor | Avro o Protobuf con registro de esquemas | Es reversible porque el sobre lleva `versionContrato`. |
@@ -101,13 +101,13 @@ Los elementos de la Iteración 1 que no figuran no cambian.
 
 - Adaptador · *Traducir*: notificación cruda → *Válido* con la reserva canónica, o *Inválido* con motivo (estructura, campo obligatorio, invariante, tipo no soportado); un error de red, una espera agotada o un error del proveedor es falla del proveedor, no inválido.
 - Adaptador · *Consultar*: reserva del proveedor → su estado actual, con el mismo resultado que *Traducir*.
-- Adaptador · *Describir*: <PENDIENTE: qué devuelve; el ADR-0006 no lo detalla>.
+- Adaptador · *Describir*: <PENDIENTE: qué devuelve; el ADR-0005 no lo detalla>.
 - Mensaje de trabajo · stream `trabajo:<proveedor>:<n>`: sobre (`idMensaje`, `versionContrato`, `claveDeOrden` = `<proveedor>:<id externo>`, `horaDelHecho`, `correlacion`, `origen` = `<proveedor>/<medio>`) y la notificación cruda.
 - Evento · stream de eventos, clave `viaje:<id del viaje>`: sobre más `tipoEvento`, `idViaje`, `idReserva` y `versionViaje`; un `tipoEvento` desconocido se trata como «el viaje cambió»; un sobre incompleto o de versión desconocida se aparta con motivo «contrato».
 - Apartado · stream de apartados: el mensaje completo. Registro en la base: `idMensaje` (único), `origen`, `claveDeOrden`, `correlacion`, motivo, intentos, hora y estado. El reproceso republica con el mismo `idMensaje`.
-- Workers → Base relacional · guardar cambio y evento: una transacción (reserva, versión del viaje y outbox) solo si la reserva traducida difiere de la guardada; idempotente por la clave única proveedor e identificador externo. Reemplaza la idempotencia «por identificador de notificación o versión del proveedor» de la Iteración 1 (ADR-0007).
+- Workers → Base relacional · guardar cambio y evento: una transacción (reserva, versión del viaje y outbox) solo si la reserva traducida difiere de la guardada; idempotente por la clave única proveedor e identificador externo. Reemplaza la idempotencia «por identificador de notificación o versión del proveedor» de la Iteración 1 (ADR-0006).
 - Todo consumidor confirma el mensaje solo después de completar su efecto.
-- Pendientes: contratos del push y de la API de cada proveedor y sus mapeos (<PENDIENTE: iteración>); mensaje y retención del trabajo de correo (pipeline de correo); API externa del Panel API (<PENDIENTE: iteración>); copia hacia el almacén analítico (CRN-8).
+- Pendientes: contratos del push y de la API de cada proveedor y sus mapeos (<PENDIENTE: iteración>); mensaje y retención del trabajo de correo (Iteración 3); API externa del Panel API (Iteración 4); copia hacia el almacén analítico (CRN-8, Iteración 5).
 
 ---
 
@@ -298,17 +298,17 @@ Los IDs son provisionales y continúan el catálogo (último: CRN-9).
 
 ### 7.3 Evaluación y resultado
 
-- **¿Se alcanzó el objetivo del Paso 2?** Sí. El camino de CU-02 quedó definido de punta a punta (ADR-0006 a 0008 y decisiones menores, vistas del Paso 6) y QA-8 y QA-12 son medibles con proveedores simulados. Sus medidas no están verificadas, por eso siguen en Parcial.
+- **¿Se alcanzó el objetivo del Paso 2?** Sí. El camino de CU-02 quedó definido de punta a punta (ADR-0005 a 0007 y decisiones menores, vistas del Paso 6) y QA-8 y QA-12 son medibles con proveedores simulados. Sus medidas no están verificadas, por eso siguen en Parcial.
 
 | Driver | Cambio | Evidencia | Falta |
 |---|---|---|---|
-| R-2 | Parcial → Abordado | Adaptador por proveedor y medio que traduce el contrato ajeno sin modificarlo (ADR-0006) | Mapeos concretos, que no cambian la estructura |
-| R-3 | No abordado → Parcial | Limitador de tasa por tabique y respeto del 429 (ADR-0008) | Límites reales de cada proveedor |
+| R-2 | Parcial → Abordado | Adaptador por proveedor y medio que traduce el contrato ajeno sin modificarlo (ADR-0005) | Mapeos concretos, que no cambian la estructura |
+| R-3 | No abordado → Parcial | Limitador de tasa por tabique y respeto del 429 (ADR-0007) | Límites reales de cada proveedor |
 | R-4 | No abordado → Parcial | Evento sin datos de reserva, apartados sin cuerpo en la BD y retención por stream | Datos personales en la notificación cruda (MS-2) |
-| CRN-4 | No abordado → Parcial | `horaDelHecho` y `correlacion` permiten medir la demora por etapa (ADR-0007); relay de 1 s | Prueba de carga |
-| CRN-5 | No abordado → Parcial | Tabiques y circuit breaker por proveedor (ADR-0008) | Base compartida, RS-1 y MS-1 |
+| CRN-4 | No abordado → Parcial | `horaDelHecho` y `correlacion` permiten medir la demora por etapa (ADR-0006); relay de 1 s | Prueba de carga |
+| CRN-5 | No abordado → Parcial | Tabiques y circuit breaker por proveedor (ADR-0007) | Base compartida, RS-1 y MS-1 |
 | CRN-6 | No abordado → Parcial | Broker sin expulsión que persiste antes de confirmar; el receptor responde con error si no puede encolar | BK-1 y BK-2 |
-| CRN-9 | Nuevo → Parcial | Clave única, comparación con lo guardado y escritura por versión (ADR-0007) | Pruebas de reentrega (MS-3, MS-5, RS-3, BK-3) |
+| CRN-9 | Nuevo → Parcial | Clave única, comparación con lo guardado y escritura por versión (ADR-0006) | Pruebas de reentrega (MS-3, MS-5, RS-3, BK-3) |
 | CRN-10 | Nuevo → No abordado | Concern nueva de esta iteración | Mitigaciones del 7.1 |
 
-- **Resultado:** La Ingesta queda descompuesta en Receptor, Workers con un tabique y un adaptador por proveedor y medio, y Relay, sobre Redis Streams con streams de trabajo por proveedor, eventos y apartados. Toda reserva se representa con un núcleo común y un detalle versionado (ADR-0006), los mensajes comparten un sobre y cada consumidor es idempotente (ADR-0007), y la falla de un proveedor queda acotada a su tabique (ADR-0008). Quedan pendientes el pipeline de correo, la verificación de QA-1, QA-5, QA-8 y QA-12 con proveedores simulados, y la alta disponibilidad del broker y la base.
+- **Resultado:** La Ingesta queda descompuesta en Receptor, Workers con un tabique y un adaptador por proveedor y medio, y Relay, sobre Redis Streams con streams de trabajo por proveedor, eventos y apartados. Toda reserva se representa con un núcleo común y un detalle versionado (ADR-0005), los mensajes comparten un sobre y cada consumidor es idempotente (ADR-0006), y la falla de un proveedor queda acotada a su tabique (ADR-0007). Quedan pendientes el pipeline de correo, la verificación de QA-1, QA-5, QA-8 y QA-12 con proveedores simulados, y la alta disponibilidad del broker y la base.
