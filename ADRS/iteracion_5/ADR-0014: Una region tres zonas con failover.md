@@ -1,4 +1,4 @@
-# ADR-0016: Una región con tres zonas, almacenes con réplica sincrónica y failover automático
+# ADR-0014: Una región con tres zonas, almacenes con réplica sincrónica y failover automático
 
 - **Estado:** Propuesto
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md. CU-01, CU-02, CU-03. Otros: QA-4, QA-1, QA-5, R-4, R-6, CRN-6, CRN-9, CRN-14.
