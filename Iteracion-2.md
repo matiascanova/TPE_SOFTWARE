@@ -127,10 +127,12 @@ flowchart LR
   subgraph Ingesta["Ingesta (desplegable)"]
     Receptor["Receptor"]
     subgraph Workers["Workers"]
-      TabA["Tabique por proveedor A"]
-      AdA["Adaptador A"]
-      TabB["Tabique por proveedor B"]
-      AdB["Adaptador B"]
+      subgraph TabA["Tabique por proveedor A"]
+        AdA["Adaptador A"]
+      end
+      subgraph TabB["Tabique por proveedor B"]
+        AdB["Adaptador B"]
+      end
     end
     Relay["Relay"]
   end
@@ -150,14 +152,10 @@ flowchart LR
   Receptor ==>|"encola"| STB
   STA ==>|"consume"| TabA
   STB ==>|"consume"| TabB
-  TabA -->|"Traducir / Consultar"| AdA
-  TabB -->|"Traducir / Consultar"| AdB
   AdA -->|"API"| Proveedores
   AdB -->|"API"| Proveedores
-  TabA -->|"cambio + outbox; registro de apartados"| Base
-  TabB -->|"cambio + outbox; registro de apartados"| Base
-  TabA ==>|"inválidos y agotados"| SAp
-  TabB ==>|"inválidos y agotados"| SAp
+  Workers -->|"cambio + outbox; registro de apartados"| Base
+  Workers ==>|"inválidos y agotados"| SAp
   Relay -->|"lee outbox cada 1 s"| Base
   Relay ==>|"publica"| SEv
   SEv ==>|"consume"| PanelAPI
@@ -167,9 +165,10 @@ flowchart LR
 Clave:
 
 - Óvalo: actor externo. Rectángulo: elemento de software. Cilindro: almacén o stream del log.
-- Recuadro con título: desplegable (Ingesta), agrupación de roles (Workers) o conector (Broker con log persistente).
+- Recuadro con título: desplegable (Ingesta), agrupación de roles (Workers), elemento compuesto (Tabique por proveedor, que contiene a su adaptador) o conector (Broker con log persistente).
 - Flecha fina: llamada o acceso directo. Flecha gruesa: mensaje asíncrono por el broker.
 - A y B representan a cualquier proveedor; hay un tabique y un adaptador por proveedor y medio.
+- El adaptador corre dentro del tabique de su proveedor (llamada en proceso *Traducir / Consultar*). Las flechas hacia la base y el stream de apartados salen de los Workers, sin distinguir el tabique de origen.
 
 **Vista: Notificación de punta a punta**
 
