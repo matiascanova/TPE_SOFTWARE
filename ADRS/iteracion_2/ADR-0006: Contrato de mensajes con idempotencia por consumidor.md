@@ -46,7 +46,7 @@ Los ADR-0002 y 0003 fijaron streams de trabajo y de eventos con entrega al menos
 | ID | Riesgo | Efecto | Mitigación |
 |---|---|---|---|
 | MS-1 | El evento mínimo obliga a cada consumidor a leer la base | Presión de lectura y acople a consumidores futuros (QA-6) | Campo opcional `estado` si hace falta; el Panel API agrupa lecturas por viaje (ADR-0004) |
-| MS-2 | La notificación cruda puede contener datos personales y queda en el log | Exposición de datos (R-4) | Retención acotada (ADR-0009) y sin contenido de correo ni tokens |
+| MS-2 | La notificación cruda puede contener datos personales y queda en el log | Exposición de datos (R-4) | Retención acotada y sin contenido de correo ni tokens |
 | MS-3 | La idempotencia depende de la disciplina de cada consumidor | Efectos dobles (CRN-N4) | Pruebas de reentrega por consumidor; el que tenga efectos externos guarda el `idMensaje` |
 | MS-4 | El trabajo se ordena por reserva del proveedor y no por viaje, y dos reservas del mismo viaje se procesan en paralelo | Compiten por la versión del viaje y se demora el guardado (QA-1) | La escritura compara la versión y reintenta (ADR-0002) |
-| MS-5 | Un proveedor sin versión puede enviar una notificación vieja después de una nueva | Se toma como un cambio (CRN-N4) | Orden por clave y, si el proveedor no la garantiza, el worker usa *Consultar* (ADR-0006) |
+| MS-5 | Un proveedor sin versión puede enviar una notificación vieja después de una nueva | Se toma como un cambio (CRN-N4) | Orden por clave y, si el proveedor no la garantiza, el worker usa *Consultar* |
