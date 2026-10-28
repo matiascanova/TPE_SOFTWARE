@@ -1,4 +1,4 @@
-# ADR-0013: API REST única para web y móvil, con un recurso por vista del panel
+# ADR-0011: API REST única para web y móvil, con un recurso por vista del panel
 
 - **Estado:** Propuesto
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md. CU-01, CU-04, CU-06. Otros: QA-2, QA-3, QA-6, R-1, R-5, R-6, CRN-2.
