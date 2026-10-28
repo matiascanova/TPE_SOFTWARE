@@ -7,7 +7,7 @@
 
 ## 1. Contexto
 
-Trotamundos tiene tres desplegables, y la Ingesta tiene cuatro roles que escalan por separado (ADR-0001). El Panel API debe absorber picos ×10 (QA-6), los workers deben crecer con las 15 M de cuentas de correo (QA-7) y ambos deben escalar a tiempo para no consumir los 5 minutos de QA-1. Cada instancia caída debe reemplazarse sola y repartirse entre las zonas del ADR-0016 (QA-4), y los almacenes necesitan el failover que ese ADR exige. La analítica debe seguir aislada en su propio desplegable (CRN-3), y el plazo es acotado (R-6).
+Trotamundos tiene tres desplegables, y la Ingesta tiene cuatro roles que escalan por separado (ADR-0001). El Panel API debe absorber picos ×10 (QA-6), los workers deben crecer con las 15 M de cuentas de correo (QA-7) y ambos deben escalar a tiempo para no consumir los 5 minutos de QA-1. Cada instancia caída debe reemplazarse sola y repartirse entre las zonas del ADR-0014 (QA-4), y los almacenes necesitan el failover que ese ADR exige. La analítica debe seguir aislada en su propio desplegable (CRN-3), y el plazo es acotado (R-6).
 
 **Pregunta:** ¿Sobre qué plataforma se ejecutan los desplegables y los almacenes, y cómo escala cada uno por separado?
 
@@ -25,9 +25,9 @@ Trotamundos tiene tres desplegables, y la Ingesta tiene cuatro roles que escalan
 | Alternativa | Motivo |
 |---|---|
 | A2. Máquinas virtuales con grupos de autoescalado | Cada rol necesita su imagen, su grupo y su escalado configurados a mano, y el reemplazo de instancias es más lento (R-6, QA-4). |
-| A3. Funciones sin servidor para receptor y workers | No sostienen un consumidor activo por partición ni conexiones largas con el broker (ADR-0008, QA-1). |
+| A3. Funciones sin servidor para receptor y workers | No sostienen un consumidor activo por partición ni conexiones largas con el broker (QA-1). |
 | A4. Orquestador propio, no gestionado | Operar el plano de control suma trabajo sin mejorar ningún driver (R-6). |
-| A5. Almacenes dentro del orquestador, operados por el equipo | La réplica y el failover que exige el ADR-0016 quedan a cargo de configuración y operación propias (R-6, QA-4). |
+| A5. Almacenes dentro del orquestador, operados por el equipo | La réplica y el failover que exige el ADR-0014 quedan a cargo de configuración y operación propias (R-6, QA-4). |
 
 ---
 
