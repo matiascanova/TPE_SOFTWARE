@@ -47,4 +47,4 @@ Los ADR-0002 y 0003 prevén colas, pools y circuit breaker por proveedor y un st
 |---|---|---|---|
 | RS-1 | La resiliencia depende de código y parámetros propios, incluida la clasificación de cada falla | Una falla mal clasificada distorsiona QA-8 o deja el circuito sin abrir (CRN-N1, R-6) | Biblioteca estándar, pruebas de contrato con proveedores simulados que fallan y alerta por salto de apartados |
 | RS-2 | Un mensaje con errores repetidos bloquea su partición mientras se reintenta | Las otras claves de la partición se demoran hasta unos 50 s (QA-1) | Reintentos acotados y más particiones si la demora se repite |
-| RS-3 | Reprocesar un apartado puede devolver una reserva a un estado viejo | Dato desactualizado en el panel (CU-02) | Si la reserva ya existe, el worker usa *Consultar* (ADR-0006) antes de guardar |
+| RS-3 | Reprocesar un apartado puede devolver una reserva a un estado viejo | Dato desactualizado en el panel (CU-02) | Si la reserva ya existe, el worker usa *Consultar* antes de guardar |
