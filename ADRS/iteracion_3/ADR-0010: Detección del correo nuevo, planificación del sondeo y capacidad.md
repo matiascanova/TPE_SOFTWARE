@@ -7,7 +7,7 @@
 
 ## 1. Contexto
 
-Trotamundos lee 15 M de casillas (QA-6) y debe procesar el correo de los usuarios con viajes próximos en 15 minutos o menos para el 95 % (QA-7). Sondear todas las cuentas con esa frecuencia excede los límites de uso de los proveedores de correo (R-3) y la capacidad de los workers. Los avisos que ofrecen los proveedores pueden perderse o dejar de llegar, y Trotamundos no puede cambiar ese mecanismo (R-3). Cada lectura debe retomar donde quedó la anterior sin perder ni duplicar correos (CRN-9). El Planificador de sondeo y el trabajo de correo con clave `correo:<id de la cuenta>` ya existen (ADR-0007). Detección y planificación se deciden juntas porque el sondeo de respaldo lo emite el planificador, y el aviso y el sondeo leen desde la misma marca.
+Trotamundos lee 15 M de casillas (QA-6) y debe procesar el correo de los usuarios con viajes próximos en 15 minutos o menos para el 95 % (QA-7). Sondear todas las cuentas con esa frecuencia excede los límites de uso de los proveedores de correo (R-3) y la capacidad de los workers. Los avisos que ofrecen los proveedores pueden perderse o dejar de llegar, y Trotamundos no puede cambiar ese mecanismo (R-3). Cada lectura debe retomar donde quedó la anterior sin perder ni duplicar correos (CRN-9). El Planificador de sondeo y el trabajo de correo con clave `correo:<id de la cuenta>` ya existen. Detección y planificación se deciden juntas porque el sondeo de respaldo lo emite el planificador, y el aviso y el sondeo leen desde la misma marca.
 
 **Pregunta:** ¿Cómo se entera Trotamundos de que llegó correo nuevo a una casilla y con qué frecuencia se sondea cada cuenta?
 
@@ -38,7 +38,7 @@ Trotamundos lee 15 M de casillas (QA-6) y debe procesar el correo de los usuario
 **Positivas**
 
 - El correo de una cuenta con viaje próximo se detecta por el aviso o, si este falla, por el sondeo de su clase (QA-7).
-- Un trabajo repetido no pierde ni duplica correos, gracias a la marca y a la idempotencia del worker (CRN-9, ADR-0007).
+- Un trabajo repetido no pierde ni duplica correos, gracias a la marca y a la idempotencia del worker (CRN-9).
 - La carga sobre los proveedores de correo y sobre los workers queda acotada (R-3, QA-6).
 - No suma desplegables: usa el Receptor y el Planificador de sondeo existentes (R-6).
 
