@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El foro de alumnos - Ingeniería en Sistemas (Exactas UNICEN)</title>
+    <!-- Enlace al archivo CSS estático servido por Go -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="header-container">
+            <h1>Foro de Alumnos - Exactas UNICEN</h1>
+            <p class="description">
+                Plan de Estudios: Ingeniería en Sistemas. Promedios de puntuaciones de los alumnos y accesos a reseñas.
+            </p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Grilla de Materias con los 3 campos de promedios integrados -->
+        <section class="grid-section">
+            <h2>Plan de Materias</h2>
+            <div id="entities-container" class="career-grid">
+                
+                <article class="entity-card">
+                    <div class="subject-title">Introducción a la Programación I *</div>
+                    <!-- Promedios de los campos de la base de datos (VOTO) -->
+                    <div class="card-ratings">
+                        <div class="rating-item">
+                            <span class="rating-label">Dif:</span>
+                            <span class="rating-value">3.8</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Rel:</span>
+                            <span class="rating-value">4.5</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Gusto:</span>
+                            <span class="rating-value">4.2</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="/materias/1/calificar" class="btn-action btn-add">Agregar reseña</a>
+                        <a href="/materias/1/resenas" class="btn-action btn-view">Ver reseñas</a>
+                    </div>
+                </article>
+
+                <article class="entity-card">
+                    <div class="subject-title">Introducción al Álgebra *</div>
+                    <div class="card-ratings">
+                        <div class="rating-item">
+                            <span class="rating-label">Dif:</span>
+                            <span class="rating-value">4.6</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Rel:</span>
+                            <span class="rating-value">3.9</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Gusto:</span>
+                            <span class="rating-value">3.5</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="/materias/2/calificar" class="btn-action btn-add">Agregar reseña</a>
+                        <a href="/materias/2/resenas" class="btn-action btn-view">Ver reseñas</a>
+                    </div>
+                </article>
+
+                <article class="entity-card">
+                    <div class="subject-title">Introducción a los Sistemas Informáticos *</div>
+                    <div class="card-ratings">
+                        <div class="rating-item">
+                            <span class="rating-label">Dif:</span>
+                            <span class="rating-value">2.5</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Rel:</span>
+                            <span class="rating-value">4.1</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Gusto:</span>
+                            <span class="rating-value">4.0</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="/materias/3/calificar" class="btn-action btn-add">Agregar reseña</a>
+                        <a href="/materias/3/resenas" class="btn-action btn-view">Ver reseñas</a>
+                    </div>
+                </article>
+
+                <article class="entity-card">
+                    <div class="subject-title">Ingles *</div>
+                    <div class="card-ratings">
+                        <div class="rating-item">
+                            <span class="rating-label">Dif:</span>
+                            <span class="rating-value">2.0</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Rel:</span>
+                            <span class="rating-value">4.8</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Gusto:</span>
+                            <span class="rating-value">4.3</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="/materias/4/calificar" class="btn-action btn-add">Agregar reseña</a>
+                        <a href="/materias/4/resenas" class="btn-action btn-view">Ver reseñas</a>
+                    </div>
+                </article>
+
+                <article class="entity-card">
+                    <div class="subject-title">Diseño Lógico *</div>
+                    <div class="card-ratings">
+                        <div class="rating-item">
+                            <span class="rating-label">Dif:</span>
+                            <span class="rating-value">4.1</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Rel:</span>
+                            <span class="rating-value">4.0</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Gusto:</span>
+                            <span class="rating-value">3.8</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="/materias/5/calificar" class="btn-action btn-add">Agregar reseña</a>
+                        <a href="/materias/5/resenas" class="btn-action btn-view">Ver reseñas</a>
+                    </div>
+                </article>
+
+                <article class="entity-card">
+                    <div class="subject-title">Introducción a la Programación II *</div>
+                    <div class="card-ratings">
+                        <div class="rating-item">
+                            <span class="rating-label">Dif:</span>
+                            <span class="rating-value">4.2</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Rel:</span>
+                            <span class="rating-value">4.7</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Gusto:</span>
+                            <span class="rating-value">4.5</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="/materias/6/calificar" class="btn-action btn-add">Agregar reseña</a>
+                        <a href="/materias/6/resenas" class="btn-action btn-view">Ver reseñas</a>
+                    </div>
+                </article>
+
+                <article class="entity-card">
+                    <div class="subject-title">Programación WEB *</div>
+                    <div class="card-ratings">
+                        <div class="rating-item">
+                            <span class="rating-label">Dif:</span>
+                            <span class="rating-value">3.5</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Rel:</span>
+                            <span class="rating-value">5.0</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Gusto:</span>
+                            <span class="rating-value">4.9</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="/materias/7/calificar" class="btn-action btn-add">Agregar reseña</a>
+                        <a href="/materias/7/resenas" class="btn-action btn-view">Ver reseñas</a>
+                    </div>
+                </article>
+
+                <article class="entity-card">
+                    <div class="subject-title">Ingeniería de Software I</div>
+                    <div class="card-ratings">
+                        <div class="rating-item">
+                            <span class="rating-label">Dif:</span>
+                            <span class="rating-value">3.7</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Rel:</span>
+                            <span class="rating-value">4.8</span>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Gusto:</span>
+                            <span class="rating-value">4.4</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="/materias/8/calificar" class="btn-action btn-add">Agregar reseña</a>
+                        <a href="/materias/8/resenas" class="btn-action btn-view">Ver reseñas</a>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+    </main>
+</body>
+</html>

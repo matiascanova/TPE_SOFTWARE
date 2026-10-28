@@ -1,0 +1,173 @@
+:root {
+    --page-bg: #ecf0f3;
+    --card-bg: #2c98ab;          /* Color principal exacto de los cuadros de materia */
+    --card-hover: #237b8b;       /* Tono más oscuro al pasar el cursor */
+    --text-main: #2d3748;
+    --border-color: #cbd5e1;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--page-bg);
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+/* Cabecera */
+.navbar {
+    background-color: #1f6f7d;
+    color: #ffffff;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.navbar h1 {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.navbar .description {
+    font-size: 0.9rem;
+    opacity: 0.95;
+}
+
+/* Contenedor general */
+.main-content {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Grilla de Materias */
+.grid-section h2 {
+    font-size: 1.2rem;
+    color: #1f6f7d;
+    margin-bottom: 15px;
+}
+
+/* Restringido a 4 columnas máximo en pantallas grandes (1920px o más) */
+.career-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 1200px) {
+    .career-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .career-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .career-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cuadros individuales de cada materia (altura ajustada para alojar los promedios) */
+.entity-card {
+    background-color: var(--card-bg);
+    border: 1px solid #1f6f7d;
+    border-radius: 6px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 165px; /* Altura optimizada para los 3 campos de valores y botones */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.entity-card:hover {
+    background-color: var(--card-hover);
+    transform: translateY(-2px);
+}
+
+.subject-title {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+/* Estilos para los 3 campos de promedios de valoraciones */
+.card-ratings {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    background-color: rgba(0, 0, 0, 0.15);
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.rating-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.rating-label {
+    font-size: 0.65rem;
+    color: #e2e8f0;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.rating-value {
+    font-size: 0.85rem;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Botones de acción inferiores */
+.card-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-action {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 6px 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 3px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-action:hover {
+    background-color: #ffffff;
+    color: #1f6f7d;
+    border-color: #ffffff;
+}
