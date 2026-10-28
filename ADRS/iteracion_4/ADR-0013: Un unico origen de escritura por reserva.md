@@ -1,4 +1,4 @@
-# ADR-0015: Un único origen de escritura por reserva, con desvinculación para editar una reserva de proveedor
+# ADR-0013: Un único origen de escritura por reserva, con desvinculación para editar una reserva de proveedor
 
 - **Estado:** Propuesto
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md. CU-02, CU-03, CU-04. Otros: QA-1, QA-9, R-6, CRN-9.
