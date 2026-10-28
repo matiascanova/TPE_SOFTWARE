@@ -1,0 +1,864 @@
+/* =====================================================================
+   Reservas de viaje
+   Cada reserva se muestra como un pasaje: cuerpo con el detalle y un
+   talón troquelado con el código y el total. Ese es el único elemento
+   llamativo; el resto de la interfaz queda sobrio.
+   ===================================================================== */
+
+:root {
+  color-scheme: light;
+
+  --fondo: #f5f7fa;
+  --superficie: #ffffff;
+  --tinta: #1b2433;
+  --tinta-suave: #5a6578;
+  --linea: #d9dfe7;
+  --linea-fuerte: #b9c2cf;
+
+  --avion: #2350a0;
+  --hotel: #17806d;
+  --turismo: #b26b12;
+  --otro: #5a6578;
+  --peligro: #c4363c;
+
+  --principal-fondo: #1b2433;
+  --principal-texto: #ffffff;
+  --foco: #2350a0;
+
+  --fuente: "Overpass", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fuente-codigo: "Overpass Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  --radio: 10px;
+  --radio-chico: 6px;
+  --muesca: 9px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --fondo: #12161d;
+    --superficie: #1a2029;
+    --tinta: #e6eaf0;
+    --tinta-suave: #9aa5b5;
+    --linea: #2c3542;
+    --linea-fuerte: #3d4858;
+    --avion: #86a9ee;
+    --hotel: #55c4a9;
+    --turismo: #e4a656;
+    --otro: #9aa5b5;
+    --peligro: #f07a7e;
+    --principal-fondo: #e6eaf0;
+    --principal-texto: #12161d;
+    --foco: #86a9ee;
+  }
+}
+
+/* ---------------------------------------------------------------- base */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: var(--fuente);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+}
+
+.codigo {
+  font-family: var(--fuente-codigo);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ---------------------------------------------------------------- botones */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: var(--radio-chico);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.boton--principal {
+  background: var(--principal-fondo);
+  color: var(--principal-texto);
+}
+
+.boton--principal:hover {
+  opacity: 0.88;
+}
+
+.boton--secundario {
+  background: transparent;
+  border-color: var(--linea-fuerte);
+}
+
+.boton--secundario:hover {
+  background: var(--fondo);
+}
+
+.boton--peligro {
+  background: var(--peligro);
+  color: #ffffff;
+}
+
+.boton--peligro:hover {
+  opacity: 0.88;
+}
+
+.boton--texto {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.5rem 0.25rem;
+  background: transparent;
+  color: var(--tinta-suave);
+  text-decoration: underline;
+  text-decoration-color: var(--linea-fuerte);
+  text-underline-offset: 0.2em;
+}
+
+.boton--texto:hover {
+  color: var(--tinta);
+  text-decoration-color: currentColor;
+}
+
+.boton--texto-peligro:hover {
+  color: var(--peligro);
+}
+
+.boton--ancho {
+  width: 100%;
+}
+
+.boton:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.boton-cerrar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: var(--radio-chico);
+  background: transparent;
+  color: var(--tinta-suave);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.boton-cerrar:hover {
+  background: var(--fondo);
+  color: var(--tinta);
+}
+
+/* ---------------------------------------------------------------- formularios */
+
+.formulario {
+  display: grid;
+  gap: 1rem;
+}
+
+.campo {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.campo__etiqueta {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.campo__control {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem 0.4rem;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+}
+
+.campo__control:focus-visible {
+  outline-offset: 0;
+  border-color: var(--foco);
+}
+
+.campo__ayuda {
+  font-size: 0.8125rem;
+  color: var(--tinta-suave);
+}
+
+.mensaje-error {
+  padding: 0.65rem 0.85rem 0.55rem;
+  border-left: 3px solid var(--peligro);
+  border-radius: 0 var(--radio-chico) var(--radio-chico) 0;
+  background: color-mix(in srgb, var(--peligro) 9%, var(--superficie));
+  color: var(--tinta);
+  font-size: 0.9375rem;
+}
+
+/* ---------------------------------------------------------------- pantalla de acceso */
+
+.acceso {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 2rem 1rem;
+}
+
+.boleto-acceso {
+  position: relative;
+  width: min(100%, 26rem);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  background: var(--superficie);
+}
+
+.boleto-acceso__cabecera {
+  padding: 2rem 2rem 1.6rem;
+  border-top: 6px solid var(--avion);
+  border-radius: calc(var(--radio) - 1px) calc(var(--radio) - 1px) 0 0;
+}
+
+.boleto-acceso__titulo {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.boleto-acceso__bajada {
+  margin-top: 0.6rem;
+  color: var(--tinta-suave);
+}
+
+/* Troquel horizontal entre la cabecera y el formulario. */
+.boleto-acceso__cuerpo {
+  position: relative;
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.6rem 2rem 2rem;
+  border-top: 2px dashed var(--linea);
+}
+
+.boleto-acceso__cuerpo::before,
+.boleto-acceso__cuerpo::after {
+  content: "";
+  position: absolute;
+  top: calc(1px - var(--muesca));
+  width: calc(2 * var(--muesca));
+  height: calc(2 * var(--muesca));
+  border: 1px solid var(--linea);
+  border-radius: 50%;
+  background: var(--fondo);
+}
+
+.boleto-acceso__cuerpo::before {
+  left: calc(-1 * var(--muesca) - 1px);
+  clip-path: inset(0 0 0 50%);
+}
+
+.boleto-acceso__cuerpo::after {
+  right: calc(-1 * var(--muesca) - 1px);
+  clip-path: inset(0 50% 0 0);
+}
+
+.boleto-acceso__demo {
+  font-size: 0.875rem;
+  color: var(--tinta-suave);
+}
+
+.pestanas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.25rem;
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
+}
+
+.pestanas__pestana {
+  min-height: 2.5rem;
+  padding: 0.45rem 0.5rem 0.35rem;
+  border: 0;
+  border-radius: calc(var(--radio-chico) - 2px);
+  background: transparent;
+  color: var(--tinta-suave);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pestanas__pestana[aria-pressed="true"] {
+  background: var(--superficie);
+  color: var(--tinta);
+  box-shadow: 0 0 0 1px var(--linea);
+}
+
+/* ---------------------------------------------------------------- barra superior */
+
+.barra {
+  border-bottom: 1px solid var(--linea);
+  background: var(--superficie);
+}
+
+.barra__contenido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+}
+
+.barra__marca {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.barra__usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.barra__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--tinta-suave);
+}
+
+/* ---------------------------------------------------------------- itinerario */
+
+.itinerario {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+}
+
+.itinerario__encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.itinerario__titulo {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.itinerario__resumen {
+  margin-top: 0.35rem;
+  color: var(--tinta-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.lista {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Separador de mes en la línea de tiempo. */
+.lista__mes {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  align-items: center;
+  margin-top: 1rem;
+  color: var(--tinta-suave);
+  font-weight: 600;
+}
+
+.lista__mes:first-child {
+  margin-top: 0;
+}
+
+.lista__mes span {
+  grid-column: 2;
+}
+
+.vacio {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  max-width: 34rem;
+  padding: 2rem;
+  border: 2px dashed var(--linea);
+  border-radius: var(--radio);
+}
+
+.vacio__texto {
+  color: var(--tinta-suave);
+}
+
+/* ---------------------------------------------------------------- pasaje (cada reserva) */
+
+.pasaje {
+  --color-tipo: var(--otro);
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  align-items: stretch;
+}
+
+.pasaje[data-tipo="avion"] {
+  --color-tipo: var(--avion);
+}
+
+.pasaje[data-tipo="hotel"] {
+  --color-tipo: var(--hotel);
+}
+
+.pasaje[data-tipo="turismo"] {
+  --color-tipo: var(--turismo);
+}
+
+.pasaje__fecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.pasaje__dia {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.pasaje__semana {
+  margin-top: 0.2rem;
+  color: var(--tinta-suave);
+  font-size: 0.875rem;
+}
+
+.pasaje__boleto {
+  display: grid;
+  grid-template-columns: 1fr 13.5rem;
+  min-width: 0;
+  border: 1px solid var(--linea);
+  border-left: 5px solid var(--color-tipo);
+  border-radius: var(--radio);
+  background: var(--superficie);
+}
+
+.pasaje__cuerpo {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 1rem 1.25rem 1.1rem;
+}
+
+.pasaje__tipo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-tipo);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pasaje__icono {
+  display: inline-flex;
+}
+
+.pasaje__icono svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: currentColor;
+}
+
+.pasaje__detalle {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.pasaje__rango {
+  color: var(--tinta-suave);
+  font-size: 0.9375rem;
+}
+
+/* Talón: separado del cuerpo por un troquel con dos muescas. */
+.pasaje__talon {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 0.75rem 1rem;
+  padding: 1rem 1.1rem 0.6rem 1.25rem;
+  border-left: 2px dashed var(--linea);
+}
+
+.pasaje__talon::before,
+.pasaje__talon::after {
+  content: "";
+  position: absolute;
+  left: calc(1px - var(--muesca));
+  width: calc(2 * var(--muesca));
+  height: calc(2 * var(--muesca));
+  border: 1px solid var(--linea);
+  border-radius: 50%;
+  background: var(--fondo);
+}
+
+.pasaje__talon::before {
+  top: calc(-1 * var(--muesca) - 1px);
+  clip-path: inset(50% 0 0 0);
+}
+
+.pasaje__talon::after {
+  bottom: calc(-1 * var(--muesca) - 1px);
+  clip-path: inset(0 0 50% 0);
+}
+
+.pasaje__dato {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.pasaje__rotulo {
+  color: var(--tinta-suave);
+  font-size: 0.8125rem;
+}
+
+.pasaje__codigo {
+  overflow-wrap: anywhere;
+}
+
+.pasaje__total {
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.pasaje__acciones {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.25rem;
+  margin-left: -0.5rem;
+}
+
+/* Al agregar o editar una reserva, se marca un instante para mostrar dónde quedó. */
+@media (prefers-reduced-motion: no-preference) {
+  .pasaje--resaltado .pasaje__boleto {
+    animation: resaltar 1.4s ease-out;
+  }
+
+  @keyframes resaltar {
+    from {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-tipo) 45%, transparent);
+    }
+    to {
+      box-shadow: 0 0 0 4px transparent;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------- diálogos */
+
+.dialogo {
+  width: min(calc(100% - 2rem), 38rem);
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--tinta);
+}
+
+.dialogo--chico {
+  width: min(calc(100% - 2rem), 28rem);
+}
+
+.dialogo::backdrop {
+  background: rgb(18 22 29 / 0.55);
+}
+
+.dialogo__formulario {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.dialogo__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dialogo__titulo {
+  padding-top: 0.35rem;
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.dialogo__titulo .codigo {
+  font-size: 0.95em;
+  font-weight: 500;
+}
+
+.dialogo__texto {
+  color: var(--tinta-suave);
+}
+
+.dialogo__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.grilla-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.grilla-campos .campo--completo {
+  grid-column: 1 / -1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dialogo[open] {
+    animation: aparecer 160ms ease-out;
+  }
+
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+}
+
+/* Selector del tipo de reserva (radios con forma de botón). */
+.selector-tipo {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.selector-tipo__leyenda {
+  margin-bottom: 0.4rem;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.selector-tipo__opciones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.opcion-tipo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.5rem 0.35rem;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio-chico);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.opcion-tipo input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opcion-tipo svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}
+
+.opcion-tipo:has(input:checked) {
+  border-color: var(--color-tipo);
+  box-shadow: inset 0 0 0 1px var(--color-tipo);
+  color: var(--color-tipo);
+}
+
+.opcion-tipo:has(input:focus-visible) {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+}
+
+.opcion-tipo[data-tipo="avion"] {
+  --color-tipo: var(--avion);
+}
+
+.opcion-tipo[data-tipo="hotel"] {
+  --color-tipo: var(--hotel);
+}
+
+.opcion-tipo[data-tipo="turismo"] {
+  --color-tipo: var(--turismo);
+}
+
+/* ---------------------------------------------------------------- aviso */
+
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  z-index: 10;
+  max-width: calc(100% - 2rem);
+  padding: 0.7rem 1.1rem 0.6rem;
+  border-radius: var(--radio-chico);
+  background: var(--principal-fondo);
+  color: var(--principal-texto);
+  font-weight: 600;
+  transform: translate(-50%, 0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.aviso--visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .aviso {
+    transform: translate(-50%, 0.5rem);
+    transition: opacity 160ms ease-out, transform 160ms ease-out;
+  }
+
+  .aviso--visible {
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ---------------------------------------------------------------- pantallas angostas */
+
+@media (max-width: 40rem) {
+  .itinerario {
+    padding-top: 1.75rem;
+  }
+
+  .itinerario__titulo {
+    font-size: 1.875rem;
+  }
+
+  .itinerario__encabezado .boton {
+    width: 100%;
+  }
+
+  .lista__mes,
+  .pasaje {
+    grid-template-columns: 3rem 1fr;
+  }
+
+  .pasaje__dia {
+    font-size: 1.5rem;
+  }
+
+  /* El talón pasa abajo del cuerpo y el troquel queda horizontal. */
+  .pasaje__boleto {
+    grid-template-columns: 1fr;
+  }
+
+  .pasaje__talon {
+    grid-template-columns: 1fr auto;
+    border-left: 0;
+    border-top: 2px dashed var(--linea);
+    padding: 0.85rem 1.25rem 0.5rem;
+  }
+
+  .pasaje__dato:nth-child(2) {
+    justify-items: end;
+    text-align: right;
+  }
+
+  .pasaje__talon::before,
+  .pasaje__talon::after {
+    top: calc(1px - var(--muesca));
+    bottom: auto;
+  }
+
+  .pasaje__talon::before {
+    left: calc(-1 * var(--muesca) - 5px);
+    clip-path: inset(0 0 0 50%);
+  }
+
+  .pasaje__talon::after {
+    left: auto;
+    right: calc(-1 * var(--muesca) - 1px);
+    clip-path: inset(0 50% 0 0);
+  }
+
+  .boleto-acceso__cabecera,
+  .boleto-acceso__cuerpo {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .grilla-campos {
+    grid-template-columns: 1fr;
+  }
+
+  .dialogo__formulario {
+    padding: 1rem 1.1rem 1.25rem;
+  }
+
+  .dialogo__acciones .boton {
+    flex: 1;
+  }
+}

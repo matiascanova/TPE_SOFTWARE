@@ -1,0 +1,112 @@
+classDiagram
+    direction TB
+
+    namespace interfaz_web {
+        class ServidorWeb {
+            +main(String[] args)$
+        }
+        class ApiReservas {
+            -Map~String, Usuario~ sesiones
+            +handle(HttpExchange)
+        }
+        class ArchivosEstaticos {
+            +handle(HttpExchange)
+        }
+    }
+
+    class Main {
+        +main(String[] args)$
+        -agregarReserva(Usuario)$
+        -modificarReserva(Usuario)$
+        -eliminarReserva(Usuario)$
+    }
+
+    class SistemaReservas {
+        -Map~String, Usuario~ usuarios
+        +registrar(String nombre, String contrasena) Usuario
+        +iniciarSesion(String nombre, String contrasena) Usuario
+        +existeUsuario(String nombre) boolean
+        +conDatosDePrueba()$ SistemaReservas
+    }
+
+    class Usuario {
+        -String nombreUsuario
+        -byte[] sal
+        -byte[] hashContrasena
+        +verificarContrasena(String) boolean
+        +agregarReserva(Reserva)
+        +buscarReserva(int id) Reserva
+        +eliminarReserva(int id) boolean
+        +getReservas() List~Reserva~
+        +calcularTotalReservas() double
+    }
+
+    class Reserva {
+        <<abstract>>
+        -int id
+        -int diasMinimos
+        -String codigoConfirmacion
+        -LocalDate fechaInicio
+        -LocalDate fechaFin
+        +getTipo() String*
+        +calcularTotal() double*
+        +getDetalle() String*
+        +getCamposModificables() List~Campo~
+        +modificar(Map~String, String~ cambios)
+    }
+
+    class Campo {
+        -String nombre
+        -Tipo tipo
+        -String valor
+    }
+
+    class Tipo {
+        <<enumeration>>
+        TEXTO
+        FECHA
+        ENTERO
+        MONTO
+    }
+
+    class ReservaAvion {
+        -String aerolinea
+        -String numeroVuelo
+        -String origen
+        -String destino
+        -int cantidadPasajeros
+        -double precioPorPasajero
+        +calcularTotal() double
+        +modificar(Map~String, String~ cambios)
+    }
+
+    class ReservaHotel {
+        -String nombreHotel
+        -String ciudad
+        -int cantidadHabitaciones
+        -double precioPorNoche
+        +calcularTotal() double
+        +modificar(Map~String, String~ cambios)
+        +getCantidadNoches() long
+    }
+
+    class ReservaTurismo {
+        -String actividad
+        -String lugar
+        -int cantidadPersonas
+        -double precioPorPersona
+        +calcularTotal() double
+        +modificar(Map~String, String~ cambios)
+    }
+
+    ServidorWeb ..> ApiReservas : crea
+    ServidorWeb ..> ArchivosEstaticos : crea
+    ApiReservas --> SistemaReservas
+    Main --> SistemaReservas
+    SistemaReservas "1" --> "0..*" Usuario : usuarios
+    Usuario "1" *-- "0..*" Reserva : reservas
+    Reserva <|-- ReservaAvion
+    Reserva <|-- ReservaHotel
+    Reserva <|-- ReservaTurismo
+    Reserva ..> Campo : informa
+    Campo --> Tipo
