@@ -9,7 +9,7 @@
 
 ### 1.1 Contexto
 
-Trotamundos unifica los arreglos de viaje en un panel (CU-01). La Iteración 1 fijó la estructura general y el read model del panel en una instancia PostgreSQL propia (ADR-0001 a ADR-0004). La Iteración 2 definió la ingesta de proveedores de viaje (ADR-0006 a ADR-0008) y la Iteración 3, el pipeline de correo (ADR-0010 a ADR-0012). El Panel API sigue sin contrato externo, sin lenguaje elegido y sin reglas para la gestión manual y el compartir. Esta iteración los define en ADR-0013 a ADR-0015. El ADR-0014 reemplaza la verificación de la lista de personas sobre el documento del read model que fijaba el ADR-0004.
+Trotamundos unifica los arreglos de viaje en un panel (CU-01). La Iteración 1 fijó la estructura general y el read model del panel en una instancia PostgreSQL propia (ADR-0001 a ADR-0004). La Iteración 2 definió la ingesta de proveedores de viaje (ADR-0005 a ADR-0007) y la Iteración 3, el pipeline de correo (ADR-0008 a ADR-0010). El Panel API sigue sin contrato externo, sin lenguaje elegido y sin reglas para la gestión manual y el compartir. Esta iteración los define en ADR-0011 a ADR-0013. El ADR-0012 reemplaza la verificación de la lista de personas sobre el documento del read model que fijaba el ADR-0004.
 
 ### 1.2 Entradas
 
@@ -58,12 +58,12 @@ Drivers nuevos desde la iteración anterior: ninguno.
 
 | Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
 |---|---|---|---|---|---|
-| API REST única para web y móvil, con un recurso por vista del panel | Patrón | CU-01, CU-04, CU-06, QA-2, QA-3, QA-6, R-1, R-6, CRN-2 | ADR-0013 | Backend por cliente, GraphQL, REST por recurso fino | — |
-| Punto único de autorización: dueño con el documento, terceros contra la base relacional, denegación por defecto y registro antes de responder | Táctica | CU-01, CU-06, QA-1, QA-2, QA-4, QA-6, QA-11, R-4, CRN-7 | ADR-0014 | Lista en el read model, Verificación por endpoint, Enlace secreto | — |
-| Un único origen de escritura por reserva, con desvinculación para editar una reserva de proveedor | Patrón | CU-02, CU-03, CU-04, QA-1, QA-9, R-6, CRN-9 | ADR-0015 | Gana la última escritura, Correcciones por campo, El proveedor siempre gana | — |
+| API REST única para web y móvil, con un recurso por vista del panel | Patrón | CU-01, CU-04, CU-06, QA-2, QA-3, QA-6, R-1, R-6, CRN-2 | ADR-0011 | Backend por cliente, GraphQL, REST por recurso fino | — |
+| Punto único de autorización: dueño con el documento, terceros contra la base relacional, denegación por defecto y registro antes de responder | Táctica | CU-01, CU-06, QA-1, QA-2, QA-4, QA-6, QA-11, R-4, CRN-7 | ADR-0012 | Lista en el read model, Verificación por endpoint, Enlace secreto | — |
+| Un único origen de escritura por reserva, con desvinculación para editar una reserva de proveedor | Patrón | CU-02, CU-03, CU-04, QA-1, QA-9, R-6, CRN-9 | ADR-0013 | Gana la última escritura, Correcciones por campo, El proveedor siempre gana | — |
 | Java como lenguaje del Panel API | Tecnología | CRN-2, R-6 | menor | Sin alternativas registradas | Es el lenguaje que el equipo conoce (CRN-2). |
 | Autenticación con token firmado en cada pedido, con el mecanismo estándar del framework y sin proveedor de identidad propio | Táctica | QA-11, R-1, R-6 | menor | Sin alternativas registradas | Sirve igual a web y móvil (R-1) y da la identidad que el punto de autorización necesita, sin piezas nuevas (R-6). |
-| JSON como formato de la API | Tecnología | R-1, R-6 | menor | Sin alternativas registradas | Es el formato de los mensajes (ADR-0007) y lo consumen web y móvil sin bibliotecas extra. |
+| JSON como formato de la API | Tecnología | R-1, R-6 | menor | Sin alternativas registradas | Es el formato de los mensajes (ADR-0006) y lo consumen web y móvil sin bibliotecas extra. |
 | Versión en la ruta de la API | Táctica | R-1 | menor | Sin alternativas registradas | Permite que una versión nueva conviva con la anterior mientras se actualizan los clientes (AP-1). |
 | Rechazos de acceso en una tabla de auditoría de la base relacional, con retención acotada | Táctica | QA-11, R-4 | menor | Sin alternativas registradas | La verificación de terceros ya lee esa base, y si la base falla el pedido se rechaza de todos modos. |
 | Paginación por cursor sobre el índice por usuario | Táctica | QA-2, QA-6 | menor | Sin alternativas registradas | Mantiene la vista de viajes del usuario en lecturas acotadas (AP-3). |
@@ -71,7 +71,7 @@ Drivers nuevos desde la iteración anterior: ninguno.
 
 ### 4.2 Cómo se combinan
 
-La vista se sirve con una lectura del read model (ADR-0013), y el punto de autorización suma una lectura a la base solo para terceros (ADR-0014). Las escrituras de gestión manual y de permisos van siempre a la base relacional (ADR-0015, ADR-0004). El costo conjunto es un modo degradado con la base caída: el dueño ve sus viajes, pero no se puede compartir, editar ni ver un itinerario compartido; se recoge en CRN-14.
+La vista se sirve con una lectura del read model (ADR-0011), y el punto de autorización suma una lectura a la base solo para terceros (ADR-0012). Las escrituras de gestión manual y de permisos van siempre a la base relacional (ADR-0013, ADR-0004). El costo conjunto es un modo degradado con la base caída: el dueño ve sus viajes, pero no se puede compartir, editar ni ver un itinerario compartido; se recoge en CRN-14.
 
 ---
 
@@ -85,7 +85,7 @@ Los elementos de las iteraciones anteriores que no figuran no cambian.
 | Autenticación | Valida el token firmado de cada pedido e identifica al usuario. | Java (en el Panel API) | Recursos del Panel API |
 | Punto de autorización | Decide el acceso a cada itinerario y registra el rechazo antes de responder. | Java (en el Panel API) | Read model (puerto); Base relacional (SQL) |
 | Recursos de vista | Sirven cada vista del panel con una lectura del read model. | Java (en el Panel API) | Punto de autorización; Read model (puerto) |
-| Recursos de gestión manual | Dan de alta, modifican, dan de baja y desvinculan reservas, con la validación del ADR-0006. | Java (en el Panel API) | Base relacional (SQL); Read model (puerto) |
+| Recursos de gestión manual | Dan de alta, modifican, dan de baja y desvinculan reservas, con la validación del ADR-0005. | Java (en el Panel API) | Base relacional (SQL); Read model (puerto) |
 | Recursos de compartir | Mantienen la lista de personas designadas de cada itinerario. | Java (en el Panel API) | Base relacional (SQL); Read model (puerto) |
 | Base relacional | Guarda además el origen de cada reserva, la lista de personas designadas y la auditoría de rechazos. | PostgreSQL | Panel API, Workers y Relay |
 | Workers | Descartan además las notificaciones de reservas desvinculadas, sin volver a crearlas. | Como Ingesta | Base relacional (SQL) |
@@ -95,7 +95,7 @@ Los elementos de las iteraciones anteriores que no figuran no cambian.
 
 - Panel API · `GET /v1/viajes?cursor=`: token → página de viajes del usuario desde el índice por usuario; 401 sin token válido.
 - Panel API · `GET /v1/viajes/{id}`: token → documento del viaje; 403 si el punto de autorización rechaza (rechazo registrado); 503 si no se puede verificar a un tercero.
-- Panel API · `POST /v1/reservas` y `PUT`/`DELETE /v1/reservas/{id}`: reserva → reserva guardada; 422 si es inválida según el ADR-0006; 409 si es de proveedor y no está desvinculada.
+- Panel API · `POST /v1/reservas` y `PUT`/`DELETE /v1/reservas/{id}`: reserva → reserva guardada; 422 si es inválida según el ADR-0005; 409 si es de proveedor y no está desvinculada.
 - Panel API · `POST /v1/reservas/{id}/desvinculacion`: → reserva manual; cambia el origen y sube la versión del viaje en una transacción.
 - Panel API · `PUT /v1/viajes/{id}/personas`: lista de personas designadas → lista guardada; solo el dueño; borra las entradas afectadas del read model (ADR-0004).
 - Punto de autorización → Base relacional · verificar tercero: viaje y usuario → autorizado o rechazado; el rechazo se escribe en la auditoría antes de responder.
@@ -251,16 +251,16 @@ AP-3 queda resuelto con la paginación por cursor, y AZ-3 con la propiedad fija 
 
 ### 7.3 Evaluación y resultado
 
-- **¿Se alcanzó el objetivo del Paso 2?** Sí. El contrato externo del Panel API quedó definido (ADR-0013 a 0015, decisiones menores, Paso 5) y QA-2 y QA-11 quedan abordados por análisis.
+- **¿Se alcanzó el objetivo del Paso 2?** Sí. El contrato externo del Panel API quedó definido (ADR-0011 a 0013, decisiones menores, Paso 5) y QA-2 y QA-11 quedan abordados por análisis.
 
 | Driver | Cambio | Evidencia | Falta |
 |---|---|---|---|
 | QA-2 | Parcial → Abordado | Análisis: una vista cuesta validar el token sin E/S, una lectura por clave del read model y, solo para terceros, una lectura por clave en la base. Son a lo sumo dos accesos indexados a PostgreSQL, del orden de decenas de ms frente a 800 ms con carga normal, en una instancia de lectura propia (ADR-0004). | — (los picos ×10 siguen en QA-6 y CRN-4) |
-| QA-11 | Parcial → Abordado | Análisis por construcción: autenticación en cada pedido, ninguna ruta fuera del punto de autorización (prueba en CI), denegación por defecto, registro antes de responder y rechazo si el registro falla (ADR-0014). | — |
-| CRN-7 | No abordado → Abordado | Los permisos de terceros ya no se leen del read model (ADR-0014) y los datos pisados se evitan con la escritura por versión (ADR-0004). | — |
-| CU-04 | Parcial → Abordado | Recursos de alta, modificación, baja y desvinculación con validación (ADR-0006, ADR-0015) e interfaces del Paso 5. | — |
-| CU-06 | Parcial → Abordado | Recursos de compartir y punto de autorización (ADR-0014) con interfaces del Paso 5. | — |
-| R-1 | No abordado → Parcial | Una sola API REST para web y móvil (ADR-0013). | Clientes web multibrowser y móvil |
+| QA-11 | Parcial → Abordado | Análisis por construcción: autenticación en cada pedido, ninguna ruta fuera del punto de autorización (prueba en CI), denegación por defecto, registro antes de responder y rechazo si el registro falla (ADR-0012). | — |
+| CRN-7 | No abordado → Abordado | Los permisos de terceros ya no se leen del read model (ADR-0012) y los datos pisados se evitan con la escritura por versión (ADR-0004). | — |
+| CU-04 | Parcial → Abordado | Recursos de alta, modificación, baja y desvinculación con validación (ADR-0005, ADR-0013) e interfaces del Paso 5. | — |
+| CU-06 | Parcial → Abordado | Recursos de compartir y punto de autorización (ADR-0012) con interfaces del Paso 5. | — |
+| R-1 | No abordado → Parcial | Una sola API REST para web y móvil (ADR-0011). | Clientes web multibrowser y móvil |
 | CRN-14, CRN-15, CRN-16 | Nuevo → No abordado | Concerns nuevas de esta iteración. | Mitigaciones del 7.1 |
 
-- **Resultado:** El Panel API queda descompuesto en autenticación, punto de autorización y recursos de vista, gestión manual y compartir, sobre una API REST única y versionada (ADR-0013). El acceso a itinerarios se decide en un solo punto, con disponibilidad para el dueño y consistencia para terceros (ADR-0014). Cada reserva tiene un único origen de escritura (ADR-0015). Quedan pendientes los clientes (QA-3, R-1), la alta disponibilidad de la base (QA-4, CRN-14) y la verificación bajo carga.
+- **Resultado:** El Panel API queda descompuesto en autenticación, punto de autorización y recursos de vista, gestión manual y compartir, sobre una API REST única y versionada (ADR-0011). El acceso a itinerarios se decide en un solo punto, con disponibilidad para el dueño y consistencia para terceros (ADR-0012). Cada reserva tiene un único origen de escritura (ADR-0013). Quedan pendientes los clientes (QA-3, R-1), la alta disponibilidad de la base (QA-4, CRN-14) y la verificación bajo carga.
