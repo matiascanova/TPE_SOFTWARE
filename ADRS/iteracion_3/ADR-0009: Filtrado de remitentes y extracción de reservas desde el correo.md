@@ -7,7 +7,7 @@
 
 ## 1. Contexto
 
-Una casilla contiene sobre todo correos personales que no son de viaje, y leerlos expone datos que Trotamundos no necesita (R-4). La reserva debe extraerse del texto con un resultado verificable (QA-9), y lo que no se puede extraer debe registrarse como inválido con motivo (QA-8). Descargar casillas completas suma volumen contra los 15 minutos de QA-7, y el plazo es acotado (R-6). El adaptador de correo cumple el contrato del ADR-0006. Filtro, conservación y extracción se deciden juntos porque filtro y extractores se identifican por el mismo remitente, y el reproceso depende de qué se filtra y de qué se conserva.
+Una casilla contiene sobre todo correos personales que no son de viaje, y leerlos expone datos que Trotamundos no necesita (R-4). La reserva debe extraerse del texto con un resultado verificable (QA-9), y lo que no se puede extraer debe registrarse como inválido con motivo (QA-8). Descargar casillas completas suma volumen contra los 15 minutos de QA-7, y el plazo es acotado (R-6). El adaptador de correo cumple el contrato del ADR-0005. Filtro, conservación y extracción se deciden juntos porque filtro y extractores se identifican por el mismo remitente, y el reproceso depende de qué se filtra y de qué se conserva.
 
 **Pregunta:** ¿Qué correos lee Trotamundos de una casilla, qué conserva y cómo extrae la reserva?
 
@@ -17,9 +17,9 @@ Una casilla contiene sobre todo correos personales que no son de viaje, y leerlo
 
 **Se elige A1: una whitelist global de remitentes por configuración, aplicada antes de descargar el cuerpo; el correo se procesa en memoria y no se conserva; y la reserva se obtiene con un extractor declarativo por remitente y formato.**
 
-- **(a) Filtro:** la whitelist usa el mismo identificador de proveedor que los adaptadores (ADR-0006). El cuerpo de un correo de un remitente fuera de ella no se descarga.
+- **(a) Filtro:** la whitelist usa el mismo identificador de proveedor que los adaptadores (ADR-0005). El cuerpo de un correo de un remitente fuera de ella no se descarga.
 - **(b) Sin conservación:** el cuerpo no se escribe en la base, el log ni los apartados. El reproceso se hace releyendo la casilla.
-- **(c) Extracción:** un correo de un remitente admitido cuyo formato no tiene extractor es *Inválido* con motivo «formato no soportado», que se agrega a los motivos del ADR-0006.
+- **(c) Extracción:** un correo de un remitente admitido cuyo formato no tiene extractor es *Inválido* con motivo «formato no soportado», que se agrega a los motivos del ADR-0005.
 
 ### Alternativas descartadas
 
