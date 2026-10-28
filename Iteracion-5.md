@@ -9,7 +9,7 @@
 
 ### 1.1 Contexto
 
-Trotamundos unifica los arreglos de viaje en un panel (CU-01). Las iteraciones anteriores fijaron la estructura general (ADR-0001 a ADR-0004), la ingesta de proveedores de viaje (ADR-0006 a ADR-0008), el pipeline de correo (ADR-0010 a ADR-0012) y el contrato externo del Panel API (ADR-0013 a ADR-0015). Ningún elemento tiene todavía una asignación a infraestructura: la base relacional, el read model y el broker son instancias únicas, y la copia hacia el almacén analítico no tiene responsable. Es la última iteración. Cierra el diseño definiendo el despliegue en ADR-0016 y ADR-0017 y deja registrada la deuda conocida.
+Trotamundos unifica los arreglos de viaje en un panel (CU-01). Las iteraciones anteriores fijaron la estructura general (ADR-0001 a ADR-0004), la ingesta de proveedores de viaje (ADR-0005 a ADR-0007), el pipeline de correo (ADR-0008 a ADR-0010) y el contrato externo del Panel API (ADR-0011 a ADR-0013). Ningún elemento tiene todavía una asignación a infraestructura: la base relacional, el read model y el broker son instancias únicas, y la copia hacia el almacén analítico no tiene responsable. Es la última iteración. Cierra el diseño definiendo el despliegue en ADR-0014 y ADR-0015 y deja registrada la deuda conocida.
 
 ### 1.2 Entradas
 
@@ -57,15 +57,15 @@ Drivers nuevos desde la iteración anterior: ninguno.
 
 | Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
 |---|---|---|---|---|---|
-| Una región con tres zonas, almacenes con réplica sincrónica y failover automático en menos de 1 minuto | Táctica | QA-4, QA-1, QA-5, R-4, R-6, CRN-6, CRN-9, CRN-14 | ADR-0016 | Una sola zona, Réplicas asincrónicas, Dos regiones activa y pasiva | — |
-| Contenedores en un orquestador gestionado, con los almacenes como servicios gestionados | Componente externo | QA-4, QA-6, QA-7, QA-1, R-6, CRN-3, CRN-6 | ADR-0017 | Máquinas virtuales, Funciones sin servidor, Orquestador propio | — |
-| Copia analítica como tarea periódica que lee de una réplica de la base relacional | Táctica | CRN-3, CRN-8, CU-05 | menor | Sin alternativas registradas | La réplica ya existe por el ADR-0016 y la copia no toca el primario ni da acceso a la Analítica a la base operacional. |
+| Una región con tres zonas, almacenes con réplica sincrónica y failover automático en menos de 1 minuto | Táctica | QA-4, QA-1, QA-5, R-4, R-6, CRN-6, CRN-9, CRN-14 | ADR-0014 | Una sola zona, Réplicas asincrónicas, Dos regiones activa y pasiva | — |
+| Contenedores en un orquestador gestionado, con los almacenes como servicios gestionados | Componente externo | QA-4, QA-6, QA-7, QA-1, R-6, CRN-3, CRN-6 | ADR-0015 | Máquinas virtuales, Funciones sin servidor, Orquestador propio | — |
+| Copia analítica como tarea periódica que lee de una réplica de la base relacional | Táctica | CRN-3, CRN-8, CU-05 | menor | Sin alternativas registradas | La réplica ya existe por el ADR-0014 y la copia no toca el primario ni da acceso a la Analítica a la base operacional. |
 | Prototipo en docker-compose con las mismas imágenes de contenedor | Tecnología | R-6 | menor | Sin alternativas registradas | El equipo prueba el mismo artefacto que va a producción sin operar el orquestador durante el desarrollo. |
 | Alertas consolidadas: retraso de consumo, antigüedad del outbox, salto de apartados, memoria del broker y cada failover | Táctica | QA-4, QA-1, CRN-4 | menor | Sin alternativas registradas | Son las alertas que ya piden las mitigaciones de los ADR, reunidas en un solo lugar. |
 
 ### 4.2 Cómo se combinan
 
-El ADR-0016 exige réplicas y failover entre zonas, y el ADR-0017 los obtiene de servicios gestionados y reparte las instancias entre esas zonas. La copia analítica aprovecha una de esas réplicas. El costo conjunto es una dependencia del proveedor de nube para cumplir QA-4, y una latencia que suman la confirmación entre zonas y el escalado por retraso contra los 5 min de QA-1. Lo primero se recoge en CRN-18 y lo segundo, en CRN-4.
+El ADR-0014 exige réplicas y failover entre zonas, y el ADR-0015 los obtiene de servicios gestionados y reparte las instancias entre esas zonas. La copia analítica aprovecha una de esas réplicas. El costo conjunto es una dependencia del proveedor de nube para cumplir QA-4, y una latencia que suman la confirmación entre zonas y el escalado por retraso contra los 5 min de QA-1. Lo primero se recoge en CRN-18 y lo segundo, en CRN-4.
 
 ---
 
@@ -79,7 +79,7 @@ Los elementos de las iteraciones anteriores que no figuran no cambian.
 | Orquestador | Ejecuta cada despliegue con al menos dos instancias en zonas distintas y reemplaza las caídas. | Orquestador de contenedores gestionado | Todos los desplegables |
 | Panel API | Escala por la carga de pedidos. | Contenedor | Balanceador (HTTP) |
 | Workers | Escalan por el retraso de consumo de su stream. | Contenedor | Broker con log persistente (mensajes) |
-| Receptor, Planificador de sondeo y Relay | Corren con escalado propio; el planificador no duplica sondeos porque hay un trabajo pendiente por cuenta (ADR-0012). | Contenedor | Sin cambios |
+| Receptor, Planificador de sondeo y Relay | Corren con escalado propio; el planificador no duplica sondeos porque hay un trabajo pendiente por cuenta (ADR-0010). | Contenedor | Sin cambios |
 | Analítica | Corre en su propio despliegue, sin acceso a la base operacional. | Contenedor | Almacén analítico |
 | Copia analítica | Copia periódicamente los registros de una réplica de la base relacional al almacén analítico. | Contenedor (tarea periódica) | Base relacional, réplica (SQL); Almacén analítico |
 | Base relacional y Read model | Tienen un primario y dos réplicas en zonas distintas, con confirmación sincrónica en una y failover en menos de 1 minuto. | PostgreSQL, servicio gestionado | Sin cambios |
@@ -195,7 +195,7 @@ sequenceDiagram
 
   W->>B: transacción: cambio + outbox
   B--xW: el primario no responde
-  Note over W: pausa el consumo sin apartar (ADR-0008)
+  Note over W: pausa el consumo sin apartar (ADR-0007)
   B->>M: failover iniciado
   PA->>RM: el dueño sigue leyendo sus viajes
   Note over B: una réplica pasa a primario en menos de 1 minuto
@@ -216,7 +216,7 @@ Clave:
 
 | ID | Concern | Riesgos de origen | Mitigación prevista |
 |---|---|---|---|
-| CRN-17 | La caída de toda la región deja el sistema fuera de servicio, y extenderlo a otra región exige resolver la protección de datos por región | TP-3 | Se acepta; evolución a dos regiones, activa y pasiva (ADR-0016) |
+| CRN-17 | La caída de toda la región deja el sistema fuera de servicio, y extenderlo a otra región exige resolver la protección de datos por región | TP-3 | Se acepta; evolución a dos regiones, activa y pasiva (ADR-0014) |
 | CRN-18 | El margen mensual de QA-4 y las garantías del broker dependen de los servicios gestionados del proveedor de nube | TP-4, PL-1, PL-3 | Alertas por failover y prueba periódica de caída de zona; verificar la configuración del broker antes de elegir el servicio; almacenes estándar sin extensiones propias |
 
 Los IDs son provisionales y continúan el catálogo (último: CRN-16).
@@ -237,17 +237,17 @@ TP-2 queda resuelto con dos réplicas por almacén.
 
 ### 7.3 Evaluación y resultado
 
-- **¿Se alcanzó el objetivo del Paso 2?** Sí. El despliegue quedó definido (ADR-0016, ADR-0017, decisiones menores y vistas de asignación). QA-4, CRN-14 y CRN-8 quedan abordados.
+- **¿Se alcanzó el objetivo del Paso 2?** Sí. El despliegue quedó definido (ADR-0014, ADR-0015, decisiones menores y vistas de asignación). QA-4, CRN-14 y CRN-8 quedan abordados.
 
 | Driver | Cambio | Evidencia | Falta |
 |---|---|---|---|
-| QA-4 | Parcial → Abordado | Análisis: cada desplegable corre en al menos dos zonas y se reemplaza solo, y cada almacén hace failover en menos de 1 minuto (ADR-0016, ADR-0017). La caída de una zona consume menos de 1 de los 5 min mensuales. | — |
+| QA-4 | Parcial → Abordado | Análisis: cada desplegable corre en al menos dos zonas y se reemplaza solo, y cada almacén hace failover en menos de 1 minuto (ADR-0014, ADR-0015). La caída de una zona consume menos de 1 de los 5 min mensuales. | — |
 | CRN-14 | No abordado → Abordado | El modo degradado dura lo que el failover de la base, menos de 1 minuto (vista de failover). | — |
 | CRN-8 | No abordado → Abordado | La Copia analítica es el elemento responsable y lee de una réplica (decisión menor). | — |
 | CU-05 | No abordado → Parcial | La Analítica corre en su propio despliegue y se alimenta por la Copia analítica. | Tecnología del almacén analítico |
 | CRN-17, CRN-18 | Nuevo → No abordado | Concerns nuevas de esta iteración. | Mitigaciones del 7.1 |
 
-- **Resultado:** Trotamundos queda desplegado en una región con tres zonas, sobre un orquestador gestionado y con almacenes gestionados que replican entre zonas y hacen failover en menos de 1 minuto (ADR-0016, ADR-0017). Con esto cierra el proceso de diseño: los drivers de prioridad Alta tienen camino de cumplimiento, y QA-2, QA-4 y QA-11 quedan abordados por análisis.
+- **Resultado:** Trotamundos queda desplegado en una región con tres zonas, sobre un orquestador gestionado y con almacenes gestionados que replican entre zonas y hacen failover en menos de 1 minuto (ADR-0014, ADR-0015). Con esto cierra el proceso de diseño: los drivers de prioridad Alta tienen camino de cumplimiento, y QA-2, QA-4 y QA-11 quedan abordados por análisis.
 - **Deuda conocida al cierre:** se deja a propósito, porque el diseño alcanza para el prototipo (R-6).
 
 | Tema | Drivers | Qué falta |
