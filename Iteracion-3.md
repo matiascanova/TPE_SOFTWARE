@@ -9,7 +9,7 @@
 
 ### 1.1 Contexto
 
-Trotamundos unifica los arreglos de viaje en un panel (CU-01) y su diferencial es incorporar reservas desde el correo del usuario (CU-03). La Iteración 1 fijó la estructura general (ADR-0001 a ADR-0004). La Iteración 2 definió la ingesta de proveedores de viaje: modelo canónico con adaptador por proveedor (ADR-0006), contrato de mensajes con idempotencia (ADR-0007), tabiques con circuit breaker y apartados (ADR-0008) y Redis Streams como broker. El Planificador de sondeo y el trabajo de correo con clave `correo:<id de la cuenta>` ya existen, pero el pipeline de correo quedó fuera de alcance. Esta iteración lo define en ADR-0010 a ADR-0012.
+Trotamundos unifica los arreglos de viaje en un panel (CU-01) y su diferencial es incorporar reservas desde el correo del usuario (CU-03). La Iteración 1 fijó la estructura general (ADR-0001 a ADR-0004). La Iteración 2 definió la ingesta de proveedores de viaje: modelo canónico con adaptador por proveedor (ADR-0005), contrato de mensajes con idempotencia (ADR-0006), tabiques con circuit breaker y apartados (ADR-0007) y Redis Streams como broker. El Planificador de sondeo y el trabajo de correo con clave `correo:<id de la cuenta>` ya existen, pero el pipeline de correo quedó fuera de alcance. Esta iteración lo define en ADR-0008 a ADR-0010.
 
 ### 1.2 Entradas
 
@@ -49,7 +49,7 @@ Drivers nuevos desde la iteración anterior: ninguno.
 
 - **Elementos seleccionados:** Ingesta (Receptor, Planificador de sondeo, Workers y adaptador de correo), Base relacional y Panel API.
 - **Tipo de refinamiento:** Descomposición (top-down)
-- **Límite y fuera de alcance:** Se definen la detección, el filtrado, la extracción y la revocación del correo. Quedan fuera la importación de correos anteriores a la conexión (decisión pendiente), las frecuencias por clase, los extractores concretos, y la alta disponibilidad y el monitoreo (<PENDIENTE: iteración donde se tratan>). QA-12 y CRN-5 se tocan sin ser objetivo.
+- **Límite y fuera de alcance:** Se definen la detección, el filtrado, la extracción y la revocación del correo. Quedan fuera la importación de correos anteriores a la conexión (decisión pendiente), las frecuencias por clase, los extractores concretos, y la alta disponibilidad y el monitoreo (Iteración 5). QA-12 y CRN-5 se tocan sin ser objetivo.
 
 ---
 
@@ -59,13 +59,13 @@ Drivers nuevos desde la iteración anterior: ninguno.
 
 | Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
 |---|---|---|---|---|---|
-| Revocación como cambio de estado atómico verificado antes de cada lectura, con resultado «acceso revocado» | Táctica | CU-03, QA-10, QA-8, R-4, R-6, CRN-5 | ADR-0010 | Purgar el log, Esperar el vencimiento del token, Contarla como falla del proveedor | — |
-| Whitelist global antes de descargar el cuerpo, correo en memoria sin conservar y extractor declarativo por remitente y formato | Táctica | CU-03, CU-08, QA-7, QA-8, QA-9, QA-12, R-4, R-6 | ADR-0011 | Leer todo y filtrar por contenido, Conservar el correo, Modelo de lenguaje | — |
-| Aviso push con sondeo de respaldo por clases de cercanía y marca incremental por cuenta | Táctica | CU-03, QA-6, QA-7, R-3, R-6, CRN-9 | ADR-0012 | Solo sondeo, Solo aviso push, Sondeo uniforme | — |
+| Revocación como cambio de estado atómico verificado antes de cada lectura, con resultado «acceso revocado» | Táctica | CU-03, QA-10, QA-8, R-4, R-6, CRN-5 | ADR-0008 | Purgar el log, Esperar el vencimiento del token, Contarla como falla del proveedor | — |
+| Whitelist global antes de descargar el cuerpo, correo en memoria sin conservar y extractor declarativo por remitente y formato | Táctica | CU-03, CU-08, QA-7, QA-8, QA-9, QA-12, R-4, R-6 | ADR-0009 | Leer todo y filtrar por contenido, Conservar el correo, Modelo de lenguaje | — |
+| Aviso push con sondeo de respaldo por clases de cercanía y marca incremental por cuenta | Táctica | CU-03, QA-6, QA-7, R-3, R-6, CRN-9 | ADR-0010 | Solo sondeo, Solo aviso push, Sondeo uniforme | — |
 
 ### 4.2 Cómo se combinan
 
-Las tres decisiones operan sobre el mismo trabajo de la cuenta. El aviso o el planificador lo encolan (ADR-0012), el worker verifica el estado de acceso (ADR-0010) y lee desde la marca solo los remitentes de la whitelist, con extracción en memoria (ADR-0011). El costo conjunto es que cada trabajo suma lecturas y escrituras en la base compartida (estado de acceso y marca), además de la casilla; se recoge en CRN-5.
+Las tres decisiones operan sobre el mismo trabajo de la cuenta. El aviso o el planificador lo encolan (ADR-0010), el worker verifica el estado de acceso (ADR-0008) y lee desde la marca solo los remitentes de la whitelist, con extracción en memoria (ADR-0009). El costo conjunto es que cada trabajo suma lecturas y escrituras en la base compartida (estado de acceso y marca), además de la casilla; se recoge en CRN-5.
 
 ---
 
@@ -87,7 +87,7 @@ Los elementos de las iteraciones anteriores que no figuran no cambian.
 
 **Interfaces:**
 
-- Trabajo de correo · stream de trabajo de correo, clave `correo:<id de la cuenta>`: sobre del ADR-0007, sin contenido de correo ni tokens; el aviso y el sondeo encolan el mismo trabajo.
+- Trabajo de correo · stream de trabajo de correo, clave `correo:<id de la cuenta>`: sobre del ADR-0006, sin contenido de correo ni tokens; el aviso y el sondeo encolan el mismo trabajo.
 - Adaptador de correo · leer la casilla desde la marca: cuenta y marca → por cada correo de un remitente admitido, *Válido* con la reserva o *Inválido* con motivo (incluido «formato no soportado»); o «acceso revocado»; o falla del proveedor.
 - Workers → Base relacional · verificar el estado de acceso: antes de cada lectura de la casilla; si está revocado, el trabajo se confirma sin leer ni apartar.
 - Workers → Base relacional · avanzar la marca: después de procesar lo leído; un trabajo repetido vuelve a leer desde la marca guardada.
@@ -218,14 +218,14 @@ Los IDs son provisionales y continúan el catálogo (último: CRN-10).
 
 ### 7.3 Evaluación y resultado
 
-- **¿Se alcanzó el objetivo del Paso 2?** Sí. Detección, filtrado, extracción y revocación quedaron definidos (ADR-0010 a 0012, vistas del Paso 6) y QA-7, QA-9 y QA-10 son medibles con proveedores de correo simulados. Sus medidas no están verificadas, por eso quedan en Parcial.
+- **¿Se alcanzó el objetivo del Paso 2?** Sí. Detección, filtrado, extracción y revocación quedaron definidos (ADR-0008 a 0010, vistas del Paso 6) y QA-7, QA-9 y QA-10 son medibles con proveedores de correo simulados. Sus medidas no están verificadas, por eso quedan en Parcial.
 
 | Driver | Cambio | Evidencia | Falta |
 |---|---|---|---|
-| CU-08 | No abordado → Parcial | Whitelist global aplicada antes de descargar el cuerpo (ADR-0011) | Contenido de la whitelist y su administración |
-| QA-9 | No abordado → Parcial | Extractor declarativo por remitente y formato, en memoria, con motivo «formato no soportado» (ADR-0011) | Medir el 95 % y los 15 s con correos de muestra |
-| QA-10 | No abordado → Parcial | Estado de acceso verificado antes de cada lectura y resultado «acceso revocado» (ADR-0010) | Prueba de revocación con lecturas en vuelo |
-| QA-7 | Sigue Parcial | Aviso push, sondeo de respaldo por cercanía y freno por atraso (ADR-0012) | Frecuencias por clase y prueba de carga con 15 M de cuentas |
+| CU-08 | No abordado → Parcial | Whitelist global aplicada antes de descargar el cuerpo (ADR-0009) | Contenido de la whitelist y su administración |
+| QA-9 | No abordado → Parcial | Extractor declarativo por remitente y formato, en memoria, con motivo «formato no soportado» (ADR-0009) | Medir el 95 % y los 15 s con correos de muestra |
+| QA-10 | No abordado → Parcial | Estado de acceso verificado antes de cada lectura y resultado «acceso revocado» (ADR-0008) | Prueba de revocación con lecturas en vuelo |
+| QA-7 | Sigue Parcial | Aviso push, sondeo de respaldo por cercanía y freno por atraso (ADR-0010) | Frecuencias por clase y prueba de carga con 15 M de cuentas |
 | CRN-11, CRN-12, CRN-13 | Nuevo → No abordado | Concerns nuevas de esta iteración | Mitigaciones del 7.1 |
 
-- **Resultado:** El pipeline de correo queda descompuesto sobre los elementos existentes. El Receptor recibe avisos, el Planificador emite el sondeo de respaldo por cercanía y los Workers verifican el acceso y leen desde una marca por cuenta. El adaptador de correo filtra por whitelist y extrae en memoria con extractores declarativos (ADR-0010 a 0012). Quedan pendientes la importación de correos anteriores y la alta disponibilidad y el monitoreo.
+- **Resultado:** El pipeline de correo queda descompuesto sobre los elementos existentes. El Receptor recibe avisos, el Planificador emite el sondeo de respaldo por cercanía y los Workers verifican el acceso y leen desde una marca por cuenta. El adaptador de correo filtra por whitelist y extrae en memoria con extractores declarativos (ADR-0008 a 0010). Quedan pendientes la importación de correos anteriores y la alta disponibilidad y el monitoreo.
