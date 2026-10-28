@@ -1,4 +1,4 @@
-# ADR-0007: Contrato común de mensajes con idempotencia en cada consumidor
+# ADR-0006: Contrato común de mensajes con idempotencia en cada consumidor
 
 - **Estado:** Aceptado
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md e Iteracion-1.md. CU-01, CU-02, CU-03. Otros: QA-1, QA-5, QA-6, QA-8, QA-12, R-2, R-4, R-6, CRN-N4.
