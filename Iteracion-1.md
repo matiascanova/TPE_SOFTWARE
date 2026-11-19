@@ -1,6 +1,6 @@
 # Iteración 1 de Trotamundos: establecer la estructura general
 
-- Estado: Borrador para revisión
+- Estado: Aprobado
 - Fecha: 27/10/2026
 
 ---
