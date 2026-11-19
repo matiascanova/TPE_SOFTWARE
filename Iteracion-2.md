@@ -50,7 +50,7 @@ Drivers nuevos desde la iteración anterior:
 
 - **Elementos seleccionados:** Ingesta (Receptor, Workers y Relay), Broker con log persistente y Base relacional.
 - **Tipo de refinamiento:** Descomposición (top-down)
-- **Límite y fuera de alcance:** Se definen los adaptadores dentro de los Workers, los streams del broker y su tecnología, y lo que la base guarda de reservas y apartados. Quedan fuera el pipeline de correo y el planificador (CU-03, QA-7, QA-9, QA-10; Iteración 3), los mapeos concretos por proveedor, las tablas de la base, y la alta disponibilidad y el monitoreo (Iteración 5). CRN-2, CRN-4, CRN-6 y QA-6 se tocan sin ser objetivo.
+- **Límite y fuera de alcance:** Se definen los adaptadores dentro de los Workers, los streams del broker y su tecnología, y lo que la base guarda de reservas y apartados. Quedan fuera el pipeline de correo y el planificador (CU-03, QA-7, QA-9, QA-10), los mapeos concretos por proveedor, las tablas de la base, y la alta disponibilidad y el monitoreo. CRN-2, CRN-4, CRN-6 y QA-6 se tocan sin ser objetivo.
 
 ---
 
