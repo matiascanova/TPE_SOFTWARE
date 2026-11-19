@@ -60,16 +60,16 @@ Drivers nuevos desde la iteración anterior:
 
 | Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
 |---|---|---|---|---|---|
-| Modelo canónico de núcleo y detalle versionado, con adaptador de tres operaciones por proveedor y medio | Patrón | CU-02, CU-03, CU-04, QA-8, QA-12, R-2, R-3, R-6, CRN-5 | ADR-0005 | Modelo plano único, Sin modelo canónico, Estándar sectorial como modelo interno | — |
-| Sobre común versionado con idempotencia en cada consumidor | Patrón | CU-01, CU-02, CU-03, QA-1, QA-5, QA-8, QA-12, R-2, R-4, R-6, CRN-9 | ADR-0006 | Evento con el estado completo, Notificación interpretada en el receptor, Deduplicación por identificador | — |
-| Tabiques por proveedor con circuit breaker y stream de apartados | Táctica | CU-02, CU-03, QA-1, QA-5, QA-8, R-3, R-4, R-6, CRN-5 | ADR-0007 | Pool compartido sin apartar, Breaker sobre stream común, Apartados completos en la BD | — |
+| Modelo canónico de núcleo y detalle versionado, con adaptador de tres operaciones por proveedor y medio | Patrón | CU-02, CU-03, CU-04, QA-8, QA-12, R-2, R-3, R-6, CRN-5 | [ADR-0005](<ADRS/iteracion_2/ADR-0005: Modelo canonico con adaptador por proveedor.md>) | Modelo plano único, Sin modelo canónico, Estándar sectorial como modelo interno | — |
+| Sobre común versionado con idempotencia en cada consumidor | Patrón | CU-01, CU-02, CU-03, QA-1, QA-5, QA-8, QA-12, R-2, R-4, R-6, CRN-9 | [ADR-0006](<ADRS/iteracion_2/ADR-0006: Contrato de mensajes con idempotencia por consumidor.md>) | Evento con el estado completo, Notificación interpretada en el receptor, Deduplicación por identificador | — |
+| Tabiques por proveedor con circuit breaker y stream de apartados | Táctica | CU-02, CU-03, QA-1, QA-5, QA-8, R-3, R-4, R-6, CRN-5 | [ADR-0007](<ADRS/iteracion_2/ADR-0007: Tabiques por proveedor con circuit breaker y apartados.md>) | Pool compartido sin apartar, Breaker sobre stream común, Apartados completos en la BD | — |
 | Redis Streams en instancia dedicada, con `noeviction` y persistencia antes de confirmar | Tecnología | QA-1, QA-5, R-6, CRN-2, CRN-6 | menor | RabbitMQ Streams (queda como evolución detrás del puerto) | Suma una sola tecnología nueva (R-6), trae contador de entregas nativo y queda detrás del puerto de mensajería. |
 | Retención por stream: 48 h trabajo de proveedores, 24 h eventos, 7 días apartados\* | Táctica | QA-5, QA-6, R-4 | menor | Sin alternativas registradas | Se deriva del tiempo de recuperación tras la caída de un proveedor (QA-5) y de la memoria disponible del broker. |
 | Mensajes en JSON con esquemas en el repositorio | Tecnología | QA-12, R-6 | menor | Avro o Protobuf con registro de esquemas | Es reversible porque el sobre lleva `versionContrato`. |
 | Evento mínimo con solo referencias | Táctica | R-4, QA-6 | menor | Evento con el estado completo | Es reversible agregando un campo opcional `estado`. |
 | Registro de apartados con metadatos, sin el cuerpo y con motivos cerrados | Táctica | QA-8, R-4 | menor | Sin alternativas registradas | No guarda datos personales en la BD (R-4) y permite medir QA-8 por motivo. |
 | Parámetros de resiliencia: 3 reintentos ante falla del proveedor, 5 entregas ante error propio, circuito abierto con la mitad de 20 llamadas fallidas, tope de prueba de 60 s, recorte y alertas de memoria del broker\* | Táctica | QA-1, QA-5, CRN-5, CRN-6 | menor | Sin alternativas registradas | Son propuestas para el prototipo que se ajustan con proveedores simulados; el tope de 60 s deja 4 de los 5 min de QA-5. |
-| Relay cada 1 s con relectura inmediata si el lote vino lleno\* | Táctica | QA-1, QA-6 | menor | Sin alternativas registradas | Quedaba pendiente del ADR-0002 y 1 s es despreciable frente a los 5 min de QA-1. |
+| Relay cada 1 s con relectura inmediata si el lote vino lleno\* | Táctica | QA-1, QA-6 | menor | Sin alternativas registradas | Quedaba pendiente del [ADR-0002](<ADRS/iteracion_1/ADR-0002: workers de ingesta y outbox transaccional.md>) y 1 s es despreciable frente a los 5 min de QA-1. |
 
 \* Valores propuestos para el prototipo; se ajustan con proveedores simulados y prueba de carga.
 
