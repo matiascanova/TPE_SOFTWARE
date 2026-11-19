@@ -107,7 +107,7 @@ Los elementos de la Iteración 1 que no figuran no cambian.
 - Apartado · stream de apartados: el mensaje completo. Registro en la base: `idMensaje` (único), `origen`, `claveDeOrden`, `correlacion`, motivo, intentos, hora y estado. El reproceso republica con el mismo `idMensaje`.
 - Workers → Base relacional · guardar cambio y evento: una transacción (reserva, versión del viaje y outbox) solo si la reserva traducida difiere de la guardada; idempotente por la clave única proveedor e identificador externo. Reemplaza la idempotencia «por identificador de notificación o versión del proveedor» de la Iteración 1 (ADR-0006).
 - Todo consumidor confirma el mensaje solo después de completar su efecto.
-- Pendientes: contratos del push y de la API de cada proveedor y sus mapeos (<PENDIENTE: iteración>); mensaje y retención del trabajo de correo (Iteración 3); API externa del Panel API (Iteración 4); copia hacia el almacén analítico (CRN-8, Iteración 5).
+- Pendientes: contratos del push y de la API de cada proveedor y sus mapeos; mensaje y retención del trabajo de correo; API externa del Panel API; copia hacia el almacén analítico.
 
 ---
 
