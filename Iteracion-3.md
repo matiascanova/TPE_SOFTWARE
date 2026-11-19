@@ -1,6 +1,6 @@
 # Iteración 3 de Trotamundos: incorporar reservas desde el correo
 
-- Estado: Borrador para revisión
+- Estado: Aprobado
 - Fecha: 27/10/2026
 
 ---
