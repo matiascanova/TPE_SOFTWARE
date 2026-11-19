@@ -1,6 +1,6 @@
 # ADR-0008: Revocación del acceso al correo como cambio de estado verificado antes de cada lectura
 
-- **Estado:** Propuesto
+- **Estado:** Aprobado
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md e Iteracion-2.md. CU-03. Otros: QA-10, QA-8, R-4, R-6, CRN-5.
 
 ---
