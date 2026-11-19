@@ -1,6 +1,6 @@
 # Iteración 4 de Trotamundos: contrato externo del Panel API
 
-- Estado: Borrador para revisión
+- Estado: Aprobado
 - Fecha: 27/10/2026
 
 ---
