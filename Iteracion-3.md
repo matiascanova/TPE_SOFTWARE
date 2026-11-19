@@ -59,9 +59,9 @@ Drivers nuevos desde la iteración anterior: ninguno.
 
 | Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
 |---|---|---|---|---|---|
-| Revocación como cambio de estado atómico verificado antes de cada lectura, con resultado «acceso revocado» | Táctica | CU-03, QA-10, QA-8, R-4, R-6, CRN-5 | ADR-0008 | Purgar el log, Esperar el vencimiento del token, Contarla como falla del proveedor | — |
-| Whitelist global antes de descargar el cuerpo, correo en memoria sin conservar y extractor declarativo por remitente y formato | Táctica | CU-03, CU-08, QA-7, QA-8, QA-9, QA-12, R-4, R-6 | ADR-0009 | Leer todo y filtrar por contenido, Conservar el correo, Modelo de lenguaje | — |
-| Aviso push con sondeo de respaldo por clases de cercanía y marca incremental por cuenta | Táctica | CU-03, QA-6, QA-7, R-3, R-6, CRN-9 | ADR-0010 | Solo sondeo, Solo aviso push, Sondeo uniforme | — |
+| Revocación como cambio de estado atómico verificado antes de cada lectura, con resultado «acceso revocado» | Táctica | CU-03, QA-10, QA-8, R-4, R-6, CRN-5 | [ADR-0008](<ADRS/iteracion_3/ADR-0008: Credenciales de correo y revocación de acceso.md>) | Purgar el log, Esperar el vencimiento del token, Contarla como falla del proveedor | — |
+| Whitelist global antes de descargar el cuerpo, correo en memoria sin conservar y extractor declarativo por remitente y formato | Táctica | CU-03, CU-08, QA-7, QA-8, QA-9, QA-12, R-4, R-6 | [ADR-0009](<ADRS/iteracion_3/ADR-0009: Filtrado de remitentes y extracción de reservas desde el correo.md>) | Leer todo y filtrar por contenido, Conservar el correo, Modelo de lenguaje | — |
+| Aviso push con sondeo de respaldo por clases de cercanía y marca incremental por cuenta | Táctica | CU-03, QA-6, QA-7, R-3, R-6, CRN-9 | [ADR-00010](<ADRS/iteracion_3/ADR-00010: Detección de correo nuevo, planificación del sondeo y capacidad.md>) | Solo sondeo, Solo aviso push, Sondeo uniforme | — |
 
 ### 4.2 Cómo se combinan
 
