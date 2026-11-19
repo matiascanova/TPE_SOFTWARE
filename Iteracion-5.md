@@ -57,8 +57,8 @@ Drivers nuevos desde la iteración anterior: ninguno.
 
 | Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
 |---|---|---|---|---|---|
-| Una región con tres zonas, almacenes con réplica sincrónica y failover automático en menos de 1 minuto | Táctica | QA-4, QA-1, QA-5, R-4, R-6, CRN-6, CRN-9, CRN-14 | ADR-0014 | Una sola zona, Réplicas asincrónicas, Dos regiones activa y pasiva | — |
-| Contenedores en un orquestador gestionado, con los almacenes como servicios gestionados | Componente externo | QA-4, QA-6, QA-7, QA-1, R-6, CRN-3, CRN-6 | ADR-0015 | Máquinas virtuales, Funciones sin servidor, Orquestador propio | — |
+| Una región con tres zonas, almacenes con réplica sincrónica y failover automático en menos de 1 minuto | Táctica | QA-4, QA-1, QA-5, R-4, R-6, CRN-6, CRN-9, CRN-14 | [ADR-0014](<ADRS/iteracion_5/ADR-0014%3A%20Una%20region%20tres%20zonas%20con%20failover.md>) | Una sola zona, Réplicas asincrónicas, Dos regiones activa y pasiva | — |
+| Contenedores en un orquestador gestionado, con los almacenes como servicios gestionados | Componente externo | QA-4, QA-6, QA-7, QA-1, R-6, CRN-3, CRN-6 | [ADR-0015](<ADRS/iteracion_5/ADR-0015%3A%20Contenedores%20orquestados%20y%20almacenes%20gestionados.md>) | Máquinas virtuales, Funciones sin servidor, Orquestador propio | — |
 | Copia analítica como tarea periódica que lee de una réplica de la base relacional | Táctica | CRN-3, CRN-8, CU-05 | menor | Sin alternativas registradas | La réplica ya existe por el ADR-0014 y la copia no toca el primario ni da acceso a la Analítica a la base operacional. |
 | Prototipo en docker-compose con las mismas imágenes de contenedor | Tecnología | R-6 | menor | Sin alternativas registradas | El equipo prueba el mismo artefacto que va a producción sin operar el orquestador durante el desarrollo. |
 | Alertas consolidadas: retraso de consumo, antigüedad del outbox, salto de apartados, memoria del broker y cada failover | Táctica | QA-4, QA-1, CRN-4 | menor | Sin alternativas registradas | Son las alertas que ya piden las mitigaciones de los ADR, reunidas en un solo lugar. |
