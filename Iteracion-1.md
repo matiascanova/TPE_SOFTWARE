@@ -96,7 +96,7 @@ Los conceptos forman una cadena: receptor, trabajo, outbox, eventos y read model
 - Puerto de mensajería · publicar y consumir en un stream: al menos una vez y consumidores idempotentes; orden por clave (el viaje en eventos; en trabajo, a definir), sin orden global; inválidos y reintentos agotados van al stream de inválidos.
 - Workers → Base relacional · guardar cambio y evento: una transacción, idempotente por identificador de notificación o versión del proveedor.
 - Puerto del read model · reemplazar documento y borrar entradas: reemplaza solo si la versión nueva es mayor o igual a la guardada (atómico); borra las entradas afectadas ante un cambio de permisos; si falta una, se reconstruye desde la base relacional.
-- Pendientes: modelo canónico, contratos del push y de la API o casillas de los proveedores, y API externa del Panel API (<PENDIENTE: iteración donde se definen>); clave de orden y retención del stream de trabajo (ADR-0003); contrato de la copia hacia el almacén analítico (CRN-8).
+- Pendientes: modelo canónico, contratos del push y de la API o casillas de los proveedores, y API externa del Panel API; clave de orden y retención del stream de trabajo (ADR-0003); contrato de la copia hacia el almacén analítico (CRN-8).
 
 ---
 
