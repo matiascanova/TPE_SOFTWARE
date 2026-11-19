@@ -1,6 +1,6 @@
 # Iteración 5 de Trotamundos: despliegue en producción
 
-- Estado: Borrador para revisión
+- Estado: Aprobado
 - Fecha: 27/10/2026
 
 ---
