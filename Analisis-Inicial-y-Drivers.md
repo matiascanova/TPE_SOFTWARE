@@ -66,7 +66,7 @@ flowchart LR
 
 ## 4. Atributos de calidad
 
-Las medidas marcadas con \* fueron propuestas por el equipo para que el escenario sea verificable; el enunciado no las define.
+Las medidas marcadas con \* fueron propuestas por el equipo para que el escenario sea verificable; el enunciado no las define. Se usa como base la pantilla SEI de 6 partes para generar los escenarios de calidad(1.Fuente/2.Estimulo/3.Artefacto/4.Ambiente/5.Respuesta/6.Medida de respuesta). Se eligio dejar solo los escenarios y no las 6 partes por separado porque preferimos un enfoque que relacione mas las partes en un texto antes que la platilla exesivamente estructurada.  
 
 | ID | Atributo | Escenario | Caso de uso | Prioridad | Dificultad |
 |---|---|---|---|---|---|
