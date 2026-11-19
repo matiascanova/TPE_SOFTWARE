@@ -1,6 +1,6 @@
 # ADR-0009: Lectura acotada a remitentes conocidos y extracción declarativa en memoria
 
-- **Estado:** Aceptado
+- **Estado:** Aprobado
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md e Iteracion-2.md. CU-03. Otros: QA-9, QA-8, QA-7, QA-12, R-4, R-6.
 
 ---
