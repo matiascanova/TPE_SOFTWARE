@@ -1,6 +1,6 @@
 # Iteración 2 de Trotamundos: ingesta de notificaciones de proveedores de punta a punta
 
-- Estado: Borrador para revisión
+- Estado: Aprobado
 - Fecha: 27/10/2026
 
 ---
