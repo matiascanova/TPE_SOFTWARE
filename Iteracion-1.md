@@ -61,10 +61,10 @@ Trotamundos unifica los arreglos de viaje en un panel (CU-01). Recibe notificaci
 
 | Decisión | Tipo | Drivers | ADR | Descartadas | Justificación (solo si es menor) |
 |---|---|---|---|---|---|
-| C-lite: capas/hexagonal con tres desplegables | Patrón | QA-1, QA-2, QA-5, QA-6, QA-7, QA-8, R-2, R-6, CRN-1, CRN-3 | ADR-0001 | Capas / N-tier, Monolito modular, Microservicios | — |
-| Broker con log persistente | Patrón | QA-1, QA-4, QA-5, QA-6, QA-7, R-6 | ADR-0003 | Base de datos como bus, Cola durable simple, Plataforma de streaming completa | — |
-| Workers asíncronos con outbox transaccional | Patrón | QA-1, QA-5, QA-6, QA-7, QA-8, QA-12, R-2, R-6 | ADR-0002 | Procesar en el receptor, Doble escritura sin outbox, Outbox con CDC | — |
-| CQRS en el panel con read model en una instancia de base propia | Patrón | QA-1, QA-2, QA-3, QA-4, QA-6, QA-11, R-6, CRN-2 | ADR-0004 | Sin read model, Tablas de lectura en la misma base operacional, Almacén en memoria | — |
+| C-lite: capas/hexagonal con tres desplegables | Patrón | QA-1, QA-2, QA-5, QA-6, QA-7, QA-8, R-2, R-6, CRN-1, CRN-3 | [ADR-0001](<ADRS/iteracion_1/ADR-0001: estilo arquitectonico.md>) | Capas / N-tier, Monolito modular, Microservicios | — |
+| Broker con log persistente | Patrón | QA-1, QA-4, QA-5, QA-6, QA-7, R-6 | [ADR-0003](<ADRS/iteracion_1/ADR-0003: broker con log persistente.md>) | Base de datos como bus, Cola durable simple, Plataforma de streaming completa | — |
+| Workers asíncronos con outbox transaccional | Patrón | QA-1, QA-5, QA-6, QA-7, QA-8, QA-12, R-2, R-6 | [ADR-0002](<ADRS/iteracion_1/ADR-0002: workers de ingesta y outbox transaccional.md>) | Procesar en el receptor, Doble escritura sin outbox, Outbox con CDC | — |
+| CQRS en el panel con read model en una instancia de base propia | Patrón | QA-1, QA-2, QA-3, QA-4, QA-6, QA-11, R-6, CRN-2 | [ADR-0004](<ADRS/iteracion_1/ADR-0004: read model.md>) | Sin read model, Tablas de lectura en la misma base operacional, Almacén en memoria | — |
 | PostgreSQL (base relacional y read model) | Tecnología | CRN-2 | menor | Sin alternativas registradas | Es la tecnología que el equipo conoce (CRN-2). |
 
 ### 4.2 Cómo se combinan
