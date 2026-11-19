@@ -1,6 +1,6 @@
 # ADR-0012: Punto único de autorización contra la base relacional, con denegación por defecto y registro antes de responder
 
-- **Estado:** Propuesto
+- **Estado:** Aprobado
 - **Drivers de entrada:** Analisis-Inicial-y-Drivers.md. CU-01, CU-06. Otros: QA-11, QA-1, QA-2, QA-4, QA-6, R-4, CRN-7.
 
 ---
