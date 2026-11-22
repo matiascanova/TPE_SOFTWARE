@@ -183,7 +183,7 @@ sequenceDiagram
     P-->>A: 200
     A-->>C: reserva actualizada
   else reserva de proveedor
-    A-->>C: no se edita aquí; ofrece derivar a la agencia
+    A-->>C: no se edita aquí, ofrece derivar a la agencia
   end
 ```
 
@@ -223,7 +223,7 @@ sequenceDiagram
     D->>S: confirmar
   else la agencia falla
     G--xD: error o sin respuesta
-    Note over D: abre el circuito de esa agencia; el evento espera en el log (ADR-0007)
+    Note over D: abre el circuito de esa agencia y el evento espera en el log (ADR-0007)
   end
 ```
 
