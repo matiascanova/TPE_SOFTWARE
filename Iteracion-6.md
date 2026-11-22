@@ -90,7 +90,7 @@ Los elementos de las iteraciones anteriores que no figuran no cambian.
 | Herramientas | Catálogo cerrado de cinco operaciones (consultar viajes, consultar viaje, modificar reserva, desvincular reserva, derivar a la agencia) que se ejecutan con el token del usuario. | Java (en el Asistente) | Panel API (REST); Escalamiento |
 | Escalamiento | Decide por reglas fijas si un caso es complejo y lo registra junto con su evento. | Java (en el Asistente) | Base relacional (SQL) |
 | Despachador de agencias | Consume los eventos de caso derivado y los entrega a la agencia preferida, con circuit breaker por agencia. | Java (en el Asistente) | Stream de eventos (mensajes); Base relacional (SQL); Agencias de viaje (HTTP) |
-| Modelo de lenguaje | Interpreta cada mensaje y devuelve la herramienta y sus parámetros, sin ejecutar nada. | API de un proveedor (PENDIENTE: proveedor y modelo) | Asistente (HTTPS) |
+| Modelo de lenguaje | Interpreta cada mensaje y devuelve la herramienta y sus parámetros, sin ejecutar nada. | API de un proveedor | Asistente (HTTPS) |
 | Agencias de viaje | Reciben los casos complejos por el canal de su configuración. | — (externo; simuladas en el prototipo) | Despachador de agencias |
 | Base relacional | Guarda además conversaciones, acciones pendientes, casos y la agencia preferida de cada usuario. | PostgreSQL | Panel API, Workers, Relay y Asistente |
 | Relay | Publica también los eventos de caso del outbox. | Como Ingesta | Base relacional (SQL); Stream de eventos (mensajes) |
@@ -242,7 +242,7 @@ Clave:
 |---|---|---|---|
 | CRN-19 | El asistente opera con la identidad del usuario sobre texto libre: el modelo puede elegir mal o ser manipulado por el texto de una reserva | AS-4, LM-1, LM-2 | Catálogo cerrado, confirmación con valores armados por el código y pruebas con modelo simulado (ADR-0017) |
 | CRN-20 | La latencia, el costo y la disponibilidad del modelo externo condicionan QA-13 | AS-1, LM-4, LM-5 | Límite de mensajes, espera acotada, menú fijo y prueba de carga (CRN-4) |
-| CRN-21 | Los datos personales del itinerario llegan a un modelo externo y a las agencias | LM-3, DA-5 | Contexto mínimo, confirmación antes de derivar y condiciones del proveedor del modelo (PENDIENTE) |
+| CRN-21 | Los datos personales del itinerario llegan a un modelo externo y a las agencias | LM-3, DA-5 | Contexto mínimo, confirmación antes de derivar y condiciones del proveedor del modelo |
 | CRN-22 | La derivación depende de agencias aún no definidas: canal, idempotencia y resolución | DA-1, DA-4 | Agencias simuladas; contrato y resolución quedan como deuda (CU-09) |
 
 Los IDs son provisionales y continúan el catálogo (último: CRN-18).
