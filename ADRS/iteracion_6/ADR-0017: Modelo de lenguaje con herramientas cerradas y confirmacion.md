@@ -1,6 +1,6 @@
 # ADR-0017: Modelo de lenguaje limitado a un catálogo cerrado de herramientas, con confirmación previa a toda escritura
 
-- **Estado:** Propuesto
+- **Estado:** Aprobado
 - **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-10, CU-04, CU-09; QA-14, QA-13, QA-4, R-4, R-6, CRN-2)
 
 ---
