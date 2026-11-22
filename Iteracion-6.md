@@ -1,6 +1,6 @@
 # Iteración 6 de Trotamundos: asistente virtual de primer nivel con derivación a la agencia
 
-- Estado: Borrador para revisión
+- Estado: Aprobado
 - Fecha: 21/11/2026
 
 ---
