@@ -1,7 +1,7 @@
 # ADR-0016: Asistente como cuarto desplegable que opera por la API del Panel API con el token del usuario
 
 - **Estado:** Aprobado
-- **Drivers de entrada:(CU-10, CU-04; QA-13, QA-14, QA-11, QA-6, QA-4, R-6, CRN-2)
+- **Drivers de entrada**:(CU-10, CU-04; QA-13, QA-14, QA-11, QA-6, QA-4, R-6, CRN-2)
 
 ---
 
