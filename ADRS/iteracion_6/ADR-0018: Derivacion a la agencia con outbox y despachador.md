@@ -1,7 +1,7 @@
 # ADR-0018: Derivación a la agencia como caso registrado con outbox y despachador por agencia
 
 - **Estado:** Aprobado
-- **Drivers de entrada:** [Análisis inicial y drivers](Analisis-Inicial-y-Drivers.md) (CU-10, CU-09; QA-4, CRN-9, R-4, R-6)
+- **Drivers de entrada:** (CU-10, CU-09; QA-4, CRN-9, R-4, R-6)
 
 ---
 
